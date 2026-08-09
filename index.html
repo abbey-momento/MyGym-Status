@@ -54,6 +54,11 @@
     .brand-logo-svg { width: 38px; height: 38px; filter: drop-shadow(0 0 8px rgba(34,197,94,0.5)); }
     .brand-title h1 { font-size: 1.3rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(34,197,94,0.5); }
     
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .notif-bell-btn { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: var(--text-sub); cursor: pointer; position: relative; transition: 0.2s; }
+    .notif-bell-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .notif-badge { position: absolute; top: -2px; right: -2px; background: var(--red); color: white; font-size: 0.6rem; font-weight: 800; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 6px var(--red); }
+    
     .lang-switcher { display: flex; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 3px; gap: 2px; }
     .lang-btn { background: none; border: none; color: var(--text-sub); padding: 6px 12px; font-size: 0.75rem; font-weight: 700; border-radius: 16px; cursor: pointer; transition: 0.2s; }
     .lang-btn.active { background: var(--accent); color: #0D061A; box-shadow: 0 0 10px var(--accent); }
@@ -126,7 +131,33 @@
     .cal-detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
     .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
     
-    .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+    /* アクティビティ（タイムライン）専用スタイル */
+    .timeline-card-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .timeline-header { display: flex; justify-content: space-between; align-items: center; }
+    .timeline-user-box { display: flex; align-items: center; gap: 8px; }
+    .timeline-avatar { font-size: 1.3rem; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); }
+    .timeline-name { color: #FFF; font-weight: 800; font-size: 0.95rem; }
+    .timeline-time { color: var(--text-sub); font-size: 0.7rem; }
+    .timeline-duration { color: var(--ring-inner); font-weight: 800; font-size: 1.1rem; font-family: 'Syne'; }
+    .timeline-memo { font-size: 0.85rem; color: var(--text-sub); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 10px; word-break: break-all; }
+    
+    .timeline-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .like-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; color: var(--text-sub); }
+    .like-btn.liked { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: var(--red); }
+    .like-btn svg { width: 16px; height: 16px; fill: currentColor; stroke: none; transition: 0.2s; }
+    .like-btn.liked svg { fill: var(--red); filter: drop-shadow(0 0 6px rgba(244,63,94,0.5)); transform: scale(1.1); }
+    .like-count { font-size: 0.8rem; font-weight: 700; font-family: 'Syne'; }
+
+    .comments-box { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+    .comment-item { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .comment-input-row { display: flex; gap: 6px; margin-top: 4px; }
+    .comment-input { flex: 1; padding: 8px 12px; font-size: 0.85rem; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 10px; color: white; text-align: left; outline: none; }
+    .comment-submit-btn { background: rgba(34,197,94,0.15); border: 1px solid var(--card-border); color: var(--accent); padding: 0 12px; border-radius: 10px; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+
+    /* 通知モーダルリスト */
+    .notif-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; }
 
     /* レースランキング */
     .race-card-item { background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; position: relative; overflow: hidden; transition: 0.2s; }
@@ -154,9 +185,7 @@
     .list-item:last-child { border-bottom: none; }
     .list-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; }
     .list-title { font-weight: 700; color: #FFF; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
-    .list-val { font-weight: 800; color: var(--accent); font-size: 1rem; text-shadow: 0 0 8px rgba(34,197,94,0.3); }
     
-    /* SVGアクションボタンのスタイル */
     .btn-action-svg { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: var(--text-sub); width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; margin-left: 6px; }
     .btn-action-svg:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); color: var(--accent); }
     .btn-action-svg.delete:hover { background: rgba(244,63,94,0.2); border-color: var(--red); color: var(--red); }
@@ -248,6 +277,19 @@
     </div>
   </div>
 
+  <!-- 通知モーダル -->
+  <div id="notification-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <h2 style="font-size: 1.2rem;" id="t-notif-title">🔔 通知</h2>
+        <button onclick="closeNotificationModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.2rem; cursor:pointer;">✕</button>
+      </div>
+      <div id="notification-list-container" style="display:flex; flex-direction:column; max-height: 300px; overflow-y:auto;">
+        <div class="empty-msg">Sin notificaciones</div>
+      </div>
+    </div>
+  </div>
+
   <header>
     <div class="brand">
       <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -264,9 +306,15 @@
         <h1>MyGym</h1>
       </div>
     </div>
-    <div class="lang-switcher">
-      <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
-      <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
+    <div class="header-right">
+      <div class="notif-bell-btn" onclick="openNotificationModal()">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <div class="notif-badge" id="notif-badge" style="display:none;">0</div>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
+        <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
+      </div>
     </div>
   </header>
 
@@ -303,6 +351,9 @@
       <h2 class="section-title" id="t-timeline-title">⚡ アクティビティ</h2>
       <div id="timeline-list-container" style="display:flex; flex-direction:column; gap:12px;">
         <div class="empty-msg">Sin datos</div>
+      </div>
+      <div id="load-more-container" style="text-align:center; margin-top:10px; display:none;">
+        <button class="btn-secondary" onclick="loadMoreActivity()" id="t-load-more">もっと見る</button>
       </div>
     </div>
   </div>
@@ -535,7 +586,7 @@
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak",
-        raceTitle: "🏆 Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos",
+        raceTitle: "🏆 Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Mi Historial", logout: "Cerrar sesión",
         goalTitle: "🎯 Meta Mensual (sesiones)", btnSaveGoal: "Guardar Meta",
         memoTitle: "¡Buen trabajo! 💪", memoSub: "Añade una nota o comentario sobre tu entrenamiento", btnSaveLog: "Guardar Registro ✨", btnSkipMemo: "Terminar sin nota",
@@ -553,7 +604,7 @@
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続",
-        raceTitle: "🏆 エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし",
+        raceTitle: "🏆 エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴", logout: "ログアウト (リセット)",
         goalTitle: "🎯 今月の目標回数 (回)", btnSaveGoal: "目標を保存",
         memoTitle: "お疲れ様でした！ 💪", memoSub: "今日のトレーニングのメモを残そう", btnSaveLog: "記録を保存する ✨", btnSkipMemo: "メモなしで完了",
@@ -570,6 +621,7 @@
     let currentLang = localStorage.getItem("gym_lang") || "es";
     let activeUsersData = {};
     let allLogsData = {};
+    let allNotifications = {};
     let selectedAvatar = "🐶";
     let editSelectedAvatar = "🐶";
     let myUserName = localStorage.getItem("gym_my_name") || "";
@@ -578,6 +630,7 @@
     let amIRunning = false;
     let pendingTimerStartTime = null;
     let editingLogKey = null;
+    let activityDisplayLimit = 30;
     
     let calendarDate = new Date();
     let selectedDateStr = getLocalISOString().slice(0, 10);
@@ -615,6 +668,7 @@
       setT("t-stat-streak", t.statStreak);
       setT("t-race-title", t.raceTitle);
       setT("t-timeline-title", t.timelineTitle);
+      setT("t-load-more", t.loadMore);
       setT("t-my-title", t.myTitle);
       setT("t-manual-title", t.manualTitle);
       setT("t-goal-title", t.goalTitle);
@@ -845,7 +899,8 @@
         startTime: startTime,
         duration: durationMin,
         memo: memo || "",
-        stamps: {},
+        likes: {},
+        comments: {},
         month: localISO.slice(0, 7),
         date: localISO
       });
@@ -917,14 +972,60 @@
       }
     };
 
-    window.sendStamp = (logKey, stampEmoji) => {
+    // --- ハート（いいね）切り替え ---
+    window.toggleLike = (logKey) => {
       playSound('click');
-      const logRef = ref(db, `logs/${logKey}/stamps`);
       const logItem = allLogsData[logKey];
-      let stamps = logItem.stamps || {};
+      let likes = logItem.likes || {};
       
-      stamps[myUserName] = stampEmoji;
-      set(logRef, stamps);
+      if (likes[myUserName]) {
+        delete likes[myUserName];
+      } else {
+        likes[myUserName] = true;
+        // 自分以外のログなら通知を送る
+        if (logItem.user !== myUserName) {
+          push(ref(db, "notifications"), {
+            targetUser: logItem.user,
+            fromUser: myUserName,
+            type: "like",
+            text: `${myUserName} があなたの投稿にハートを送りました`,
+            timestamp: Date.now(),
+            read: false
+          });
+        }
+      }
+      set(ref(db, `logs/${logKey}/likes`), likes);
+    };
+
+    // --- コメント送信 ---
+    window.submitComment = (logKey) => {
+      playSound('click');
+      const inputEl = document.getElementById(`comment-input-${logKey}`);
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      const logItem = allLogsData[logKey];
+      const commentsRef = ref(db, `logs/${logKey}/comments`);
+      
+      push(commentsRef, {
+        user: myUserName,
+        text: text,
+        timestamp: Date.now()
+      });
+
+      // 自分以外のログなら通知を送る
+      if (logItem.user !== myUserName) {
+        push(ref(db, "notifications"), {
+          targetUser: logItem.user,
+          fromUser: myUserName,
+          type: "comment",
+          text: `${myUserName}: "${text}"`,
+          timestamp: Date.now(),
+          read: false
+        });
+      }
+
+      inputEl.value = "";
     };
 
     function updateHomeStatusText() {
@@ -965,48 +1066,146 @@
       if (document.getElementById('view-mypage').classList.contains('active')) renderMyLogs();
     });
 
+    onValue(ref(db, "notifications"), (snapshot) => {
+      allNotifications = snapshot.val() || {};
+      updateNotificationBadge();
+      if (document.getElementById("notification-modal").style.display === "flex") {
+        renderNotifications();
+      }
+    });
+
+    function updateNotificationBadge() {
+      if (!myUserName) return;
+      let unreadCount = 0;
+      Object.values(allNotifications).forEach(notif => {
+        if (notif.targetUser === myUserName && !notif.read) {
+          unreadCount++;
+        }
+      });
+
+      const badgeEl = document.getElementById("notif-badge");
+      if (unreadCount > 0) {
+        badgeEl.innerText = unreadCount;
+        badgeEl.style.display = "flex";
+      } else {
+        badgeEl.style.display = "none";
+      }
+    }
+
+    window.openNotificationModal = () => {
+      playSound('click');
+      document.getElementById("notification-modal").style.display = "flex";
+      renderNotifications();
+
+      // 開いたら自分の未読通知を既読にする
+      Object.entries(allNotifications).forEach(([key, notif]) => {
+        if (notif.targetUser === myUserName && !notif.read) {
+          update(ref(db, `notifications/${key}`), { read: true });
+        }
+      });
+    };
+
+    window.closeNotificationModal = () => {
+      playSound('click');
+      document.getElementById("notification-modal").style.display = "none";
+    };
+
+    function renderNotifications() {
+      const container = document.getElementById("notification-list-container");
+      const userNotifs = Object.entries(allNotifications)
+        .filter(([key, notif]) => notif.targetUser === myUserName)
+        .sort((a, b) => b[1].timestamp - a[1].timestamp);
+
+      if (userNotifs.length === 0) {
+        container.innerHTML = `<div class="empty-msg">Sin notificaciones</div>`;
+        return;
+      }
+
+      container.innerHTML = userNotifs.map(([key, notif]) => {
+        const d = new Date(notif.timestamp);
+        const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        return `
+          <div class="notif-item">
+            <span style="font-size:1.2rem;">${notif.type === 'like' ? '❤️' : '💬'}</span>
+            <div style="flex:1; color:#FFF; word-break:break-all;">${notif.text}</div>
+            <div style="font-size:0.65rem; color:var(--text-sub);">${timeStr}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.loadMoreActivity = () => {
+      playSound('click');
+      activityDisplayLimit += 30;
+      renderTimeline();
+    };
+
     function renderTimeline() {
       const t = i18n[currentLang];
       const listEl = document.getElementById("timeline-list-container");
+      const loadMoreEl = document.getElementById("load-more-container");
       
       const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key }));
       if (logsArray.length === 0) {
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
+        loadMoreEl.style.display = "none";
         return;
       }
 
       logsArray.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-      listEl.innerHTML = logsArray.slice(0, 20).map(log => {
+      const visibleLogs = logsArray.slice(0, activityDisplayLimit);
+      if (logsArray.length > activityDisplayLimit) {
+        loadMoreEl.style.display = "block";
+      } else {
+        loadMoreEl.style.display = "none";
+      }
+
+      listEl.innerHTML = visibleLogs.map(log => {
         const d = new Date(log.date);
         const dateStr = currentLang === 'es' 
             ? `${d.getDate()}/${d.getMonth()+1} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
             : `${d.getMonth()+1}月${d.getDate()}日 ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
 
-        let stampsHtml = '';
-        if (log.stamps) {
-          stampsHtml = Object.entries(log.stamps).map(([u, s]) => `<span style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; font-size:0.75rem;" title="${u}">${s}</span>`).join(" ");
-        }
+        const likes = log.likes || {};
+        const isLikedByMe = !!likes[myUserName];
+        const likeCount = Object.keys(likes).length;
+        const likeNames = Object.keys(likes).join(", ");
+
+        const comments = log.comments || {};
+        const commentsHtml = Object.values(comments).map(c => `
+          <div class="comment-item">
+            <div><strong style="color:var(--ring-inner);">${c.user}:</strong> <span style="color:#FFF;">${c.text}</span></div>
+          </div>
+        `).join("");
 
         return `
-          <div class="cal-user-log-item">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:1.3rem;">${log.avatar || '👤'}</span>
+          <div class="timeline-card-item">
+            <div class="timeline-header">
+              <div class="timeline-user-box">
+                <div class="timeline-avatar">${log.avatar || '👤'}</div>
                 <div>
-                  <div style="color:#FFF; font-weight:800; font-size:1rem;">${log.user}</div>
-                  <div style="color:var(--text-sub); font-size:0.7rem;">${dateStr}</div>
+                  <div class="timeline-name">${log.user}</div>
+                  <div class="timeline-time">${dateStr}</div>
                 </div>
               </div>
-              <span style="color:var(--ring-inner); font-weight:800; font-size:1.1rem; font-family:'Syne';">${log.duration} ${t.unitMin}</span>
+              <div class="timeline-duration">${log.duration} ${t.unitMin}</div>
             </div>
-            ${log.memo ? `<div style="font-size:0.85rem; color:var(--text-sub); background:rgba(0,0,0,0.2); padding:8px 10px; border-radius:10px; margin-top:4px;">💬 ${log.memo}</div>` : ''}
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; padding-top:4px; border-top:1px solid rgba(255,255,255,0.05);">
-              <div style="display:flex; gap:4px; flex-wrap:wrap;">${stampsHtml}</div>
-              <div style="display:flex; gap:8px;">
-                <button onclick="sendStamp('${log.key}', '🔥')" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); padding:4px 8px; border-radius:8px; cursor:pointer; font-size:0.9rem;" title="Buen trabajo">🔥</button>
-                <button onclick="sendStamp('${log.key}', '🦾')" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); padding:4px 8px; border-radius:8px; cursor:pointer; font-size:0.9rem;" title="Fuerza">🦾</button>
-                <button onclick="sendStamp('${log.key}', '👏')" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); padding:4px 8px; border-radius:8px; cursor:pointer; font-size:0.9rem;" title="Aplausos">👏</button>
+            
+            ${log.memo ? `<div class="timeline-memo">💬 ${log.memo}</div>` : ''}
+            
+            <div class="timeline-actions">
+              <button class="like-btn ${isLikedByMe ? 'liked' : ''}" onclick="toggleLike('${log.key}')" title="${likeNames}">
+                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <span class="like-count">${likeCount}</span>
+              </button>
+            </div>
+
+            <div class="comments-box">
+              ${commentsHtml}
+              <div class="comment-input-row">
+                <input type="text" id="comment-input-${log.key}" class="comment-input" placeholder="コメント (50文字まで)" maxlength="50" />
+                <button class="comment-submit-btn" onclick="submitComment('${log.key}')">送信</button>
               </div>
             </div>
           </div>
@@ -1103,11 +1302,6 @@
         totalBadgeEl.innerText = formatTimeFriendly(totalMin);
 
         usersListEl.innerHTML = logsForDay.map(log => {
-          let stampsHtml = '';
-          if (log.stamps) {
-            stampsHtml = Object.entries(log.stamps).map(([u, s]) => `<span style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; font-size:0.75rem;" title="${u}">${s}</span>`).join(" ");
-          }
-
           return `
             <div class="cal-user-log-item">
               <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1118,14 +1312,6 @@
                 <span style="color:var(--ring-inner); font-weight:800;">${log.duration} ${t.unitMin}</span>
               </div>
               ${log.memo ? `<div style="font-size:0.85rem; color:var(--text-sub); background:rgba(0,0,0,0.2); padding:6px 8px; border-radius:8px;">💬 ${log.memo}</div>` : ''}
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
-                <div style="display:flex; gap:4px; flex-wrap:wrap;">${stampsHtml}</div>
-                <div style="display:flex; gap:4px;">
-                  <button onclick="sendStamp('${log.key}', '🔥')" style="background:none; border:none; cursor:pointer; font-size:1rem;" title="Buen trabajo">🔥</button>
-                  <button onclick="sendStamp('${log.key}', '🦾')" style="background:none; border:none; cursor:pointer; font-size:1rem;" title="Fuerza">🦾</button>
-                  <button onclick="sendStamp('${log.key}', '👏')" style="background:none; border:none; cursor:pointer; font-size:1rem;" title="Aplausos">👏</button>
-                </div>
-              </div>
             </div>
           `;
         }).join("");
@@ -1262,7 +1448,8 @@
         startTime: logDate.getTime(),
         duration: diffMin,
         memo: memo || "",
-        stamps: {},
+        likes: {},
+        comments: {},
         month: dateVal.slice(0, 7),
         date: localISO
       });
