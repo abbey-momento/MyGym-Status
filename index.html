@@ -1,60 +1,395 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="robots" content="noindex">
-  <title>我が家のジム利用状況</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Gimnasio Familiar / ファミリージム</title>
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 16px; background: #f8f9fa; color: #333; }
-    h1 { text-align: center; font-size: 1.5rem; margin-bottom: 20px; }
-    .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    .status-box { font-size: 1.2rem; font-weight: bold; margin: 16px 0; padding: 16px; border-radius: 12px; text-align: center; }
-    .free { background: #e8f5e9; color: #2e7d32; }
-    .busy { background: #ffebee; color: #c62828; }
-    select, button { width: 100%; padding: 14px; margin: 8px 0; font-size: 1rem; border-radius: 10px; border: 1px solid #ddd; appearance: none; }
-    select { background: white; }
-    button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    button:active { opacity: 0.8; }
-    button.stop { background: #dc3545; }
-    .ranking-title { font-size: 1.1rem; font-weight: bold; margin-top: 16px; border-bottom: 2px solid #eee; padding-bottom: 4px; }
-    ol { padding-left: 20px; margin: 8px 0; }
-    li { margin: 6px 0; font-size: 0.95rem; }
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.15);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.15);
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .brand-title h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-title p {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+
+    .lang-switcher {
+      display: flex;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .lang-btn {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .status-badge.free {
+      background: var(--green-bg);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.busy {
+      background: var(--red-bg);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .status-badge.free .status-dot {
+      background: var(--green);
+      box-shadow: 0 0 12px var(--green);
+    }
+
+    .status-badge.busy .status-dot {
+      background: var(--red);
+      box-shadow: 0 0 12px var(--red);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .status-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .status-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    .status-val {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .timer {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input, select {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-secondary-sm {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-sub);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      align-self: flex-end;
+      margin-top: 4px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ranking-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ranking-block {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .ranking-header {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    ol {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    li:nth-child(1) { border-left: 3px solid #f59e0b; }
+    li:nth-child(2) { border-left: 3px solid #94a3b8; }
+    li:nth-child(3) { border-left: 3px solid #b45309; }
+
+    .rank-name { font-weight: 600; }
+    .rank-val { font-weight: 700; color: var(--accent); }
+
+    .empty-msg {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      text-align: center;
+      padding: 8px 0;
+    }
   </style>
 </head>
 <body>
 
-  <h1>🏋️‍♂️ ファミリージム</h1>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🏋️‍♂️</div>
+      <div class="brand-title">
+        <h1>Gimnasio</h1>
+        <p>Gimnasio Familiar</p>
+      </div>
+    </div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
+      <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
+    </div>
+  </header>
 
   <div class="card">
-    <div id="status" class="status-box free">読み込み中...</div>
-    
-    <select id="userName">
-      <option value="">利用する人の名前を選択</option>
-      <option value="お父さん">お父さん</option>
-      <option value="お母さん">お母さん</option>
-      <option value="自分">自分</option>
-      <!-- 必要に応じて名前の選択肢を増やしてください -->
-    </select>
-    
-    <button id="startBtn" onclick="startGym()">利用開始 🚀</button>
-    <button id="stopBtn" onclick="stopGym()" class="stop" style="display:none;">利用終了 🏁</button>
+    <div id="status" class="status-badge free">
+      <div class="status-dot"></div>
+      <div class="status-info">
+        <span class="status-title" id="t-status-title">Estado Actual</span>
+        <span class="status-val" id="t-status-val">Cargando...</span>
+        <span class="timer" id="status-timer" style="display:none;"></span>
+      </div>
+    </div>
+
+    <div class="form-group" id="user-input-group">
+      <label id="t-label-user">¿Quién eres?</label>
+      
+      <div id="first-time-container">
+        <input type="text" id="userNameInput" placeholder="Escribe tu nombre..." />
+      </div>
+
+      <div id="returning-container" style="display:none;">
+        <select id="userNameSelect"></select>
+        <button class="btn-secondary-sm" onclick="enableNewUser()" id="t-btn-new-user">+ Registrar otro nombre</button>
+      </div>
+    </div>
+
+    <button id="startBtn" class="btn-primary" onclick="startGym()">
+      <span>🚀</span> <span id="t-btn-start">Iniciar Sesión</span>
+    </button>
+    <button id="stopBtn" class="btn-primary btn-danger" onclick="stopGym()" style="display:none;">
+      <span>🏁</span> <span id="t-btn-stop">Finalizar Entrenamiento</span>
+    </button>
   </div>
 
   <div class="card">
-    <h2 style="font-size: 1.2rem; margin-top: 0;">🏆 今月の利用ランキング</h2>
-    <div class="ranking-title">🥇 利用回数</div>
-    <ol id="countRanking"><li>データがありません</li></ol>
-    <div class="ranking-title">⏱️ 合計時間 (分)</div>
-    <ol id="timeRanking"><li>データがありません</li></ol>
+    <div class="section-title">
+      <span>🏆</span> <span id="t-title-ranking">Clasificación Mensual</span>
+    </div>
+
+    <div class="ranking-grid">
+      <div class="ranking-block">
+        <div class="ranking-header">
+          <span>🥇</span> <span id="t-rank-count">Más Visitas</span>
+        </div>
+        <ol id="countRanking"><div class="empty-msg" id="t-empty-1">Sin datos aún</div></ol>
+      </div>
+
+      <div class="ranking-block">
+        <div class="ranking-header">
+          <span>⏱️</span> <span id="t-rank-time">Más Tiempo (Minutos)</span>
+        </div>
+        <ol id="timeRanking"><div class="empty-msg" id="t-empty-2">Sin datos aún</div></ol>
+      </div>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // スクリーンショットの設定情報をセット
     const firebaseConfig = {
       apiKey: "AIzaSyCwu8QoQvf3WUtAKAlvz8s2nbfNkcsGPEA",
       authDomain: "mygym-status.firebaseapp.com",
@@ -68,62 +403,195 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const statusEl = document.getElementById("status");
-    const startBtn = document.getElementById("startBtn");
-    const stopBtn = document.getElementById("stopBtn");
-    const userNameSelect = document.getElementById("userName");
+    const i18n = {
+      es: {
+        subtitle: "Gimnasio Familiar",
+        statusTitle: "Estado Actual",
+        free: "Disponible (Vacío)",
+        busy: "En uso por",
+        labelUser: "¿Quién eres?",
+        placeholder: "Escribe tu nombre...",
+        btnNewUser: "+ Registrar otro nombre",
+        btnStart: "Iniciar Sesión",
+        btnStop: "Finalizar Entrenamiento",
+        rankingTitle: "Clasificación Mensual",
+        rankCount: "Más Visitas",
+        rankTime: "Más Tiempo (Minutos)",
+        empty: "Sin datos este mes",
+        alertSelect: "Por favor escribe o selecciona tu nombre",
+        unitCount: "visitas",
+        unitMin: "min"
+      },
+      ja: {
+        subtitle: "ファミリージム",
+        statusTitle: "現在の利用状況",
+        free: "空いています（利用可能）",
+        busy: "さんが利用中",
+        labelUser: "あなたはだれ？",
+        placeholder: "名前を入力してください...",
+        btnNewUser: "+ 別の名前を入力する",
+        btnStart: "利用開始 🚀",
+        btnStop: "利用終了 🏁",
+        rankingTitle: "今月のランキング",
+        rankCount: "回数トップ",
+        rankTime: "合計時間トップ",
+        empty: "今月の記録はありません",
+        alertSelect: "名前を入力または選択してください",
+        unitCount: "回",
+        unitMin: "分"
+      }
+    };
 
+    let currentLang = localStorage.getItem("gym_lang") || "es";
     let currentStatus = null;
+    let timerInterval = null;
 
-    // リアルタイムで利用状況を監視
-    onValue(ref(db, "current"), (snapshot) => {
-      currentStatus = snapshot.val();
-      if (currentStatus && currentStatus.isBusy) {
-        statusEl.className = "status-box busy";
-        statusEl.innerText = `🔴 ${currentStatus.user} さんが利用中`;
-        startBtn.style.display = "none";
-        stopBtn.style.display = "block";
+    window.switchLang = (lang) => {
+      currentLang = lang;
+      localStorage.setItem("gym_lang", lang);
+      document.getElementById("btn-es").className = lang === "es" ? "lang-btn active" : "lang-btn";
+      document.getElementById("btn-ja").className = lang === "ja" ? "lang-btn active" : "lang-btn";
+      updateI18n();
+    };
+
+    function updateI18n() {
+      const t = i18n[currentLang];
+      document.querySelector(".brand-title p").innerText = t.subtitle;
+      document.getElementById("t-status-title").innerText = t.statusTitle;
+      document.getElementById("t-label-user").innerText = t.labelUser;
+      document.getElementById("userNameInput").placeholder = t.placeholder;
+      document.getElementById("t-btn-new-user").innerText = t.btnNewUser;
+      document.getElementById("t-btn-start").innerText = t.btnStart;
+      document.getElementById("t-btn-stop").innerText = t.btnStop;
+      document.getElementById("t-title-ranking").innerText = t.rankingTitle;
+      document.getElementById("t-rank-count").innerText = t.rankCount;
+      document.getElementById("t-rank-time").innerText = t.rankTime;
+
+      if (currentStatus) renderStatus(currentStatus);
+    }
+
+    function getSavedUsers() {
+      const saved = localStorage.getItem("gym_saved_users");
+      return saved ? JSON.parse(saved) : [];
+    }
+
+    function saveUser(name) {
+      let users = getSavedUsers();
+      if (!users.includes(name)) {
+        users.push(name);
+        localStorage.setItem("gym_saved_users", JSON.stringify(users));
+      }
+      localStorage.setItem("gym_last_user", name);
+      setupUserUI();
+    }
+
+    function setupUserUI() {
+      const users = getSavedUsers();
+      const lastUser = localStorage.getItem("gym_last_user");
+
+      const firstContainer = document.getElementById("first-time-container");
+      const returningContainer = document.getElementById("returning-container");
+      const select = document.getElementById("userNameSelect");
+
+      if (users.length > 0) {
+        firstContainer.style.display = "none";
+        returningContainer.style.display = "block";
+        select.innerHTML = users.map(u => `<option value="${u}" ${u === lastUser ? "selected" : ""}>${u}</option>`).join("");
       } else {
-        statusEl.className = "status-box free";
-        statusEl.innerText = "🟢 現在だれも使っていません（空き）";
-        startBtn.style.display = "block";
+        firstContainer.style.display = "block";
+        returningContainer.style.display = "none";
+      }
+    }
+
+    window.enableNewUser = () => {
+      document.getElementById("first-time-container").style.display = "block";
+      document.getElementById("returning-container").style.display = "none";
+      document.getElementById("userNameInput").value = "";
+      document.getElementById("userNameInput").focus();
+    };
+
+    function renderStatus(data) {
+      const t = i18n[currentLang];
+      const statusEl = document.getElementById("status");
+      const statusVal = document.getElementById("t-status-val");
+      const timerEl = document.getElementById("status-timer");
+      const startBtn = document.getElementById("startBtn");
+      const stopBtn = document.getElementById("stopBtn");
+      const userGroup = document.getElementById("user-input-group");
+
+      if (timerInterval) clearInterval(timerInterval);
+
+      if (data && data.isBusy) {
+        statusEl.className = "status-badge busy";
+        statusVal.innerText = currentLang === "es" ? `${t.busy} ${data.user}` : `${data.user} ${t.busy}`;
+        userGroup.style.display = "none";
+        startBtn.style.display = "none";
+        stopBtn.style.display = "flex";
+
+        timerEl.style.display = "block";
+        const updateTimer = () => {
+          const elapsedSec = Math.floor((Date.now() - data.startTime) / 1000);
+          const mins = Math.floor(elapsedSec / 60);
+          const secs = elapsedSec % 60;
+          timerEl.innerText = `⏱️ ${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
+        };
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+      } else {
+        statusEl.className = "status-badge free";
+        statusVal.innerText = t.free;
+        timerEl.style.display = "none";
+        userGroup.style.display = "flex";
+        startBtn.style.display = "flex";
         stopBtn.style.display = "none";
       }
+    }
+
+    onValue(ref(db, "current"), (snapshot) => {
+      currentStatus = snapshot.val();
+      renderStatus(currentStatus);
     });
 
-    // 利用開始処理
     window.startGym = () => {
-      const user = userNameSelect.value;
-      if (!user) return alert("名前を選択してください！");
+      const users = getSavedUsers();
+      let name = "";
+
+      if (users.length === 0 || document.getElementById("first-time-container").style.display !== "none") {
+        name = document.getElementById("userNameInput").value.trim();
+      } else {
+        name = document.getElementById("userNameSelect").value;
+      }
+
+      if (!name) return alert(i18n[currentLang].alertSelect);
+
+      saveUser(name);
+
       set(ref(db, "current"), {
         isBusy: true,
-        user: user,
+        user: name,
         startTime: Date.now()
       });
     };
 
-    // 利用終了処理
     window.stopGym = () => {
       if (!currentStatus || !currentStatus.isBusy) return;
       const endTime = Date.now();
-      const durationMin = Math.round((endTime - currentStatus.startTime) / 1000 / 60);
+      const durationMin = Math.max(1, Math.round((endTime - currentStatus.startTime) / 1000 / 60));
 
-      // 履歴に保存
       push(ref(db, "logs"), {
         user: currentStatus.user,
         startTime: currentStatus.startTime,
         endTime: endTime,
         duration: durationMin,
-        month: new Date().toISOString().slice(0, 7) // YYYY-MM
+        month: new Date().toISOString().slice(0, 7)
       });
 
-      // ステータスをクリア
       set(ref(db, "current"), { isBusy: false });
     };
 
-    // ランキングのリアルタイム集計
     onValue(ref(db, "logs"), (snapshot) => {
       const logs = snapshot.val();
+      const t = i18n[currentLang];
       if (!logs) return;
 
       const currentMonth = new Date().toISOString().slice(0, 7);
@@ -137,16 +605,27 @@
         }
       });
 
-      renderRanking("countRanking", counts, "回");
-      renderRanking("timeRanking", times, "分");
+      renderRanking("countRanking", counts, t.unitCount);
+      renderRanking("timeRanking", times, t.unitMin);
     });
 
     function renderRanking(elementId, dataMap, unit) {
       const sorted = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
       const listEl = document.getElementById(elementId);
-      if (sorted.length === 0) return;
-      listEl.innerHTML = sorted.map(([user, val]) => `<li><b>${user}</b>: ${val} ${unit}</li>`).join("");
+      if (sorted.length === 0) {
+        listEl.innerHTML = `<div class="empty-msg">${i18n[currentLang].empty}</div>`;
+        return;
+      }
+      listEl.innerHTML = sorted.map(([user, val]) => `
+        <li>
+          <span class="rank-name">${user}</span>
+          <span class="rank-val">${val} ${unit}</span>
+        </li>
+      `).join("");
     }
+
+    setupUserUI();
+    switchLang(currentLang);
   </script>
 </body>
 </html>
