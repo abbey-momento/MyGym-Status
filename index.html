@@ -8,21 +8,19 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>MyGym Status</title>
   
-  <!-- Google Fonts: Syne (レトロフューチャー・テック系) & Zen Kaku Gothic New -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      /* レトロフューチャー・サイバーグリッドのカラー */
       --bg: #0D061A;
       --card-bg: #170C2E;
       --card-border: rgba(34, 197, 94, 0.2);
-      --accent: #22C55E; /* ネオンライムグリーン */
+      --accent: #22C55E;
       --accent-gradient: linear-gradient(135deg, #22C55E, #10B981);
       --ring-outer: #22C55E;
-      --ring-inner: #00F0FF; /* サイバーシアン */
+      --ring-inner: #00F0FF;
       --green: #22C55E;
       --red: #F43F5E;
       --text-main: #F8FAFC;
@@ -31,7 +29,6 @@
     
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Zen Kaku Gothic New', sans-serif; -webkit-tap-highlight-color: transparent; }
     
-    /* レトロフューチャーな方眼グリッド背景 */
     body {
       background-color: var(--bg);
       background-image: 
@@ -46,7 +43,7 @@
       overflow-x: hidden;
     }
 
-    h1, h2, h3, .time-main, .btn-primary, .timer-action-btn, .cal-total {
+    h1, h2, h3, .time-main, .btn-primary, .timer-action-btn, .stat-num {
       font-family: 'Syne', sans-serif;
       letter-spacing: 0.03em;
     }
@@ -100,16 +97,34 @@
     .timer-action-btn.start { background: rgba(34, 197, 94, 0.15); color: var(--green); border-color: rgba(34, 197, 94, 0.4); }
     .timer-action-btn.stop { background: rgba(244, 63, 94, 0.15); color: var(--red); border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 15px rgba(244,63,94,0.2); }
 
+    /* -----------------------------------
+       カレンダービュー特有のスタイル
+    ------------------------------------ */
+    .cal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .cal-title-month { font-size: 1.3rem; font-weight: 800; color: #FFF; font-family: 'Syne', sans-serif; }
+    .cal-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: white; padding: 6px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; }
+
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; text-align: center; }
+    .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.3); margin-top: 4px; }
+    .stat-label { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
+
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 20px; }
+    .cal-weekday { text-align: center; font-size: 0.75rem; color: var(--text-sub); font-weight: 700; padding-bottom: 4px; }
+    .cal-day { aspect-ratio: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: 0.2s; position: relative; }
+    .cal-day.empty { background: transparent; border: none; cursor: default; }
+    .cal-day.has-activity { background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(0,240,255,0.25)); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(34,197,94,0.3); }
+    .cal-day.selected { border: 2px solid #FFF; transform: scale(1.05); }
+
+    .cal-detail-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
+    .cal-detail-val { font-size: 1.1rem; font-weight: 800; color: var(--accent); font-family: 'Syne', sans-serif; }
+
     /* その他共通パーツ */
     .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: 0.05em; color: #FFF; }
     .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
     .profile-avatar { font-size: 2.5rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid var(--card-border); }
     .profile-name { font-size: 1.4rem; font-weight: 800; }
-
-    .cal-summary-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 24px; }
-    .cal-summary-card { background: rgba(34, 197, 94, 0.08); border: 1px solid var(--card-border); padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .cal-user { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
-    .cal-total { font-weight: 800; color: var(--ring-inner); font-size: 1.1rem; text-shadow: 0 0 10px rgba(0,240,255,0.4); }
 
     .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .list-item:last-child { border-bottom: none; }
@@ -177,10 +192,8 @@
 
     <div class="timer-container">
       <svg class="progress-ring" width="260" height="260">
-        <!-- 外側（1時間） -->
         <circle class="ring-track" cx="130" cy="130" r="110" />
         <circle class="ring-progress-outer" id="ring-outer" cx="130" cy="130" r="110" stroke-dasharray="691.15" stroke-dashoffset="691.15" />
-        <!-- 内側（10分） -->
         <circle class="ring-track" cx="130" cy="130" r="86" />
         <circle class="ring-progress-inner" id="ring-inner" cx="130" cy="130" r="86" stroke-dasharray="540.35" stroke-dashoffset="540.35" />
       </svg>
@@ -196,17 +209,49 @@
     </div>
   </div>
 
-  <!-- 📅 カレンダービュー -->
+  <!-- 📅 カレンダービュー (月間カレンダーグリッド) -->
   <div id="view-calendar" class="view">
     <div class="card">
-      <h2 class="section-title" id="t-cal-title">📅 Calendario del Mes</h2>
-      
-      <h3 style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;" id="t-cal-total">⏱️ Tiempo Total</h3>
-      <div class="cal-summary-grid" id="cal-summary-list"></div>
+      <div class="cal-header-row">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">◀</button>
+        <div class="cal-title-month" id="cal-month-title">agosto 2026</div>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">▶</button>
+      </div>
 
-      <h3 style="font-size:0.85rem; color:var(--text-sub); margin-top:20px; margin-bottom:8px;" id="t-cal-daily">📝 Registro Diario</h3>
-      <div id="cal-daily-list" style="display:flex; flex-direction:column;">
-        <div class="empty-msg">Sin datos</div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label" id="t-stat-days">Días de entrenamiento</div>
+          <div class="stat-num" id="stat-days-val">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label" id="t-stat-time">Tiempo total</div>
+          <div class="stat-num" id="stat-time-val">0 min</div>
+        </div>
+      </div>
+
+      <!-- 曜日ヘッダー -->
+      <div class="calendar-grid" style="margin-bottom: 6px;">
+        <div class="cal-weekday">D</div>
+        <div class="cal-weekday">L</div>
+        <div class="cal-weekday">M</div>
+        <div class="cal-weekday">M</div>
+        <div class="cal-weekday">J</div>
+        <div class="cal-weekday">V</div>
+        <div class="cal-weekday">S</div>
+      </div>
+
+      <!-- カレンダーの日付グリッド -->
+      <div class="calendar-grid" id="calendar-days-container">
+        <!-- JSで生成 -->
+      </div>
+
+      <!-- 選択した日の詳細表示 -->
+      <div class="cal-detail-card" id="cal-selected-detail">
+        <div>
+          <div class="cal-detail-date" id="selected-date-text">Selecciona un día</div>
+          <div id="selected-date-users" style="font-weight:700; font-size:0.95rem; margin-top:2px;">-</div>
+        </div>
+        <div class="cal-detail-val" id="selected-date-total">0 min</div>
       </div>
     </div>
   </div>
@@ -297,27 +342,29 @@
         modalTitle: "Bienvenido", modalName: "Tu nombre", modalAvatar: "Avatar", btnRegister: "Comenzar 🚀",
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
-        calTitle: "📅 Calendario Mensual", calTotal: "⏱️ Tiempo Total", calDaily: "📝 Registro Diario",
+        statDays: "Días de entrenamiento", statTime: "Tiempo total", selectDayMsg: "Selecciona un día",
         raceTitle: "🏆 Ranking Mensual", raceCount: "🔥 Visitas", emptyData: "Sin datos",
         myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Mi Historial", logout: "Cerrar sesión",
         navHome: "Inicio", navCal: "Calendario", navRanking: "Ranking", navMypage: "Perfil",
         unitMin: "min", unitHour: "h", unitCount: "visitas", btnDelete: "Borrar",
         alertName: "Por favor escribe tu nombre", alertAlready: "¡Ya estás entrenando!",
         alertManual: "Ingresa una fecha y minutos válidos", confirmDelete: "¿Borrar este registro?",
-        promptStopAlert: "⚠️ Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:"
+        promptStopAlert: "⚠️ Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:",
+        months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
       },
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
-        calTitle: "📅 今月のカレンダー", calTotal: "⏱️ 今月の合計時間", calDaily: "📝 日別の記録",
+        statDays: "トレーニング日数", statTime: "今月の合計時間", selectDayMsg: "カレンダーの日付を選択",
         raceTitle: "🏆 今月のランキング", raceCount: "🔥 利用回数", emptyData: "データなし",
         myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴", logout: "ログアウト (リセット)",
         navHome: "タイマー", navCal: "カレンダー", navRanking: "ランキング", navMypage: "マイページ",
         unitMin: "分", unitHour: "時間", unitCount: "回", btnDelete: "削除",
         alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
-        alertManual: "日付と正しい分数を入力してください", confirmDelete: "この記録を削除しますか？",
-        promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。"
+        alertManual: "日付と正しい分数を入力してください", confirmDelete: "এই記録を削除しますか？",
+        promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
+        months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
       }
     };
 
@@ -328,6 +375,10 @@
     let myUserName = localStorage.getItem("gym_my_name") || "";
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
     let amIRunning = false;
+    
+    // カレンダー表示用の現在選択している年月・日付
+    let calendarDate = new Date();
+    let selectedDateStr = new Date().toISOString().slice(0, 10);
     
     let timerAnimationId;
     const CIRCUMFERENCE_OUTER = 691.15;
@@ -350,9 +401,8 @@
       setT("t-modal-avatar", t.modalAvatar);
       setT("t-btn-register", t.btnRegister);
       setT("t-home-status-label", t.homeStatusLabel);
-      setT("t-cal-title", t.calTitle);
-      setT("t-cal-total", t.calTotal);
-      setT("t-cal-daily", t.calDaily);
+      setT("t-stat-days", t.statDays);
+      setT("t-stat-time", t.statTime);
       setT("t-race-title", t.raceTitle);
       setT("t-race-count", t.raceCount);
       setT("t-my-title", t.myTitle);
@@ -509,11 +559,11 @@
         const u = users[0];
         statusEl.innerText = currentLang === 'es' ? `${u} ${t.statusBusy}` : `${u}${t.statusBusy}`;
         statusEl.className = "home-status-text";
-        statusEl.style.color = "var(--ring-inner)";
+        statusEl.style.color = "var(--ring-outer)";
       } else {
         statusEl.innerText = currentLang === 'es' ? `${users.length} ${t.statusMulti}` : `${users.length}${t.statusMulti}`;
         statusEl.className = "home-status-text";
-        statusEl.style.color = "var(--ring-inner)";
+        statusEl.style.color = "var(--ring-outer)";
       }
     }
 
@@ -533,57 +583,116 @@
       if (document.getElementById('view-mypage').classList.contains('active')) renderMyLogs();
     });
 
+    // --- カレンダー描画ロジック ---
+    window.changeMonth = (direction) => {
+      calendarDate.setMonth(calendarDate.getMonth() + direction);
+      renderCalendar();
+    };
+
     function renderCalendar() {
       const t = i18n[currentLang];
-      const currentMonth = new Date().toISOString().slice(0, 7);
-      const userTotals = {};
-      const dailyLogs = [];
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
+      
+      // タイトル更新 (例: agosto 2026)
+      const monthNames = t.months;
+      document.getElementById("cal-month-title").innerText = `${monthNames[month]} ${year}`;
 
-      Object.entries(allLogsData).forEach(([key, log]) => {
-        if (log.month === currentMonth) {
-          if (!userTotals[log.user]) userTotals[log.user] = { avatar: log.avatar || "👤", min: 0 };
-          userTotals[log.user].min += log.duration;
-          dailyLogs.push({ ...log, id: key });
+      // 該当月のログを抽出・日付ごとにマップ化
+      const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+      const dayLogs = {}; // {"2026-08-08": [{user, duration, avatar}]}
+      let totalMonthMin = 0;
+      const trainedDaysSet = new Set();
+
+      Object.values(allLogsData).forEach(log => {
+        if (log.date && log.date.startsWith(monthStr)) {
+          const dateKey = log.date.slice(0, 10);
+          if (!dayLogs[dateKey]) dayLogs[dateKey] = [];
+          dayLogs[dateKey].push(log);
+          totalMonthMin += log.duration;
+          trainedDaysSet.add(dateKey);
         }
       });
 
-      const summaryList = document.getElementById("cal-summary-list");
-      const sortedTotals = Object.entries(userTotals).sort((a, b) => b[1].min - a[1].min);
-      if (sortedTotals.length === 0) {
-        summaryList.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
-      } else {
-        summaryList.innerHTML = sortedTotals.map(([user, data]) => `
-          <div class="cal-summary-card">
-            <div class="cal-user"><span>${data.avatar}</span> ${user}</div>
-            <div class="cal-total">${formatTimeFriendly(data.min)}</div>
-          </div>
-        `).join("");
+      // サマリー更新
+      document.getElementById("stat-days-val").innerText = trainedDaysSet.size;
+      document.getElementById("stat-time-val").innerText = formatTimeFriendly(totalMonthMin);
+
+      // カレンダーの日付グリッド生成
+      const container = document.getElementById("calendar-days-container");
+      container.innerHTML = "";
+
+      const firstDayIndex = new Date(year, month, 1).getDay(); // 月の初めの曜日 (0:日曜)
+      const totalDays = new Date(year, month + 1, 0).getDate(); // 月の総日数
+
+      // 空白セル
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.className = "cal-day empty";
+        container.appendChild(emptyCell);
       }
 
-      const dailyList = document.getElementById("cal-daily-list");
-      dailyLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
-      if (dailyLogs.length === 0) {
-        dailyList.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
+      // 日付セル
+      for (let day = 1; day <= totalDays; day++) {
+        const dayStr = day.toString().padStart(2, '0');
+        const monthStrCell = (month + 1).toString().padStart(2, '0');
+        const dateKey = `${year}-${monthStrCell}-${dayStr}`;
+
+        const cell = document.createElement("div");
+        cell.className = "cal-day";
+        if (trainedDaysSet.has(dateKey)) cell.classList.add("has-activity");
+        if (dateKey === selectedDateStr) cell.classList.add("selected");
+
+        cell.innerText = day;
+        cell.onclick = () => selectCalendarDay(dateKey, dayLogs[dateKey] || []);
+        container.appendChild(cell);
+      }
+
+      // 選択中の日の詳細を反映
+      selectCalendarDay(selectedDateStr, dayLogs[selectedDateStr] || [], false);
+    }
+
+    function selectCalendarDay(dateKey, logsForDay, updateSelectionState = true) {
+      if (updateSelectionState) {
+        selectedDateStr = dateKey;
+        document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
+        // 該当する日付セルにクラス付与
+        event && event.currentTarget && event.currentTarget.classList.add('selected');
+      }
+
+      const t = i18n[currentLang];
+      const dateTextEl = document.getElementById("selected-date-text");
+      const usersTextEl = document.getElementById("selected-date-users");
+      const totalValEl = document.getElementById("selected-date-total");
+
+      // 日付表示の整形
+      const [y, m, d] = dateKey.split('-');
+      dateTextEl.innerText = currentLang === 'es' ? `${d}/${m}/${y}` : `${m}月${d}日`;
+
+      if (logsForDay.length === 0) {
+        usersTextEl.innerText = "-";
+        usersTextEl.style.color = "var(--text-sub)";
+        totalValEl.innerText = `0 ${t.unitMin}`;
       } else {
-        dailyList.innerHTML = dailyLogs.map(log => {
-          const d = new Date(log.date);
-          const dateStr = currentLang === 'es' 
-            ? `${d.getDate()}/${d.getMonth()+1} - ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
-            : `${d.getMonth()+1}月${d.getDate()}日 ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-          
-          return `
-            <div class="list-item">
-              <div>
-                <div class="list-date">${dateStr}</div>
-                <div class="list-title"><span>${log.avatar || "👤"}</span> ${log.user}</div>
-              </div>
-              <div class="list-val">${log.duration} ${t.unitMin}</div>
-            </div>
-          `;
-        }).join("");
+        let totalMin = 0;
+        let userSummary = {};
+        logsForDay.forEach(l => {
+          totalMin += l.duration;
+          if (!userSummary[l.user]) userSummary[l.user] = { avatar: l.avatar || "👤", min: 0 };
+          userSummary[l.user].min += l.duration;
+        });
+
+        const userStr = Object.entries(userSummary)
+          .map(([name, data]) => `${data.avatar} ${name} (${data.min}m)`)
+          .join(", ");
+
+        usersTextEl.innerText = userStr;
+        usersTextEl.style.color = "#FFF";
+        totalValEl.innerText = formatTimeFriendly(totalMin);
       }
     }
 
+    // --- ランキング処理 ---
     function renderRaceRanking() {
       const t = i18n[currentLang];
       const currentMonth = new Date().toISOString().slice(0, 7);
@@ -614,6 +723,7 @@
       }).join("");
     }
 
+    // --- マイページ処理 ---
     window.renderMyLogs = () => {
       const t = i18n[currentLang];
       const listEl = document.getElementById("my-logs-list");
@@ -622,7 +732,7 @@
       const currentMonth = new Date().toISOString().slice(0, 7);
       const userLogs = Object.entries(allLogsData)
         .filter(([key, log]) => log.user === myUserName && log.month === currentMonth)
-        .sort((a, b) => new Date(b[1].date) - new Date(b[1].date));
+        .sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
 
       if (userLogs.length === 0) {
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
