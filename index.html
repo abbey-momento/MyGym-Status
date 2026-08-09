@@ -115,6 +115,10 @@
     .cal-nav-btn:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); }
     .cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
+    .cal-target-user-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; }
+    .cal-user-pill { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 14px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; color: var(--text-sub); cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; transition: 0.2s; }
+    .cal-user-pill.active { background: rgba(34,197,94,0.2); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(34,197,94,0.3); }
+
     .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
     .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px 8px; text-align: center; }
     .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.3); margin-top: 4px; }
@@ -311,10 +315,6 @@
         <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         <div class="notif-badge" id="notif-badge" style="display:none;">0</div>
       </div>
-      <div class="lang-switcher">
-        <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
-        <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
-      </div>
     </div>
   </header>
 
@@ -371,6 +371,9 @@
         </button>
       </div>
 
+      <!-- ユーザー切り替えバー -->
+      <div class="cal-target-user-bar" id="cal-target-user-bar"></div>
+
       <div class="stats-row">
         <div class="stat-box">
           <div class="stat-label" id="t-stat-days">Días</div>
@@ -424,6 +427,14 @@
   <div id="view-mypage" class="view">
     <div class="card">
       
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <h2 class="section-title" style="margin-bottom:0;" id="t-my-title">👤 マイページ</h2>
+        <div class="lang-switcher">
+          <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
+          <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
+        </div>
+      </div>
+
       <div class="profile-header">
         <div class="profile-avatar" id="my-avatar-display">👤</div>
         <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
@@ -450,7 +461,7 @@
         </div>
       </div>
 
-      <!-- 手動登録フォーム（はみ出し修正） -->
+      <!-- 手動登録フォーム -->
       <div class="manual-log-box">
         <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;" id="t-manual-title">➕ Añadir registro manual</h3>
         <div style="display:flex; flex-direction:column; gap:10px; width: 100%;">
@@ -634,6 +645,7 @@
     
     let calendarDate = new Date();
     let selectedDateStr = getLocalISOString().slice(0, 10);
+    let calendarTargetUser = null; // カレンダーで表示しているユーザー（nullなら自分）
     
     let timerAnimationId;
     const CIRCUMFERENCE_OUTER = 691.15;
@@ -738,6 +750,7 @@
         document.getElementById("my-name-display").innerText = myUserName;
         document.getElementById("my-avatar-display").innerText = myUserAvatar;
         document.getElementById("goalInput").value = monthlyGoalCount;
+        if (!calendarTargetUser) calendarTargetUser = myUserName;
         checkMyTimerStatus();
         updateStreakAndGoals();
       }
@@ -750,6 +763,7 @@
       
       myUserName = name;
       myUserAvatar = selectedAvatar;
+      calendarTargetUser = name;
       localStorage.setItem("gym_my_name", name);
       localStorage.setItem("gym_my_avatar", selectedAvatar);
       
@@ -789,6 +803,8 @@
         set(ref(db, `current/${newName}`), { startTime: activeUsersData[myUserName].startTime, avatar: editSelectedAvatar });
         remove(ref(db, `current/${myUserName}`));
       }
+
+      if (calendarTargetUser === myUserName) calendarTargetUser = newName;
 
       myUserName = newName;
       myUserAvatar = editSelectedAvatar;
@@ -972,7 +988,6 @@
       }
     };
 
-    // --- ハート（いいね）切り替え ---
     window.toggleLike = (logKey) => {
       playSound('click');
       const logItem = allLogsData[logKey];
@@ -982,7 +997,6 @@
         delete likes[myUserName];
       } else {
         likes[myUserName] = true;
-        // 自分以外のログなら通知を送る
         if (logItem.user !== myUserName) {
           push(ref(db, "notifications"), {
             targetUser: logItem.user,
@@ -997,7 +1011,6 @@
       set(ref(db, `logs/${logKey}/likes`), likes);
     };
 
-    // --- コメント送信 ---
     window.submitComment = (logKey) => {
       playSound('click');
       const inputEl = document.getElementById(`comment-input-${logKey}`);
@@ -1013,7 +1026,6 @@
         timestamp: Date.now()
       });
 
-      // 自分以外のログなら通知を送る
       if (logItem.user !== myUserName) {
         push(ref(db, "notifications"), {
           targetUser: logItem.user,
@@ -1097,7 +1109,6 @@
       document.getElementById("notification-modal").style.display = "flex";
       renderNotifications();
 
-      // 開いたら自分の未読通知を既読にする
       Object.entries(allNotifications).forEach(([key, notif]) => {
         if (notif.targetUser === myUserName && !notif.read) {
           update(ref(db, `notifications/${key}`), { read: true });
@@ -1219,11 +1230,32 @@
       renderCalendar();
     };
 
+    window.setCalendarTargetUser = (username) => {
+      playSound('click');
+      calendarTargetUser = username;
+      renderCalendar();
+    };
+
     function renderCalendar() {
       const t = i18n[currentLang];
+      if (!calendarTargetUser && myUserName) calendarTargetUser = myUserName;
+
+      // ユーザー一覧を作成
+      const allUsersSet = new Set();
+      Object.values(allLogsData).forEach(log => {
+        if (log.user) allUsersSet.add(log.user);
+      });
+      if (myUserName) allUsersSet.add(myUserName);
+
+      const userBarEl = document.getElementById("cal-target-user-bar");
+      userBarEl.innerHTML = Array.from(allUsersSet).map(u => `
+        <div class="cal-user-pill ${u === calendarTargetUser ? 'active' : ''}" onclick="setCalendarTargetUser('${u}')">
+          👤 ${u}
+        </div>
+      `).join("");
+
       const year = calendarDate.getFullYear();
       const month = calendarDate.getMonth();
-      
       const monthNames = t.months;
       document.getElementById("cal-month-title").innerText = `${monthNames[month]} ${year}`;
 
@@ -1233,7 +1265,7 @@
       const trainedDaysSet = new Set();
 
       Object.entries(allLogsData).forEach(([key, log]) => {
-        if (log.date && log.date.startsWith(monthStr)) {
+        if (log.date && log.date.startsWith(monthStr) && log.user === calendarTargetUser) {
           const dateKey = log.date.slice(0, 10);
           if (!dayLogs[dateKey]) dayLogs[dateKey] = [];
           dayLogs[dateKey].push({ ...log, key });
