@@ -70,20 +70,23 @@
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; overflow: hidden; width: 100%; }
     .card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 6, 26, 0.95); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px); }
-    .modal-content { width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-    .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; width: 100%; }
-    label { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
-    input, textarea { width: 100%; max-width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; color: white; outline: none; font-size: 1rem; text-align: center; box-sizing: border-box; }
+    /* サラッとしたシンプルなモーダルスタイル */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 6, 26, 0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px); }
+    .modal-content { width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; background: #130a24; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); position: relative; }
+    .modal-content::before { display: none; } /* 左側の太い線を完全削除 */
+
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; width: 100%; }
+    label { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
+    input, textarea { width: 100%; max-width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: white; outline: none; font-size: 0.95rem; text-align: center; box-sizing: border-box; }
     input[type="date"], input[type="time"] { appearance: none; -webkit-appearance: none; }
-    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(34,197,94,0.3); }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(34,197,94,0.2); }
     
-    .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 160px; overflow-y: auto; padding-right: 4px; }
-    .avatar-option { font-size: 1.5rem; text-align: center; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+    .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 150px; overflow-y: auto; padding-right: 4px; }
+    .avatar-option { font-size: 1.4rem; text-align: center; padding: 6px; background: rgba(0,0,0,0.3); border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .avatar-option.selected { border-color: var(--accent); background: rgba(34,197,94,0.2); transform: scale(1.05); }
     
-    .btn-primary { width: 100%; background: var(--accent-gradient); color: #0D061A; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 20px rgba(34,197,94,0.4); }
-    .btn-secondary { width: 100%; background: rgba(34,197,94,0.1); color: var(--accent); border: 1px solid var(--card-border); padding: 12px; border-radius: 14px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    .btn-primary { width: 100%; background: var(--accent-gradient); color: #0D061A; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(34,197,94,0.3); }
+    .btn-secondary { width: 100%; background: rgba(34,197,94,0.1); color: var(--accent); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; margin-top: 8px; }
     
     .home-status-box { background: rgba(0,0,0,0.3); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 10px; border: 1px solid var(--card-border); }
     .home-status-title { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
@@ -152,8 +155,8 @@
     .action-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     /* コメントモーダル */
-    .comment-list-box { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 14px; }
-    .comment-row { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; font-size: 0.85rem; }
+    .comment-list-box { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-bottom: 12px; }
+    .comment-row { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px 10px; font-size: 0.85rem; }
 
     /* 通知モーダルリスト */
     .notif-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; }
@@ -207,8 +210,8 @@
 
   <!-- 初回登録モーダル -->
   <div id="auth-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content card">
-      <h2 style="text-align:center; margin-bottom: 20px; font-size: 1.5rem;" id="t-modal-title">Bienvenido</h2>
+    <div class="modal-content">
+      <h2 style="text-align:center; margin-bottom: 16px; font-size: 1.3rem;" id="t-modal-title">Bienvenido</h2>
       <div class="form-group">
         <label id="t-modal-name">Tu nombre</label>
         <input type="text" id="regNameInput" placeholder="Name" />
@@ -223,8 +226,8 @@
 
   <!-- プロフィール編集モーダル -->
   <div id="edit-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content card">
-      <h2 style="text-align:center; margin-bottom: 20px; font-size: 1.5rem;" id="t-edit-title">Editar Perfil</h2>
+    <div class="modal-content">
+      <h2 style="text-align:center; margin-bottom: 16px; font-size: 1.3rem;" id="t-edit-title">Editar Perfil</h2>
       <div class="form-group">
         <label id="t-edit-name">Tu nombre</label>
         <input type="text" id="editNameInput" />
@@ -240,9 +243,9 @@
 
   <!-- ひとことメモ入力モーダル（ストップ時） -->
   <div id="memo-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content card">
-      <h2 style="text-align:center; margin-bottom: 10px; font-size: 1.3rem;" id="t-memo-title">¡Buen trabajo! 💪</h2>
-      <p style="text-align:center; color:var(--text-sub); font-size:0.85rem; margin-bottom: 16px;" id="t-memo-sub">Añade una nota o comentario sobre tu entrenamiento</p>
+    <div class="modal-content">
+      <h2 style="text-align:center; margin-bottom: 6px; font-size: 1.2rem;" id="t-memo-title">¡Buen trabajo! 💪</h2>
+      <p style="text-align:center; color:var(--text-sub); font-size:0.8rem; margin-bottom: 12px;" id="t-memo-sub">Añade una nota o comentario</p>
       <div class="form-group">
         <textarea id="trainingMemoInput" rows="3" placeholder="Ej: ¡Hoy hice pierna con todo!"></textarea>
       </div>
@@ -253,25 +256,25 @@
 
   <!-- コメントモーダル -->
   <div id="comment-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-        <h2 style="font-size: 1.2rem;" id="t-comment-title">💬 コメント</h2>
-        <button onclick="closeCommentModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.2rem; cursor:pointer;">✕</button>
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+        <h2 style="font-size: 1.1rem;" id="t-comment-title">💬 コメント</h2>
+        <button onclick="closeCommentModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
       </div>
       <div class="comment-list-box" id="modal-comment-list">
         <div class="empty-msg">Sin comentarios</div>
       </div>
       <div class="form-group" style="margin-bottom:0;">
-        <input type="text" id="modal-comment-input" placeholder="コメント (50文字まで)" maxlength="50" style="text-align:left; font-size:0.9rem;" />
-        <button class="btn-primary" onclick="submitModalComment()" style="padding:12px; margin-top:8px;" id="t-comment-send">送信する</button>
+        <input type="text" id="modal-comment-input" placeholder="コメント (50文字まで)" maxlength="50" style="text-align:left; font-size:0.85rem;" />
+        <button class="btn-primary" onclick="submitModalComment()" style="padding:10px; margin-top:6px;" id="t-comment-send">送信する</button>
       </div>
     </div>
   </div>
 
   <!-- 履歴編集モーダル -->
   <div id="edit-log-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content card">
-      <h2 style="text-align:center; margin-bottom: 16px; font-size: 1.3rem;" id="t-edit-log-title">Editar Registro</h2>
+    <div class="modal-content">
+      <h2 style="text-align:center; margin-bottom: 14px; font-size: 1.2rem;" id="t-edit-log-title">Editar Registro</h2>
       <div class="form-group">
         <input type="date" id="editLogDate" style="width:100%;" />
       </div>
@@ -295,12 +298,12 @@
 
   <!-- 通知モーダル -->
   <div id="notification-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-        <h2 style="font-size: 1.2rem;" id="t-notif-title">🔔 通知</h2>
-        <button onclick="closeNotificationModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.2rem; cursor:pointer;">✕</button>
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+        <h2 style="font-size: 1.1rem;" id="t-notif-title">🔔 通知</h2>
+        <button onclick="closeNotificationModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
       </div>
-      <div id="notification-list-container" style="display:flex; flex-direction:column; max-height: 300px; overflow-y:auto;">
+      <div id="notification-list-container" style="display:flex; flex-direction:column; max-height: 250px; overflow-y:auto;">
         <div class="empty-msg">Sin notificaciones</div>
       </div>
     </div>
@@ -609,7 +612,7 @@
         raceTitle: "🏆 Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Mi Historial", logout: "Cerrar sesión",
         goalTitle: "🎯 Meta Mensual (sesiones)", btnSaveGoal: "Guardar Meta",
-        memoTitle: "¡Buen trabajo! 💪", memoSub: "Añade una nota o comentario sobre tu entrenamiento", btnSaveLog: "Guardar Registro ✨", btnSkipMemo: "Terminar sin nota",
+        memoTitle: "¡Buen trabajo! 💪", memoSub: "Añade una nota o comentario", btnSaveLog: "Guardar Registro ✨", btnSkipMemo: "Terminar sin nota",
         editLogTitle: "Editar Registro", btnSaveEditLog: "Guardar Cambios", btnCancelEditLog: "Cancelar",
         labelFrom: "Desde", labelTo: "Hasta", editLabelFrom: "Desde", editLabelTo: "Hasta",
         unitMin: "min", unitHour: "h", btnDelete: "Borrar", btnEditLog: "Editar",
@@ -627,7 +630,7 @@
         raceTitle: "🏆 エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴", logout: "ログアウト (リセット)",
         goalTitle: "🎯 今月の目標回数 (回)", btnSaveGoal: "目標を保存",
-        memoTitle: "お疲れ様でした！ 💪", memoSub: "今日のトレーニングのメモを残そう", btnSaveLog: "記録を保存する ✨", btnSkipMemo: "メモなしで完了",
+        memoTitle: "お疲れ様でした！ 💪", memoSub: "メモやコメントを残そう", btnSaveLog: "記録を保存する ✨", btnSkipMemo: "メモなしで完了",
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
         unitMin: "分", unitHour: "時間", btnDelete: "削除", btnEditLog: "編集",
@@ -1191,7 +1194,7 @@
         const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         return `
           <div class="notif-item">
-            <span style="font-size:1.2rem;">${notif.type === 'like' ? '❤️' : '💬'}</span>
+            <span style="font-size:1.1rem;">${notif.type === 'like' ? '❤️' : '💬'}</span>
             <div style="flex:1; color:#FFF; word-break:break-all;">${notif.text}</div>
             <div style="font-size:0.65rem; color:var(--text-sub);">${timeStr}</div>
           </div>
@@ -1293,18 +1296,15 @@
 
       const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
       const dayLogs = {}; 
-      let myMonthMin = 0;
-      const myTrainedDays = new Set();
+      let targetMonthMin = 0;
+      const targetTrainedDays = new Set();
       const trainedDaysSet = new Set();
 
       Object.values(allLogsData).forEach(log => {
-        // 常に自分自身の月間データを計算（上部スタッツ用）
-        if (log.date && log.date.startsWith(monthStr) && log.user === myUserName) {
-          myMonthMin += log.duration;
-          myTrainedDays.add(log.date.slice(0, 10));
-        }
-        // カレンダーハイライト用：選択中のターゲットユーザーのログを抽出
+        // カレンダー上部のスタッツ・ハイライト用：選択中のターゲットユーザーの月間データを集計
         if (log.date && log.date.startsWith(monthStr) && log.user === calendarTargetUser) {
+          targetMonthMin += log.duration;
+          targetTrainedDays.add(log.date.slice(0, 10));
           const dateKey = log.date.slice(0, 10);
           if (!dayLogs[dateKey]) dayLogs[dateKey] = [];
           dayLogs[dateKey].push({ ...log, key });
@@ -1312,10 +1312,9 @@
         }
       });
 
-      // 上部の数値統計は常に自分のデータを表示
-      const myStreak = calculateStreak(allLogsData);
-      document.getElementById("stat-days-val").innerText = myTrainedDays.size;
-      document.getElementById("stat-time-val").innerText = formatTimeFriendly(myMonthMin);
+      // 上部の数値統計は「選択されているユーザー（自分または他のユーザー）」のデータを表示
+      document.getElementById("stat-days-val").innerText = targetTrainedDays.size;
+      document.getElementById("stat-time-val").innerText = formatTimeFriendly(targetMonthMin);
 
       const container = document.getElementById("calendar-days-container");
       container.innerHTML = "";
