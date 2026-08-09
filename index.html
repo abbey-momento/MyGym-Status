@@ -1,460 +1,176 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="robots" content="noindex">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>MyGym Status</title>
-
-  <!-- Google Fonts: Spinnaker & Zen Kaku Gothic New -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Spinnaker&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
-
   <style>
     :root {
-      --bg: #0b1120;
-      --card-bg: #151f32;
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent: #6366f1;
-      --accent-gradient: linear-gradient(135deg, #6366f1, #4f46e5);
-      --green: #10b981;
-      --green-bg: rgba(16, 185, 129, 0.12);
-      --amber: #f59e0b;
-      --amber-bg: rgba(245, 158, 11, 0.12);
-      --text-main: #f8fafc;
-      --text-sub: #64748b;
+      --bg: #0b1120; --card-bg: #151f32; --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #6366f1; --accent-gradient: linear-gradient(135deg, #6366f1, #4f46e5);
+      --green: #10b981; --red: #f43f5e; --amber: #f59e0b;
+      --text-main: #f8fafc; --text-sub: #94a3b8;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Spinnaker', 'Zen Kaku Gothic New', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text-main); max-width: 480px; margin: 0 auto; padding: 20px 16px 80px; min-height: 100vh; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon { background: var(--accent-gradient); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; }
+    .brand-title h1 { font-size: 1.2rem; font-weight: 700; }
+    
+    /* タブ切り替え */
+    .tabs { display: flex; background: var(--card-bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+    .tab-btn { flex: 1; padding: 10px; background: transparent; border: none; color: var(--text-sub); font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    .tab-btn.active { background: var(--accent); color: white; }
+    .view { display: none; flex-direction: column; gap: 16px; }
+    .view.active { display: flex; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Spinnaker', 'Zen Kaku Gothic New', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+    
+    /* 現在の利用者 */
+    .active-users { display: flex; flex-direction: column; gap: 10px; }
+    .active-user-row { display: flex; justify-content: space-between; align-items: center; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px; border-radius: 12px; }
+    .active-user-info { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .avatar-icon { font-size: 1.5rem; }
+    .btn-stop-sm { background: var(--red); color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .no-users { text-align: center; color: var(--green); font-weight: 700; padding: 10px; }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      max-width: 440px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+    /* フォーム */
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    label { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); }
+    input, select { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; color: white; outline: none; }
+    .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+    .avatar-option { font-size: 1.5rem; text-align: center; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 12px; cursor: pointer; border: 2px solid transparent; }
+    .avatar-option.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.2); }
+    
+    .btn-primary { width: 100%; background: var(--accent-gradient); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn-secondary-sm { background: none; border: none; color: var(--accent); font-size: 0.8rem; cursor: pointer; align-self: flex-end; margin-top: 4px; }
 
-    svg { vertical-align: middle; flex-shrink: 0; }
+    /* レース風ランキング */
+    .race-track { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .race-lane { display: flex; flex-direction: column; gap: 4px; }
+    .race-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; }
+    .race-bar-bg { width: 100%; background: rgba(0,0,0,0.3); height: 24px; border-radius: 12px; position: relative; overflow: hidden; }
+    .race-bar-fill { height: 100%; background: var(--accent-gradient); border-radius: 12px; transition: width 1s ease-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 1rem; }
+    .medal-1 { color: #fbbf24; } .medal-2 { color: #94a3b8; } .medal-3 { color: #b45309; }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-icon {
-      background: var(--accent-gradient);
-      width: 42px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
-      color: white;
-    }
-
-    .brand-title h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    .brand-title p {
-      font-size: 0.75rem;
-      color: var(--text-sub);
-    }
-
-    .lang-switcher {
-      display: flex;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 3px;
-      gap: 2px;
-    }
-
-    .lang-btn {
-      background: none;
-      border: none;
-      color: var(--text-sub);
-      padding: 6px 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .lang-btn.active {
-      background: var(--accent);
-      color: white;
-      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 22px;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    /* ポジティブで温かみのあるステータス表示 */
-    .status-badge {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 16px;
-      border-radius: 16px;
-      transition: all 0.3s;
-    }
-
-    .status-badge.free {
-      background: var(--green-bg);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-    }
-
-    .status-badge.busy {
-      background: var(--amber-bg);
-      border: 1px solid rgba(245, 158, 11, 0.25);
-    }
-
-    .status-dot-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .status-badge.free .status-dot {
-      background: var(--green);
-      box-shadow: 0 0 10px var(--green);
-    }
-
-    .status-badge.busy .status-dot {
-      background: var(--amber);
-      box-shadow: 0 0 10px var(--amber);
-    }
-
-    .status-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .status-title {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-sub);
-      font-weight: 700;
-    }
-
-    .status-val {
-      font-size: 1.05rem;
-      font-weight: 700;
-    }
-
-    .timer {
-      font-size: 0.85rem;
-      color: #cbd5e1;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    /* ストリーク表示（連勝・習慣化） */
-    .streak-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      width: fit-content;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-sub);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    input, select {
-      width: 100%;
-      background: rgba(11, 17, 32, 0.6);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 14px 16px;
-      color: var(--text-main);
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.2s;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    }
-
-    .btn-secondary-sm {
-      background: transparent;
-      border: none;
-      color: var(--accent);
-      padding: 4px 0;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      align-self: flex-end;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .btn-primary {
-      width: 100%;
-      background: var(--accent-gradient);
-      color: white;
-      border: none;
-      border-radius: 16px;
-      padding: 16px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.4);
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .btn-primary:active {
-      transform: scale(0.98);
-      opacity: 0.9;
-    }
-
-    .btn-stop {
-      background: linear-gradient(135deg, #10b981, #059669);
-      box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.4);
-    }
-
-    .section-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .ranking-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .ranking-block {
-      background: rgba(11, 17, 32, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      border-radius: 16px;
-      padding: 14px;
-    }
-
-    .ranking-header {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-sub);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    ol {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 14px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      font-size: 0.9rem;
-      border: 1px solid var(--card-border);
-    }
-
-    li:nth-child(1) { border-left: 3px solid #f59e0b; }
-    li:nth-child(2) { border-left: 3px solid #94a3b8; }
-    li:nth-child(3) { border-left: 3px solid #b45309; }
-
-    .rank-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .rank-num {
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--text-sub);
-      width: 14px;
-    }
-
-    .rank-name { font-weight: 600; }
-    .rank-val { font-weight: 700; color: var(--accent); font-size: 0.85rem; }
-
-    .empty-msg {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      text-align: center;
-      padding: 12px 0;
-    }
+    /* マイページ履歴 */
+    .log-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--card-border); }
+    .log-info { display: flex; flex-direction: column; gap: 4px; }
+    .log-date { font-size: 0.8rem; color: var(--text-sub); }
+    .log-dur { font-weight: 700; color: var(--accent); }
+    .btn-del { background: rgba(244, 63, 94, 0.1); color: var(--red); border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+    .empty-msg { text-align: center; color: var(--text-sub); padding: 20px; font-size: 0.9rem; }
   </style>
 </head>
 <body>
 
   <header>
     <div class="brand">
-      <div class="brand-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11"/><path d="m21 21-1 1a2 2 0 0 1-2.83 0l-2.5-2.5a2 2 0 0 1 0-2.83l.83-.83"/><path d="M11 11 8.5 8.5a2 2 0 0 0-2.83 0l-.83.83a2 2 0 0 0 0 2.83l2.5 2.5a2 2 0 0 0 2.83 0l1-1"/><path d="m3 3 1-1a2 2 0 0 1 2.83 0l2.5 2.5a2 2 0 0 1 0 2.83l-.83.83"/><path d="m13 13 2.5-2.5a2 2 0 0 1 2.83 0l.83.83a2 2 0 0 1 0 2.83l-2.5 2.5a2 2 0 0 1-2.83 0l-1-1"/></svg>
-      </div>
+      <div class="brand-icon">💪</div>
       <div class="brand-title">
         <h1>MyGym Status</h1>
-        <p>Gimnasio Familiar</p>
       </div>
-    </div>
-    <div class="lang-switcher">
-      <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
-      <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
     </div>
   </header>
 
-  <div class="card">
-    <div id="status" class="status-badge free">
-      <div class="status-dot-wrap"><div class="status-dot"></div></div>
-      <div class="status-info">
-        <span class="status-title" id="t-status-title">Estado Actual</span>
-        <span class="status-val" id="t-status-val">Cargando...</span>
-        <span class="timer" id="status-timer" style="display:none;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span id="timer-text">0m 00s</span>
-        </span>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('home')">🏠 ホーム</button>
+    <button class="tab-btn" onclick="switchTab('mypage')">👤 マイページ</button>
+  </div>
+
+  <!-- ホームビュー -->
+  <div id="view-home" class="view active">
+    
+    <!-- 現在の利用者（複数対応） -->
+    <div class="card">
+      <h2 style="font-size:0.9rem; margin-bottom:12px; color:var(--text-sub);">🔥 現在トレーニング中</h2>
+      <div id="active-users-list" class="active-users">
+        <div class="no-users">現在フリーです（誰も使っていません）</div>
       </div>
     </div>
 
-    <!-- ストリーク表示 -->
-    <div id="streak-container" style="display:none;">
-      <div class="streak-badge">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 0-5 3.5-5 8 0 2.5 1.5 4.5 3 6-1.5-2-1-4.5 0-6 1 2.5 4 3.5 4 6.5 0 2.5-2 4.5-4 5.5 4 0 7-3 7-7 0-5-5-13-5-13z"/></svg>
-        <span id="streak-text">Racha: 0 días</span>
+    <!-- 利用開始フォーム -->
+    <div class="card">
+      <div class="form-group" id="user-input-group">
+        <label>あなたはだれ？</label>
+        
+        <div id="returning-container" style="display:none;">
+          <select id="userNameSelect"></select>
+          <button class="btn-secondary-sm" onclick="enableNewUser()">+ 別の名前・アバターを登録</button>
+        </div>
+
+        <div id="first-time-container">
+          <input type="text" id="userNameInput" placeholder="名前を入力..." style="margin-bottom:10px;" />
+          <label>アバターを選択</label>
+          <div class="avatar-grid" id="avatarSelector">
+            <div class="avatar-option selected" onclick="selectAvatar(this, '🐶')">🐶</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🐱')">🐱</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🐰')">🐰</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🦊')">🦊</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🐻')">🐻</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🐼')">🐼</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🦁')">🦁</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🐸')">🐸</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🦖')">🦖</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🏎️')">🏎️</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '🚀')">🚀</div>
+            <div class="avatar-option" onclick="selectAvatar(this, '👻')">👻</div>
+          </div>
+        </div>
       </div>
+      <button class="btn-primary" onclick="startGym()">スタート 🚀</button>
     </div>
 
-    <div class="form-group" id="user-input-group">
-      <label id="t-label-user">¿Quién eres?</label>
+    <!-- レース風ランキング -->
+    <div class="card">
+      <h2 style="font-size:0.9rem; margin-bottom:12px; color:var(--text-sub);">🏆 今月のランキングレース</h2>
       
-      <div id="first-time-container">
-        <input type="text" id="userNameInput" placeholder="Escribe tu nombre..." />
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size:0.8rem;">⏱️ 合計時間 (分)</h3>
+        <div id="race-time" class="race-track"><div class="empty-msg">データなし</div></div>
       </div>
 
-      <div id="returning-container" style="display:none;">
-        <select id="userNameSelect" onchange="updateStreakDisplay()"></select>
-        <button class="btn-secondary-sm" onclick="enableNewUser()" id="t-btn-new-user">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span id="t-btn-new-user-text">Registrar otro nombre</span>
-        </button>
-      </div>
-    </div>
-
-    <button id="startBtn" class="btn-primary" onclick="startGym()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      <span id="t-btn-start">Iniciar Sesión</span>
-    </button>
-    <button id="stopBtn" class="btn-primary btn-stop" onclick="stopGym()" style="display:none;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-      <span id="t-btn-stop">Terminar Entrenamiento</span>
-    </button>
-  </div>
-
-  <div class="card">
-    <div class="section-title">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
-      <span id="t-title-ranking">Clasificación Mensual</span>
-    </div>
-
-    <div class="ranking-grid">
-      <div class="ranking-block">
-        <div class="ranking-header">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <span id="t-rank-count">Más Visitas</span>
-        </div>
-        <ol id="countRanking"><div class="empty-msg" id="t-empty-1">Sin datos aún</div></ol>
-      </div>
-
-      <div class="ranking-block">
-        <div class="ranking-header">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span id="t-rank-time">Más Tiempo (Minutos)</span>
-        </div>
-        <ol id="timeRanking"><div class="empty-msg" id="t-empty-2">Sin datos aún</div></ol>
+      <div>
+        <h3 style="font-size:0.8rem;">🔥 利用回数</h3>
+        <div id="race-count" class="race-track"><div class="empty-msg">データなし</div></div>
       </div>
     </div>
   </div>
 
+  <!-- マイページビュー -->
+  <div id="view-mypage" class="view">
+    <div class="card">
+      <h2 style="font-size:1rem; margin-bottom:16px;">👤 自分の記録を管理</h2>
+      <select id="myPageUserSelect" onchange="renderMyLogs()" style="margin-bottom: 16px;">
+        <option value="">ユーザーを選択...</option>
+      </select>
+
+      <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+        <h3 style="font-size: 0.85rem; margin-bottom: 8px;">➕ 過去の記録を手動追加</h3>
+        <div style="display:flex; gap:8px;">
+          <input type="date" id="manualDate" style="flex:1; padding:10px;">
+          <input type="number" id="manualMin" placeholder="分数" style="width:80px; padding:10px;">
+          <button onclick="addManualLog()" style="background:var(--green); border:none; border-radius:8px; color:white; padding:0 16px; font-weight:700; cursor:pointer;">追加</button>
+        </div>
+      </div>
+
+      <h3 style="font-size: 0.85rem; margin-bottom: 8px;">📅 今月の履歴</h3>
+      <div id="my-logs-list" style="display:flex; flex-direction:column;">
+        <div class="empty-msg">ユーザーを選択してください</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCwu8QoQvf3WUtAKAlvz8s2nbfNkcsGPEA",
@@ -469,88 +185,34 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const i18n = {
-      es: {
-        subtitle: "Gimnasio Familiar",
-        statusTitle: "Estado Actual",
-        free: "Libre (Nadie entrenando)",
-        busy: "Entrenando ahora:",
-        labelUser: "¿Quién eres?",
-        placeholder: "Escribe tu nombre...",
-        btnNewUserText: "Registrar otro nombre",
-        btnStart: "Iniciar Sesión",
-        btnStop: "Terminar Entrenamiento",
-        rankingTitle: "Clasificación Mensual",
-        rankCount: "Más Visitas",
-        rankTime: "Más Tiempo (Minutos)",
-        empty: "Sin datos este mes",
-        alertSelect: "Por favor escribe o selecciona tu nombre",
-        unitCount: "visitas",
-        unitMin: "min",
-        streak: "Racha activa:"
-      },
-      ja: {
-        subtitle: "ファミリージム",
-        statusTitle: "現在の状況",
-        free: "現在フリー（誰も使っていません）",
-        busy: "さんがトレーニング中✨",
-        labelUser: "あなたはだれ？",
-        placeholder: "名前を入力してください...",
-        btnNewUserText: "別の名前を入力する",
-        btnStart: "トレーニング開始",
-        btnStop: "トレーニング終了",
-        rankingTitle: "今月のランキング",
-        rankCount: "回数トップ",
-        rankTime: "合計時間トップ",
-        empty: "今月の記録はありません",
-        alertSelect: "名前を入力または選択してください",
-        unitCount: "回",
-        unitMin: "分",
-        streak: "連続利用記録:"
-      }
+    let activeUsersData = {};
+    let allLogsData = {};
+    let selectedAvatar = "🐶";
+
+    // タブ切り替え
+    window.switchTab = (tabId) => {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(`view-${tabId}`).classList.add('active');
+      if(tabId === 'mypage') updateMyPageSelect();
     };
 
-    let currentLang = localStorage.getItem("gym_lang") || "es";
-    let currentStatus = null;
-    let timerInterval = null;
-    let allLogs = {};
-
-    window.switchLang = (lang) => {
-      currentLang = lang;
-      localStorage.setItem("gym_lang", lang);
-      document.getElementById("btn-es").className = lang === "es" ? "lang-btn active" : "lang-btn";
-      document.getElementById("btn-ja").className = lang === "ja" ? "lang-btn active" : "lang-btn";
-      updateI18n();
+    // アバター選択
+    window.selectAvatar = (el, icon) => {
+      document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedAvatar = icon;
     };
 
-    function updateI18n() {
-      const t = i18n[currentLang];
-      document.querySelector(".brand-title p").innerText = t.subtitle;
-      document.getElementById("t-status-title").innerText = t.statusTitle;
-      document.getElementById("t-label-user").innerText = t.labelUser;
-      document.getElementById("userNameInput").placeholder = t.placeholder;
-      document.getElementById("t-btn-new-user-text").innerText = t.btnNewUserText;
-      document.getElementById("t-btn-start").innerText = t.btnStart;
-      document.getElementById("t-btn-stop").innerText = t.btnStop;
-      document.getElementById("t-title-ranking").innerText = t.rankingTitle;
-      document.getElementById("t-rank-count").innerText = t.rankCount;
-      document.getElementById("t-rank-time").innerText = t.rankTime;
-
-      if (currentStatus) renderStatus(currentStatus);
-      updateStreakDisplay();
-    }
-
-    function getSavedUsers() {
-      const saved = localStorage.getItem("gym_saved_users");
-      return saved ? JSON.parse(saved) : [];
-    }
-
-    function saveUser(name) {
+    // ローカル保存ユーザー管理
+    function getSavedUsers() { return JSON.parse(localStorage.getItem("gym_users") || "[]"); }
+    function saveUser(name, avatar) {
       let users = getSavedUsers();
-      if (!users.includes(name)) {
-        users.push(name);
-        localStorage.setItem("gym_saved_users", JSON.stringify(users));
-      }
+      let existing = users.find(u => u.name === name);
+      if (existing) existing.avatar = avatar;
+      else users.push({ name, avatar });
+      localStorage.setItem("gym_users", JSON.stringify(users));
       localStorage.setItem("gym_last_user", name);
       setupUserUI();
     }
@@ -558,7 +220,6 @@
     function setupUserUI() {
       const users = getSavedUsers();
       const lastUser = localStorage.getItem("gym_last_user");
-
       const firstContainer = document.getElementById("first-time-container");
       const returningContainer = document.getElementById("returning-container");
       const select = document.getElementById("userNameSelect");
@@ -566,200 +227,228 @@
       if (users.length > 0) {
         firstContainer.style.display = "none";
         returningContainer.style.display = "block";
-        select.innerHTML = users.map(u => `<option value="${u}" ${u === lastUser ? "selected" : ""}>${u}</option>`).join("");
+        select.innerHTML = users.map(u => `<option value="${u.name}" ${u.name === lastUser ? "selected" : ""}>${u.avatar} ${u.name}</option>`).join("");
       } else {
         firstContainer.style.display = "block";
         returningContainer.style.display = "none";
       }
-      updateStreakDisplay();
     }
 
     window.enableNewUser = () => {
       document.getElementById("first-time-container").style.display = "block";
       document.getElementById("returning-container").style.display = "none";
       document.getElementById("userNameInput").value = "";
-      document.getElementById("userNameInput").focus();
-      document.getElementById("streak-container").style.display = "none";
     };
 
-    function renderStatus(data) {
-      const t = i18n[currentLang];
-      const statusEl = document.getElementById("status");
-      const statusVal = document.getElementById("t-status-val");
-      const timerEl = document.getElementById("status-timer");
-      const timerText = document.getElementById("timer-text");
-      const startBtn = document.getElementById("startBtn");
-      const stopBtn = document.getElementById("stopBtn");
-      const userGroup = document.getElementById("user-input-group");
+    // --- リアルタイム監視: 現在の利用者 ---
+    onValue(ref(db, "current"), (snapshot) => {
+      activeUsersData = snapshot.val() || {};
+      renderActiveUsers();
+    });
 
-      if (timerInterval) clearInterval(timerInterval);
-
-      if (data && data.isBusy) {
-        statusEl.className = "status-badge busy";
-        statusVal.innerText = currentLang === "es" ? `${t.busy} ${data.user}` : `${data.user} ${t.busy}`;
-        userGroup.style.display = "none";
-        startBtn.style.display = "none";
-        stopBtn.style.display = "flex";
-
-        timerEl.style.display = "flex";
-        const updateTimer = () => {
-          const elapsedSec = Math.floor((Date.now() - data.startTime) / 1000);
-          const mins = Math.floor(elapsedSec / 60);
-          const secs = elapsedSec % 60;
-          timerText.innerText = `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
-        };
-        updateTimer();
-        timerInterval = setInterval(updateTimer, 1000);
-      } else {
-        statusEl.className = "status-badge free";
-        statusVal.innerText = t.free;
-        timerEl.style.display = "none";
-        userGroup.style.display = "flex";
-        startBtn.style.display = "flex";
-        stopBtn.style.display = "none";
-      }
-    }
-
-    // ストリーク（連続日数）の計算
-    window.updateStreakDisplay = () => {
-      const users = getSavedUsers();
-      let selectedUser = "";
-
-      if (users.length > 0 && document.getElementById("returning-container").style.display !== "none") {
-        selectedUser = document.getElementById("userNameSelect").value;
-      }
-
-      if (!selectedUser || !allLogs) {
-        document.getElementById("streak-container").style.display = "none";
+    function renderActiveUsers() {
+      const listEl = document.getElementById("active-users-list");
+      const users = Object.entries(activeUsersData);
+      
+      if (users.length === 0) {
+        listEl.innerHTML = `<div class="no-users">現在フリーです（誰も使っていません）</div>`;
         return;
       }
 
-      // 日付リストを取得（YYYY-MM-DD）
-      const userDates = new Set();
-      Object.values(allLogs).forEach(log => {
-        if (log.user === selectedUser && log.startTime) {
-          const dateStr = new Date(log.startTime).toISOString().slice(0, 10);
-          userDates.add(dateStr);
-        }
-      });
+      listEl.innerHTML = users.map(([name, data]) => {
+        const elapsedMins = Math.floor((Date.now() - data.startTime) / 60000);
+        return `
+          <div class="active-user-row">
+            <div class="active-user-info">
+              <span class="avatar-icon">${data.avatar}</span>
+              <span>${name} <small style="color:var(--text-sub); font-weight:normal;">(${elapsedMins}分経過)</small></span>
+            </div>
+            <button class="btn-stop-sm" onclick="stopGym('${name}', ${data.startTime})">終了</button>
+          </div>
+        `;
+      }).join("");
+    }
 
-      let streak = 0;
-      let checkDate = new Date();
-
-      while (true) {
-        const dateStr = checkDate.toISOString().slice(0, 10);
-        if (userDates.has(dateStr)) {
-          streak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          // 今日まだ記録がない場合は昨日チェック
-          if (streak === 0) {
-            checkDate.setDate(checkDate.getDate() - 1);
-            const yesterdayStr = checkDate.toISOString().slice(0, 10);
-            if (userDates.has(yesterdayStr)) {
-              streak++;
-              checkDate.setDate(checkDate.getDate() - 1);
-              continue;
-            }
-          }
-          break;
-        }
-      }
-
-      const streakContainer = document.getElementById("streak-container");
-      const streakText = document.getElementById("streak-text");
-      const t = i18n[currentLang];
-
-      if (streak > 0) {
-        streakText.innerText = `${t.streak} ${streak} ${currentLang === 'es' ? 'días 🔥' : '日連続 🔥'}`;
-        streakContainer.style.display = "block";
-      } else {
-        streakContainer.style.display = "none";
-      }
-    };
-
-    onValue(ref(db, "current"), (snapshot) => {
-      currentStatus = snapshot.val();
-      renderStatus(currentStatus);
-    });
-
+    // 利用開始
     window.startGym = () => {
       const users = getSavedUsers();
-      let name = "";
+      let name = "", avatar = "";
 
       if (users.length === 0 || document.getElementById("first-time-container").style.display !== "none") {
         name = document.getElementById("userNameInput").value.trim();
+        avatar = selectedAvatar;
       } else {
         name = document.getElementById("userNameSelect").value;
+        avatar = users.find(u => u.name === name)?.avatar || "👤";
       }
 
-      if (!name) return alert(i18n[currentLang].alertSelect);
+      if (!name) return alert("名前を入力してください");
+      if (activeUsersData[name]) return alert("既に利用中になっています！");
 
-      saveUser(name);
-
-      set(ref(db, "current"), {
-        isBusy: true,
-        user: name,
-        startTime: Date.now()
-      });
+      saveUser(name, avatar);
+      set(ref(db, `current/${name}`), { startTime: Date.now(), avatar: avatar });
+      document.getElementById("userNameInput").value = "";
     };
 
-    window.stopGym = () => {
-      if (!currentStatus || !currentStatus.isBusy) return;
-      const endTime = Date.now();
-      const durationMin = Math.max(1, Math.round((endTime - currentStatus.startTime) / 1000 / 60));
+    // 利用終了 ＆ ストップ忘れ検知
+    window.stopGym = (name, startTime) => {
+      let durationMin = Math.round((Date.now() - startTime) / 60000);
+      
+      // 3時間(180分)以上ならストップ忘れとみなす
+      if (durationMin >= 180) {
+        let manualInput = prompt(`⚠️ ${durationMin}分経過しています。\nストップボタンを押し忘れた場合は、実際の利用時間（分）を入力してください。`, "60");
+        if (manualInput === null) return; // キャンセル
+        let parsed = parseInt(manualInput, 10);
+        if (!isNaN(parsed) && parsed > 0) durationMin = parsed;
+      } else if (durationMin < 1) {
+        durationMin = 1; // 最低1分
+      }
 
+      // ログに保存
       push(ref(db, "logs"), {
-        user: currentStatus.user,
-        startTime: currentStatus.startTime,
-        endTime: endTime,
+        user: name,
+        startTime: startTime,
         duration: durationMin,
-        month: new Date().toISOString().slice(0, 7)
+        month: new Date().toISOString().slice(0, 7),
+        date: new Date().toISOString()
       });
 
-      set(ref(db, "current"), { isBusy: false });
+      // 現在利用中から削除
+      remove(ref(db, `current/${name}`));
     };
 
+    // --- 履歴・ランキングデータ監視 ---
     onValue(ref(db, "logs"), (snapshot) => {
-      allLogs = snapshot.val() || {};
-      const t = i18n[currentLang];
+      allLogsData = snapshot.val() || {};
+      renderRaceRanking();
+      if (document.getElementById('view-mypage').classList.contains('active')) {
+        renderMyLogs();
+      }
+    });
 
+    // レース風ランキング描画
+    function renderRaceRanking() {
       const currentMonth = new Date().toISOString().slice(0, 7);
-      const counts = {};
-      const times = {};
+      const counts = {}; const times = {}; const avatars = {};
+      const savedUsers = getSavedUsers();
 
-      Object.values(allLogs).forEach(log => {
+      Object.values(allLogsData).forEach(log => {
         if (log.month === currentMonth) {
           counts[log.user] = (counts[log.user] || 0) + 1;
           times[log.user] = (times[log.user] || 0) + log.duration;
+          avatars[log.user] = savedUsers.find(u => u.name === log.user)?.avatar || "👤";
         }
       });
 
-      renderRanking("countRanking", counts, t.unitCount);
-      renderRanking("timeRanking", times, t.unitMin);
-      updateStreakDisplay();
-    });
-
-    function renderRanking(elementId, dataMap, unit) {
-      const sorted = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
-      const listEl = document.getElementById(elementId);
-      if (sorted.length === 0) {
-        listEl.innerHTML = `<div class="empty-msg">${i18n[currentLang].empty}</div>`;
-        return;
-      }
-      listEl.innerHTML = sorted.map(([user, val], idx) => `
-        <li>
-          <div class="rank-left">
-            <span class="rank-num">${idx + 1}</span>
-            <span class="rank-name">${user}</span>
-          </div>
-          <span class="rank-val">${val} ${unit}</span>
-        </li>
-      `).join("");
+      drawRace("race-time", times, avatars, "分");
+      drawRace("race-count", counts, avatars, "回");
     }
 
+    function drawRace(elementId, dataMap, avatars, unit) {
+      const sorted = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
+      const listEl = document.getElementById(elementId);
+      if (sorted.length === 0) { listEl.innerHTML = `<div class="empty-msg">データなし</div>`; return; }
+
+      const maxVal = sorted[0][1]; // トップの数値を100%とする
+
+      listEl.innerHTML = sorted.map(([user, val], idx) => {
+        const percent = Math.max(10, (val / maxVal) * 100);
+        let medal = "";
+        if(idx===0) medal = '<span class="medal-1">🥇</span>';
+        if(idx===1) medal = '<span class="medal-2">🥈</span>';
+        if(idx===2) medal = '<span class="medal-3">🥉</span>';
+
+        return `
+          <div class="race-lane">
+            <div class="race-header">
+              <span>${medal} ${user}</span>
+              <span style="color:var(--accent);">${val} ${unit}</span>
+            </div>
+            <div class="race-bar-bg">
+              <div class="race-bar-fill" style="width: ${percent}%;">${avatars[user]}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // --- マイページ機能 ---
+    function updateMyPageSelect() {
+      const users = getSavedUsers();
+      const select = document.getElementById("myPageUserSelect");
+      const lastUser = localStorage.getItem("gym_last_user");
+      select.innerHTML = `<option value="">ユーザーを選択...</option>` + 
+        users.map(u => `<option value="${u.name}" ${u.name === lastUser ? "selected" : ""}>${u.name}</option>`).join("");
+      renderMyLogs();
+    }
+
+    window.renderMyLogs = () => {
+      const user = document.getElementById("myPageUserSelect").value;
+      const listEl = document.getElementById("my-logs-list");
+      if (!user) { listEl.innerHTML = `<div class="empty-msg">ユーザーを選択してください</div>`; return; }
+
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      // そのユーザーの今月のログを抽出（新しい順）
+      const userLogs = Object.entries(allLogsData)
+        .filter(([key, log]) => log.user === user && log.month === currentMonth)
+        .sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
+
+      if (userLogs.length === 0) {
+        listEl.innerHTML = `<div class="empty-msg">今月の記録はありません</div>`;
+        return;
+      }
+
+      listEl.innerHTML = userLogs.map(([key, log]) => {
+        const d = new Date(log.date);
+        const dateStr = `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        return `
+          <div class="log-item">
+            <div class="log-info">
+              <span class="log-date">${dateStr}</span>
+              <span class="log-dur">${log.duration} 分</span>
+            </div>
+            <button class="btn-del" onclick="deleteLog('${key}')">削除</button>
+          </div>
+        `;
+      }).join("");
+    };
+
+    window.addManualLog = () => {
+      const user = document.getElementById("myPageUserSelect").value;
+      const dateVal = document.getElementById("manualDate").value;
+      const minVal = parseInt(document.getElementById("manualMin").value, 10);
+
+      if (!user) return alert("ユーザーを選択してください");
+      if (!dateVal || !minVal || minVal <= 0) return alert("日付と正しい分数を入力してください");
+
+      const logDate = new Date(dateVal);
+      logDate.setHours(12); // 適当に昼の12時とする
+
+      push(ref(db, "logs"), {
+        user: user,
+        startTime: logDate.getTime(),
+        duration: minVal,
+        month: logDate.toISOString().slice(0, 7),
+        date: logDate.toISOString()
+      });
+
+      document.getElementById("manualMin").value = "";
+      alert("記録を追加しました！");
+    };
+
+    window.deleteLog = (key) => {
+      if (confirm("この記録を削除しますか？（ランキングの集計からも消えます）")) {
+        remove(ref(db, `logs/${key}`));
+      }
+    };
+
+    // 初期化
     setupUserUI();
-    switchLang(currentLang);
+    // 経過時間表示の更新用タイマー
+    setInterval(() => {
+      if (Object.keys(activeUsersData).length > 0) renderActiveUsers();
+    }, 60000); // 1分ごとに再描画
+
   </script>
 </body>
 </html>
