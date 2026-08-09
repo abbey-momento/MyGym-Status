@@ -82,7 +82,7 @@
     .home-status-text { font-size: 1rem; font-weight: 700; color: white; }
     .status-free { color: var(--green); text-shadow: 0 0 8px rgba(34,197,94,0.4); }
     
-    /* タイマーUI */
+    /* タイマーUI（数字のブレ完全防止） */
     .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 20px; position: relative; }
     .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(34,197,94,0.2)); }
     .ring-track { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 14; }
@@ -90,18 +90,27 @@
     .ring-progress-inner { fill: none; stroke: var(--ring-inner); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     
     .timer-display { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
-    .time-main { font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; color: #FFF; text-shadow: 0 0 15px rgba(255,255,255,0.4); }
+    .time-main { 
+      font-size: 2.8rem; 
+      font-weight: 800; 
+      letter-spacing: 2px; 
+      margin-bottom: 4px; 
+      line-height: 1; 
+      color: #FFF; 
+      text-shadow: 0 0 15px rgba(255,255,255,0.4);
+      /* 等幅にして数字の伸縮によるブレを完全に防ぐ */
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
     .time-sub { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
 
     .timer-action-btn { background: rgba(34, 197, 94, 0.1); color: var(--green); border: 1px solid var(--card-border); padding: 14px 40px; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(34,197,94,0.2); margin-top: 10px; transition: 0.2s; }
     .timer-action-btn.start { background: rgba(34, 197, 94, 0.15); color: var(--green); border-color: rgba(34, 197, 94, 0.4); }
     .timer-action-btn.stop { background: rgba(244, 63, 94, 0.15); color: var(--red); border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 15px rgba(244,63,94,0.2); }
 
-    /* -----------------------------------
-       カレンダービュー特有のスタイル
-    ------------------------------------ */
+    /* カレンダービュー */
     .cal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .cal-title-month { font-size: 1.3rem; font-weight: 800; color: #FFF; font-family: 'Syne', sans-serif; }
+    .cal-title-month { font-size: 1.3rem; font-weight: 800; color: #FFF; font-family: 'Syne', sans-serif; text-transform: capitalize; }
     .cal-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: white; padding: 6px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; }
 
     .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
@@ -209,7 +218,7 @@
     </div>
   </div>
 
-  <!-- 📅 カレンダービュー (月間カレンダーグリッド) -->
+  <!-- 📅 カレンダービュー -->
   <div id="view-calendar" class="view">
     <div class="card">
       <div class="cal-header-row">
@@ -229,7 +238,6 @@
         </div>
       </div>
 
-      <!-- 曜日ヘッダー -->
       <div class="calendar-grid" style="margin-bottom: 6px;">
         <div class="cal-weekday">D</div>
         <div class="cal-weekday">L</div>
@@ -240,12 +248,8 @@
         <div class="cal-weekday">S</div>
       </div>
 
-      <!-- カレンダーの日付グリッド -->
-      <div class="calendar-grid" id="calendar-days-container">
-        <!-- JSで生成 -->
-      </div>
+      <div class="calendar-grid" id="calendar-days-container"></div>
 
-      <!-- 選択した日の詳細表示 -->
       <div class="cal-detail-card" id="cal-selected-detail">
         <div>
           <div class="cal-detail-date" id="selected-date-text">Selecciona un día</div>
@@ -332,6 +336,60 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // --- 🔊 ピコピコ効果音ジェネレーター (Web Audio API) ---
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      try {
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+
+        if (type === 'start') {
+          // 起動音（ピピッ！と高くなる）
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.setValueAtTime(880, now + 0.08);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'stop') {
+          // 完了音（ピポッ、と低くなる）
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.setValueAtTime(440, now + 0.1);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'click') {
+          // 軽いクリック音（ポコッ）
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        }
+      } catch (e) {
+        console.log("Audio not allowed yet");
+      }
+    }
+
     function setT(id, text) {
       const el = document.getElementById(id);
       if (el) el.innerText = text;
@@ -362,7 +420,7 @@
         navHome: "タイマー", navCal: "カレンダー", navRanking: "ランキング", navMypage: "マイページ",
         unitMin: "分", unitHour: "時間", unitCount: "回", btnDelete: "削除",
         alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
-        alertManual: "日付と正しい分数を入力してください", confirmDelete: "এই記録を削除しますか？",
+        alertManual: "日付と正しい分数を入力してください", confirmDelete: "この記録を削除しますか？",
         promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
       }
@@ -376,7 +434,6 @@
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
     let amIRunning = false;
     
-    // カレンダー表示用の現在選択している年月・日付
     let calendarDate = new Date();
     let selectedDateStr = new Date().toISOString().slice(0, 10);
     
@@ -387,6 +444,7 @@
     const SECONDS_10MIN = 600;
 
     window.switchLang = (lang) => {
+      playSound('click');
       currentLang = lang;
       localStorage.setItem("gym_lang", lang);
       document.getElementById("btn-es").className = lang === "es" ? "lang-btn active" : "lang-btn";
@@ -425,6 +483,7 @@
     }
 
     window.switchTab = (tabId) => {
+      playSound('click');
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
       document.getElementById(`nav-${tabId}`).classList.add('active');
@@ -434,6 +493,7 @@
     };
 
     window.selectAvatar = (el, icon) => {
+      playSound('click');
       document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
       el.classList.add('selected');
       selectedAvatar = icon;
@@ -451,6 +511,7 @@
     }
 
     window.registerUser = () => {
+      playSound('start');
       const name = document.getElementById("regNameInput").value.trim();
       if (!name) return alert(i18n[currentLang].alertName);
       
@@ -468,6 +529,7 @@
     };
 
     window.resetUser = () => {
+      playSound('click');
       localStorage.removeItem("gym_my_name");
       localStorage.removeItem("gym_my_avatar");
       location.reload();
@@ -521,6 +583,7 @@
     window.toggleTimer = () => {
       if (!myUserName) return checkAuth();
       if (amIRunning) {
+        playSound('stop');
         const startTime = activeUsersData[myUserName].startTime;
         let durationMin = Math.round((Date.now() - startTime) / 60000);
         if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
@@ -543,6 +606,7 @@
         });
         remove(ref(db, `current/${myUserName}`));
       } else {
+        playSound('start');
         set(ref(db, `current/${myUserName}`), { startTime: Date.now(), avatar: myUserAvatar });
       }
     };
@@ -583,8 +647,8 @@
       if (document.getElementById('view-mypage').classList.contains('active')) renderMyLogs();
     });
 
-    // --- カレンダー描画ロジック ---
     window.changeMonth = (direction) => {
+      playSound('click');
       calendarDate.setMonth(calendarDate.getMonth() + direction);
       renderCalendar();
     };
@@ -594,13 +658,11 @@
       const year = calendarDate.getFullYear();
       const month = calendarDate.getMonth();
       
-      // タイトル更新 (例: agosto 2026)
       const monthNames = t.months;
       document.getElementById("cal-month-title").innerText = `${monthNames[month]} ${year}`;
 
-      // 該当月のログを抽出・日付ごとにマップ化
       const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
-      const dayLogs = {}; // {"2026-08-08": [{user, duration, avatar}]}
+      const dayLogs = {}; 
       let totalMonthMin = 0;
       const trainedDaysSet = new Set();
 
@@ -614,25 +676,21 @@
         }
       });
 
-      // サマリー更新
       document.getElementById("stat-days-val").innerText = trainedDaysSet.size;
       document.getElementById("stat-time-val").innerText = formatTimeFriendly(totalMonthMin);
 
-      // カレンダーの日付グリッド生成
       const container = document.getElementById("calendar-days-container");
       container.innerHTML = "";
 
-      const firstDayIndex = new Date(year, month, 1).getDay(); // 月の初めの曜日 (0:日曜)
-      const totalDays = new Date(year, month + 1, 0).getDate(); // 月の総日数
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const totalDays = new Date(year, month + 1, 0).getDate();
 
-      // 空白セル
       for (let i = 0; i < firstDayIndex; i++) {
         const emptyCell = document.createElement("div");
         emptyCell.className = "cal-day empty";
         container.appendChild(emptyCell);
       }
 
-      // 日付セル
       for (let day = 1; day <= totalDays; day++) {
         const dayStr = day.toString().padStart(2, '0');
         const monthStrCell = (month + 1).toString().padStart(2, '0');
@@ -644,11 +702,13 @@
         if (dateKey === selectedDateStr) cell.classList.add("selected");
 
         cell.innerText = day;
-        cell.onclick = () => selectCalendarDay(dateKey, dayLogs[dateKey] || []);
+        cell.onclick = () => {
+          playSound('click');
+          selectCalendarDay(dateKey, dayLogs[dateKey] || []);
+        };
         container.appendChild(cell);
       }
 
-      // 選択中の日の詳細を反映
       selectCalendarDay(selectedDateStr, dayLogs[selectedDateStr] || [], false);
     }
 
@@ -656,7 +716,6 @@
       if (updateSelectionState) {
         selectedDateStr = dateKey;
         document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
-        // 該当する日付セルにクラス付与
         event && event.currentTarget && event.currentTarget.classList.add('selected');
       }
 
@@ -665,7 +724,6 @@
       const usersTextEl = document.getElementById("selected-date-users");
       const totalValEl = document.getElementById("selected-date-total");
 
-      // 日付表示の整形
       const [y, m, d] = dateKey.split('-');
       dateTextEl.innerText = currentLang === 'es' ? `${d}/${m}/${y}` : `${m}月${d}日`;
 
@@ -692,7 +750,6 @@
       }
     }
 
-    // --- ランキング処理 ---
     function renderRaceRanking() {
       const t = i18n[currentLang];
       const currentMonth = new Date().toISOString().slice(0, 7);
@@ -723,7 +780,6 @@
       }).join("");
     }
 
-    // --- マイページ処理 ---
     window.renderMyLogs = () => {
       const t = i18n[currentLang];
       const listEl = document.getElementById("my-logs-list");
@@ -751,13 +807,14 @@
               <div class="list-date">${dateStr}</div>
               <div class="list-title" style="color:white;">${log.duration} ${t.unitMin}</div>
             </div>
-            <button class="btn-del" onclick="deleteLog('${key}')">${t.btnDelete}</button>
+            <button class="btn-del" onclick="playSound('click'); deleteLog('${key}')">${t.btnDelete}</button>
           </div>
         `;
       }).join("");
     };
 
     window.addManualLog = () => {
+      playSound('click');
       const t = i18n[currentLang];
       if (!myUserName) return;
       
