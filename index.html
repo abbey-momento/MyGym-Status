@@ -51,9 +51,7 @@
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .brand { display: flex; align-items: center; gap: 10px; }
     
-    /* SVGロゴアイコン */
     .brand-logo-svg { width: 38px; height: 38px; filter: drop-shadow(0 0 8px rgba(34,197,94,0.5)); }
-    
     .brand-title h1 { font-size: 1.3rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(34,197,94,0.5); }
     
     .lang-switcher { display: flex; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 3px; gap: 2px; }
@@ -64,10 +62,11 @@
     .view.active { display: flex; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; }
-    .card::before { content: ""; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--accent); border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+    /* カードの左側の線を他の枠線と同じ細さに調整し、全体の位置ズレを解消 */
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; overflow: hidden; }
+    .card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
 
-    /* 初回登録＆編集モーダル */
+    /* モーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 6, 26, 0.95); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px); }
     .modal-content { width: 100%; max-width: 400px; }
     .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
@@ -75,7 +74,6 @@
     input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; color: white; outline: none; font-size: 1.1rem; text-align: center; }
     input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(34,197,94,0.3); }
     
-    /* アバターグリッド（種類を大幅増加） */
     .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 160px; overflow-y: auto; padding-right: 4px; }
     .avatar-option { font-size: 1.5rem; text-align: center; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .avatar-option.selected { border-color: var(--accent); background: rgba(34,197,94,0.2); transform: scale(1.05); }
@@ -163,9 +161,7 @@
       </div>
       <div class="form-group">
         <label id="t-modal-avatar">Avatar</label>
-        <div class="avatar-grid" id="modal-avatar-grid">
-          <!-- JSで大量生成 -->
-        </div>
+        <div class="avatar-grid" id="modal-avatar-grid"></div>
       </div>
       <button class="btn-primary" onclick="registerUser()" id="t-btn-register">Comenzar 🚀</button>
     </div>
@@ -181,9 +177,7 @@
       </div>
       <div class="form-group">
         <label id="t-edit-avatar">Avatar</label>
-        <div class="avatar-grid" id="edit-avatar-grid">
-          <!-- JSで大量生成 -->
-        </div>
+        <div class="avatar-grid" id="edit-avatar-grid"></div>
       </div>
       <button class="btn-primary" onclick="saveEditedProfile()" id="t-btn-save">Guardar</button>
       <button class="btn-secondary" onclick="closeEditModal()" id="t-btn-cancel">Cancelar</button>
@@ -192,7 +186,6 @@
 
   <header>
     <div class="brand">
-      <!-- レトロフューチャーコンセプトのカスタムSVGロゴ -->
       <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="100" height="100" rx="24" fill="#170C2E" stroke="#22C55E" stroke-width="4"/>
         <path d="M30 50L45 30H70L55 50H70L40 75L48 55H30Z" fill="url(#paint0_linear)" stroke="#00F0FF" stroke-width="3" stroke-linejoin="round"/>
@@ -272,7 +265,6 @@
 
       <div class="calendar-grid" id="calendar-days-container"></div>
 
-      <!-- 選択した日の詳細（全ユーザー表示対応） -->
       <div class="cal-detail-card" id="cal-selected-detail">
         <div class="cal-detail-header">
           <div class="cal-detail-date" id="selected-date-text">Selecciona un día</div>
@@ -364,7 +356,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // アバターのリストを大幅に拡充
     const AVATAR_LIST = [
       '🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐸', '🐵', '🦄',
       '⚡', '🔥', '🚀', '⭐', '💎', '🦾', '🏆', '🎯', '🎸', '🕹️', '🎧', '👾',
@@ -531,7 +522,6 @@
 
     window.selectAvatarOption = (el, icon) => {
       playSound('click');
-      // どちらのモーダルか判定して選択状態を分ける
       const parent = el.closest('#modal-avatar-grid');
       if (parent) {
         parent.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
@@ -578,7 +568,6 @@
       document.getElementById("editNameInput").value = myUserName;
       editSelectedAvatar = myUserAvatar;
       
-      // 編集用グリッドの選択状態を合わせる
       document.querySelectorAll('#edit-avatar-grid .avatar-option').forEach(opt => {
         if (opt.innerText === myUserAvatar) opt.classList.add('selected');
         else opt.classList.remove('selected');
@@ -597,7 +586,6 @@
       const newName = document.getElementById("editNameInput").value.trim();
       if (!newName) return alert(i18n[currentLang].alertName);
 
-      // 古い名前の稼働中データがあれば移動または更新
       if (activeUsersData[myUserName]) {
         set(ref(db, `current/${newName}`), { startTime: activeUsersData[myUserName].startTime, avatar: editSelectedAvatar });
         remove(ref(db, `current/${myUserName}`));
@@ -824,7 +812,6 @@
         logsForDay.forEach(l => totalMin += l.duration);
         totalBadgeEl.innerText = formatTimeFriendly(totalMin);
 
-        // 全ユーザーの個別記録を表示
         usersListEl.innerHTML = logsForDay.map(log => `
           <div class="cal-user-log-row">
             <div style="display:flex; align-items:center; gap:8px;">
@@ -908,7 +895,7 @@
       const dateVal = document.getElementById("manualDate").value;
       const minVal = parseInt(document.getElementById("manualMin").value, 10);
 
-      if (!dateVal || !minVal || minVal <= 0) return alert(t.alertManual);
+      if (!dateVal || !minVal || minVal <= 0) return alert(i18n[currentLang].alertManual);
 
       const logDate = new Date(dateVal);
       logDate.setHours(12);
