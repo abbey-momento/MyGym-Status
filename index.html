@@ -69,8 +69,8 @@
     .modal-content { width: 100%; max-width: 400px; }
     .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
     label { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
-    input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; color: white; outline: none; font-size: 1rem; text-align: center; }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(34,197,94,0.3); }
+    input, textarea { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; color: white; outline: none; font-size: 1rem; text-align: center; }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(34,197,94,0.3); }
     
     .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 160px; overflow-y: auto; padding-right: 4px; }
     .avatar-option { font-size: 1.5rem; text-align: center; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
@@ -109,10 +109,10 @@
     .cal-nav-btn:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); }
     .cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
-    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; text-align: center; }
-    .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.3); margin-top: 4px; }
-    .stat-label { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px 8px; text-align: center; }
+    .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.3); margin-top: 4px; }
+    .stat-label { font-size: 0.65rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 20px; }
     .cal-weekday { text-align: center; font-size: 0.75rem; color: var(--text-sub); font-weight: 700; padding-bottom: 4px; }
@@ -124,9 +124,10 @@
     .cal-detail-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .cal-detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
     .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
-    .cal-user-log-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-weight: 700; }
+    
+    .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
 
-    /* 🏆 新しいワクワクするサイバー・レースランキングデザイン */
+    /* レースランキング */
     .race-card-item { background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; position: relative; overflow: hidden; transition: 0.2s; }
     .race-card-item.is-top1 { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); background: linear-gradient(135deg, rgba(23,12,46,0.9), rgba(255,215,0,0.08)); }
     .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
@@ -139,7 +140,6 @@
     .race-score-main { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.4); }
     .race-score-sub { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
 
-    /* プログレスバー（エネルギーゲージ） */
     .race-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; position: relative; z-index: 2; }
     .race-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring-inner)); border-radius: 4px; transition: width 0.6s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px rgba(34,197,94,0.5); }
     .is-top1 .race-bar-fill { background: linear-gradient(90deg, #FFD700, #FF8C00); box-shadow: 0 0 12px rgba(255,215,0,0.6); }
@@ -194,8 +194,20 @@
         <label id="t-edit-avatar">Avatar</label>
         <div class="avatar-grid" id="edit-avatar-grid"></div>
       </div>
-      <button class="btn-primary" onclick="saveEditedProfile()" id="t-btn-save">Guardar</button>
+      <button class="btn-primary" onclick="saveEditedProfile()" id="t-btn-save">Guardار</button>
       <button class="btn-secondary" onclick="closeEditModal()" id="t-btn-cancel">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ひとことメモ入力モーダル（ストップ時） -->
+  <div id="memo-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content card">
+      <h2 style="text-align:center; margin-bottom: 10px; font-size: 1.3rem;" id="t-memo-title">¡Buen trabajo! 💪</h2>
+      <p style="text-align:center; color:var(--text-sub); font-size:0.85rem; margin-bottom: 16px;" id="t-memo-sub">Añade una nota o comentario sobre tu entrenamiento</p>
+      <div class="form-group">
+        <textarea id="trainingMemoInput" rows="3" placeholder="Ej: ¡Hoy hice pierna con todo!"></textarea>
+      </div>
+      <button class="btn-primary" onclick="submitTrainingLog()" id="t-btn-save-log">Guardar Registro ✨</button>
     </div>
   </div>
 
@@ -263,12 +275,16 @@
 
       <div class="stats-row">
         <div class="stat-box">
-          <div class="stat-label" id="t-stat-days">Días de entrenamiento</div>
+          <div class="stat-label" id="t-stat-days">Días</div>
           <div class="stat-num" id="stat-days-val">0</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label" id="t-stat-time">Tiempo total</div>
+          <div class="stat-label" id="t-stat-time">Total</div>
           <div class="stat-num" id="stat-time-val">0 min</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label" id="t-stat-streak">Streak</div>
+          <div class="stat-num" id="stat-streak-val" style="color:var(--accent);">0🔥</div>
         </div>
       </div>
 
@@ -289,14 +305,14 @@
           <div class="cal-detail-date" id="selected-date-text">Selecciona un día</div>
           <div id="selected-date-total-badge" style="font-weight:800; color:var(--accent); font-family:'Syne';">0 min</div>
         </div>
-        <div id="selected-date-users-list" style="display:flex; flex-direction:column; gap:6px;">
+        <div id="selected-date-users-list" style="display:flex; flex-direction:column; gap:8px;">
           <div style="color:var(--text-sub); font-size:0.9rem;">Sin registros</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 🏆 ランキングビュー（サイバー・エネルギーレース仕様） -->
+  <!-- 🏆 ランキングビュー -->
   <div id="view-ranking" class="view">
     <div class="card">
       <h2 class="section-title" id="t-race-title">🏆 Energy Race</h2>
@@ -314,10 +330,29 @@
         <div class="profile-avatar" id="my-avatar-display">👤</div>
         <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
           <div class="profile-name" id="my-name-display">Name</div>
-          <button onclick="openEditModal()" style="background:rgba(34,197,94,0.15); border:1px solid var(--card-border); color:var(--accent); padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.75rem; cursor:pointer; width:fit-content;" id="t-edit-profile-btn">Editar Perfil</button>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span id="my-streak-badge" style="font-size:0.75rem; background:rgba(34,197,94,0.2); color:var(--accent); padding:2px 8px; border-radius:8px; font-weight:700;">🔥 0 Streak</span>
+            <button onclick="openEditModal()" style="background:rgba(34,197,94,0.15); border:1px solid var(--card-border); color:var(--accent); padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.75rem; cursor:pointer;" id="t-edit-profile-btn">Editar Perfil</button>
+          </div>
         </div>
       </div>
       
+      <!-- 目標設定エリア -->
+      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--card-border);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+          <h3 style="font-size: 0.85rem; color:var(--text-sub);" id="t-goal-title">🎯 Meta Mensual</h3>
+          <span id="goal-progress-text" style="font-size:0.8rem; font-weight:800; color:var(--ring-inner);">0%</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <input type="number" id="goalInput" placeholder="Min" style="flex:1; padding:10px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 10px; color: white; font-size:0.9rem;" value="600">
+          <button onclick="saveMonthlyGoal()" id="t-btn-save-goal" style="background:rgba(0,240,255,0.15); border:1px solid var(--card-border); border-radius:10px; color:var(--ring-inner); padding:10px 14px; font-weight:700; cursor:pointer; font-size:0.85rem;">Guardar Meta</button>
+        </div>
+        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+          <div id="goal-bar-fill" style="width:0%; height:100%; background:var(--ring-inner); transition:0.4s;"></div>
+        </div>
+      </div>
+
+      <!-- 手動登録フォーム -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
         <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;" id="t-manual-title">➕ Añadir registro manual</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
@@ -332,6 +367,7 @@
               <input type="time" id="manualTimeTo" value="11:00" style="padding:10px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 12px; color: white;">
             </div>
           </div>
+          <input type="text" id="manualMemo" placeholder="Nota opcional (ej: Espalda y Bíceps)" style="padding:10px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 10px; color: white; font-size:0.9rem;">
           <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:#0D061A; padding:14px; font-weight:800; cursor:pointer; margin-top:4px;">Añadir</button>
         </div>
       </div>
@@ -368,7 +404,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, remove, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCwu8QoQvf3WUtAKAlvz8s2nbfNkcsGPEA",
@@ -447,9 +483,11 @@
         editTitle: "Editar Perfil", editName: "Tu nombre", editAvatar: "Avatar", btnSave: "Guardar", btnCancel: "Cancelar", editBtn: "Editar Perfil",
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
-        statDays: "Días de entrenamiento", statTime: "Tiempo total", selectDayMsg: "Selecciona un día",
+        statDays: "Días", statTime: "Total", statStreak: "Streak",
         raceTitle: "🏆 Energy Race", emptyData: "Sin datos",
         myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Mi Historial", logout: "Cerrar sesión",
+        goalTitle: "🎯 Meta Mensual (min)", btnSaveGoal: "Guardar Meta",
+        memoTitle: "¡Buen trabajo! 💪", memoSub: "Añade una nota o comentario sobre tu entrenamiento", btnSaveLog: "Guardar Registro ✨",
         labelFrom: "Desde", labelTo: "Hasta",
         navHome: "Inicio", navCal: "Calendario", navRanking: "Ranking", navMypage: "Perfil",
         unitMin: "min", unitHour: "h", btnDelete: "Borrar",
@@ -463,9 +501,11 @@
         editTitle: "プロフィール編集", editName: "あなたの名前", editAvatar: "アバター", btnSave: "保存する", btnCancel: "キャンセル", editBtn: "プロフィール編集",
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
-        statDays: "トレーニング日数", statTime: "今月の合計時間", selectDayMsg: "カレンダーの日付を選択",
+        statDays: "日数", statTime: "合計", statStreak: "連続",
         raceTitle: "🏆 エネルギーレース", emptyData: "データなし",
         myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴", logout: "ログアウト (リセット)",
+        goalTitle: "🎯 今月の目標時間 (分)", btnSaveGoal: "目標を保存",
+        memoTitle: "お疲れ様でした！ 💪", memoSub: "今日のトレーニングのメモを残そう", btnSaveLog: "記録を保存する ✨",
         labelFrom: "開始時間", labelTo: "終了時間",
         navHome: "タイマー", navCal: "カレンダー", navRanking: "ランキング", navMypage: "マイページ",
         unitMin: "分", unitHour: "時間", btnDelete: "削除",
@@ -483,7 +523,9 @@
     let editSelectedAvatar = "🐶";
     let myUserName = localStorage.getItem("gym_my_name") || "";
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
+    let monthlyGoalMin = parseInt(localStorage.getItem("gym_monthly_goal") || "600", 10);
     let amIRunning = false;
+    let pendingTimerStartTime = null;
     
     let calendarDate = new Date();
     let selectedDateStr = new Date().toISOString().slice(0, 10);
@@ -518,9 +560,15 @@
       setT("t-home-status-label", t.homeStatusLabel);
       setT("t-stat-days", t.statDays);
       setT("t-stat-time", t.statTime);
+      setT("t-stat-streak", t.statStreak);
       setT("t-race-title", t.raceTitle);
       setT("t-my-title", t.myTitle);
       setT("t-manual-title", t.manualTitle);
+      setT("t-goal-title", t.goalTitle);
+      setT("t-btn-save-goal", t.btnSaveGoal);
+      setT("t-memo-title", t.memoTitle);
+      setT("t-memo-sub", t.memoSub);
+      setT("t-btn-save-log", t.btnSaveLog);
       setT("t-label-from", t.labelFrom);
       setT("t-label-to", t.labelTo);
       setT("t-btn-add", t.btnAdd);
@@ -537,7 +585,10 @@
       updateHomeStatusText();
       renderCalendar();
       renderEnergyRace();
-      if(myUserName) renderMyLogs();
+      if(myUserName) {
+        renderMyLogs();
+        updateStreakAndGoals();
+      }
     }
 
     window.switchTab = (tabId) => {
@@ -546,7 +597,10 @@
       document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
       document.getElementById(`nav-${tabId}`).classList.add('active');
       document.getElementById(`view-${tabId}`).classList.add('active');
-      if(tabId === 'mypage' && myUserName) renderMyLogs();
+      if(tabId === 'mypage' && myUserName) {
+        renderMyLogs();
+        updateStreakAndGoals();
+      }
       if(tabId === 'calendar') renderCalendar();
       if(tabId === 'ranking') renderEnergyRace();
     };
@@ -572,7 +626,9 @@
         document.getElementById("auth-modal").style.display = "none";
         document.getElementById("my-name-display").innerText = myUserName;
         document.getElementById("my-avatar-display").innerText = myUserAvatar;
+        document.getElementById("goalInput").value = monthlyGoalMin;
         checkMyTimerStatus();
+        updateStreakAndGoals();
       }
     }
 
@@ -592,6 +648,7 @@
       
       checkMyTimerStatus();
       renderMyLogs();
+      updateStreakAndGoals();
     };
 
     window.openEditModal = () => {
@@ -634,6 +691,7 @@
       renderEnergyRace();
       renderCalendar();
       renderMyLogs();
+      updateStreakAndGoals();
     };
 
     window.resetUser = () => {
@@ -692,8 +750,9 @@
       if (!myUserName) return checkAuth();
       if (amIRunning) {
         playSound('stop');
-        const startTime = activeUsersData[myUserName].startTime;
-        let durationMin = Math.round((Date.now() - startTime) / 60000);
+        pendingTimerStartTime = activeUsersData[myUserName].startTime;
+        
+        let durationMin = Math.round((Date.now() - pendingTimerStartTime) / 60000);
         if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
 
         if (durationMin >= 180) {
@@ -704,19 +763,109 @@
           if (!isNaN(parsed) && parsed > 0) durationMin = parsed;
         }
 
-        push(ref(db, "logs"), {
-          user: myUserName,
-          avatar: myUserAvatar,
-          startTime: startTime,
-          duration: durationMin,
-          month: new Date().toISOString().slice(0, 7),
-          date: new Date().toISOString()
-        });
-        remove(ref(db, `current/${myUserName}`));
+        // ひとことメモモーダルを開く
+        document.getElementById("trainingMemoInput").value = "";
+        document.getElementById("memo-modal").style.display = "flex";
       } else {
         playSound('start');
         set(ref(db, `current/${myUserName}`), { startTime: Date.now(), avatar: myUserAvatar });
       }
+    };
+
+    window.submitTrainingLog = () => {
+      playSound('click');
+      const memo = document.getElementById("trainingMemoInput").value.trim();
+      const startTime = pendingTimerStartTime || Date.now();
+      let durationMin = Math.round((Date.now() - startTime) / 60000);
+      if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
+
+      push(ref(db, "logs"), {
+        user: myUserName,
+        avatar: myUserAvatar,
+        startTime: startTime,
+        duration: durationMin,
+        memo: memo || "",
+        stamps: {},
+        month: new Date().toISOString().slice(0, 7),
+        date: new Date().toISOString()
+      });
+
+      remove(ref(db, `current/${myUserName}`));
+      document.getElementById("memo-modal").style.display = "none";
+      pendingTimerStartTime = null;
+    };
+
+    // --- 連続日数（Streak）と目標進捗の計算 ---
+    function calculateStreak(logs) {
+      const userDates = new Set();
+      Object.values(logs).forEach(log => {
+        if (log.user === myUserName && log.date) {
+          userDates.add(log.date.slice(0, 10));
+        }
+      });
+
+      if (userDates.size === 0) return 0;
+
+      let streak = 0;
+      let d = new Date();
+      let todayStr = d.toISOString().slice(0, 10);
+      
+      if (!userDates.has(todayStr)) {
+        d.setDate(d.getDate() - 1);
+        let yesterdayStr = d.toISOString().slice(0, 10);
+        if (!userDates.has(yesterdayStr)) return 0;
+      }
+
+      while (true) {
+        let dateStr = d.toISOString().slice(0, 10);
+        if (userDates.has(dateStr)) {
+          streak++;
+          d.setDate(d.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    function updateStreakAndGoals() {
+      const streak = calculateStreak(allLogsData);
+      document.getElementById("stat-streak-val").innerText = `${streak}🔥`;
+      document.getElementById("my-streak-badge").innerText = `🔥 ${streak} Streak`;
+
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      let totalMin = 0;
+      Object.values(allLogsData).forEach(log => {
+        if (log.user === myUserName && log.month === currentMonth) {
+          totalMin += log.duration;
+        }
+      });
+
+      let percent = monthlyGoalMin > 0 ? Math.min(100, Math.round((totalMin / monthlyGoalMin) * 100)) : 0;
+      document.getElementById("goal-progress-text").innerText = `${percent}% (${totalMin}/${monthlyGoalMin} min)`;
+      document.getElementById("goal-bar-fill").style.width = `${percent}%`;
+    }
+
+    window.saveMonthlyGoal = () => {
+      playSound('click');
+      const val = parseInt(document.getElementById("goalInput").value, 10);
+      if (!isNaN(val) && val > 0) {
+        monthlyGoalMin = val;
+        localStorage.setItem("gym_monthly_goal", val);
+        updateStreakAndGoals();
+        alert(currentLang === 'es' ? "¡Meta guardada exitosamente!" : "目標を保存しました！");
+      }
+    };
+
+    // --- スタンプ（リアクション）送信 ---
+    window.sendStamp = (logKey, stampEmoji) => {
+      playSound('click');
+      const logRef = ref(db, `logs/${logKey}/stamps`);
+      const logItem = allLogsData[logKey];
+      let stamps = logItem.stamps || {};
+      
+      stamps[myUserName] = stampEmoji;
+      set(logRef, stamps);
     };
 
     function updateHomeStatusText() {
@@ -751,6 +900,7 @@
     onValue(ref(db, "logs"), (snapshot) => {
       allLogsData = snapshot.val() || {};
       renderEnergyRace();
+      updateStreakAndGoals();
       if (document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
       if (document.getElementById('view-mypage').classList.contains('active')) renderMyLogs();
     });
@@ -774,11 +924,11 @@
       let totalMonthMin = 0;
       const trainedDaysSet = new Set();
 
-      Object.values(allLogsData).forEach(log => {
+      Object.entries(allLogsData).forEach(([key, log]) => {
         if (log.date && log.date.startsWith(monthStr)) {
           const dateKey = log.date.slice(0, 10);
           if (!dayLogs[dateKey]) dayLogs[dateKey] = [];
-          dayLogs[dateKey].push(log);
+          dayLogs[dateKey].push({ ...log, key });
           totalMonthMin += log.duration;
           trainedDaysSet.add(dateKey);
         }
@@ -840,29 +990,39 @@
         totalBadgeEl.innerText = `0 ${t.unitMin}`;
       } else {
         let totalMin = 0;
-        let userSummary = {};
-        
-        logsForDay.forEach(l => {
-          totalMin += l.duration;
-          if (!userSummary[l.user]) userSummary[l.user] = { avatar: l.avatar || "👤", min: 0 };
-          userSummary[l.user].min += l.duration;
-        });
-
+        logsForDay.forEach(l => totalMin += l.duration);
         totalBadgeEl.innerText = formatTimeFriendly(totalMin);
 
-        usersListEl.innerHTML = Object.entries(userSummary).map(([user, data]) => `
-          <div class="cal-user-log-row">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:1.2rem;">${data.avatar}</span>
-              <span style="color:#FFF;">${user}</span>
+        usersListEl.innerHTML = logsForDay.map(log => {
+          let stampsHtml = '';
+          if (log.stamps) {
+            stampsHtml = Object.entries(log.stamps).map(([u, s]) => `<span style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; font-size:0.75rem;" title="${u}">${s}</span>`).join(" ");
+          }
+
+          return `
+            <div class="cal-user-log-item">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
+                  <span style="color:#FFF; font-weight:800;">${log.user}</span>
+                </div>
+                <span style="color:var(--ring-inner); font-weight:800;">${log.duration} ${t.unitMin}</span>
+              </div>
+              ${log.memo ? `<div style="font-size:0.85rem; color:var(--text-sub); background:rgba(0,0,0,0.2); padding:6px 8px; border-radius:8px;">💬 ${log.memo}</div>` : ''}
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                <div style="display:flex; gap:4px; flex-wrap:wrap;">${stampsHtml}</div>
+                <div style="display:flex; gap:4px;">
+                  <button onclick="sendStamp('${log.key}', '🔥')" style="background:none; border:none; cursor:pointer; font-size:1rem;" title="Buen trabajo">🔥</button>
+                  <button onclick="sendStamp('${log.key}', '🦾')" style="background:none; border:none; cursor:pointer; font-size:1rem;" title="Fuerza">🦾</button>
+                  <button onclick="sendStamp('${log.key}', '👏')" style="background:none; border:none; cursor:pointer; font-size:1rem;" title="Aplausos">👏</button>
+                </div>
+              </div>
             </div>
-            <span style="color:var(--ring-inner); font-weight:800;">${formatTimeFriendly(data.min)}</span>
-          </div>
-        `).join("");
+          `;
+        }).join("");
       }
     }
 
-    // --- ワクワクするサイバー・エネルギーレースの描画 ---
     function renderEnergyRace() {
       const t = i18n[currentLang];
       const currentMonth = new Date().toISOString().slice(0, 7);
@@ -931,7 +1091,7 @@
       const currentMonth = new Date().toISOString().slice(0, 7);
       const userLogs = Object.entries(allLogsData)
         .filter(([key, log]) => log.user === myUserName && log.month === currentMonth)
-        .sort((a, b) => new Date(b[1].date) - new Date(b[1].date));
+        .sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
 
       if (userLogs.length === 0) {
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
@@ -948,7 +1108,7 @@
           <div class="list-item">
             <div>
               <div class="list-date">${dateStr}</div>
-              <div class="list-title" style="color:white;">${log.duration} ${t.unitMin}</div>
+              <div class="list-title" style="color:white;">${log.duration} ${t.unitMin} ${log.memo ? `<span style="font-size:0.75rem; color:var(--text-sub); font-weight:normal;">(${log.memo})</span>` : ''}</div>
             </div>
             <button class="btn-del" onclick="deleteLog('${key}')">${t.btnDelete}</button>
           </div>
@@ -964,6 +1124,7 @@
       const dateVal = document.getElementById("manualDate").value;
       const timeFrom = document.getElementById("manualTimeFrom").value;
       const timeTo = document.getElementById("manualTimeTo").value;
+      const memo = document.getElementById("manualMemo").value.trim();
 
       if (!dateVal || !timeFrom || !timeTo) return alert(t.alertManual);
 
@@ -983,12 +1144,15 @@
         avatar: myUserAvatar,
         startTime: logDate.getTime(),
         duration: diffMin,
+        memo: memo || "",
+        stamps: {},
         month: dateVal.slice(0, 7),
         date: logDate.toISOString()
       });
 
       document.getElementById("manualTimeFrom").value = "10:00";
       document.getElementById("manualTimeTo").value = "11:00";
+      document.getElementById("manualMemo").value = "";
     };
 
     window.deleteLog = (key) => {
