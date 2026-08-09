@@ -562,6 +562,12 @@
       return audioCtx;
     }
 
+    function triggerVibrate(pattern = 40) {
+      if ("vibrate" in navigator) {
+        try { navigator.vibrate(pattern); } catch(e) {}
+      }
+    }
+
     function playSound(type) {
       try {
         const ctx = getAudioContext();
@@ -657,6 +663,7 @@
     
     let calendarDate = new Date();
     let selectedDateStr = getLocalISOString().slice(0, 10);
+    let calendarTargetUser = null; // カレンダー上部統計用の対象ユーザー
     let activeCommentLogKey = null;
     
     let timerAnimationId;
@@ -737,7 +744,10 @@
         updateStreakAndGoals();
       }
       if(tabId === 'timeline') renderTimeline();
-      if(tabId === 'calendar') renderCalendar();
+      if(tabId === 'calendar') {
+        if(!calendarTargetUser && myUserName) calendarTargetUser = myUserName;
+        renderCalendar();
+      }
       if(tabId === 'ranking') renderEnergyRace();
     };
 
@@ -763,6 +773,7 @@
         document.getElementById("my-name-display").innerText = myUserName;
         document.getElementById("my-avatar-display").innerText = myUserAvatar;
         document.getElementById("goalInput").value = monthlyGoalCount;
+        if(!calendarTargetUser) calendarTargetUser = myUserName;
         checkMyTimerStatus();
         updateStreakAndGoals();
       }
@@ -770,11 +781,13 @@
 
     window.registerUser = () => {
       playSound('start');
+      triggerVibrate([30, 50, 30]);
       const name = document.getElementById("regNameInput").value.trim();
       if (!name) return alert(i18n[currentLang].alertName);
       
       myUserName = name;
       myUserAvatar = selectedAvatar;
+      calendarTargetUser = name;
       localStorage.setItem("gym_my_name", name);
       localStorage.setItem("gym_my_avatar", selectedAvatar);
       
@@ -814,6 +827,8 @@
         set(ref(db, `current/${newName}`), { startTime: activeUsersData[myUserName].startTime, avatar: editSelectedAvatar });
         remove(ref(db, `current/${myUserName}`));
       }
+
+      if (calendarTargetUser === myUserName) calendarTargetUser = newName;
 
       myUserName = newName;
       myUserAvatar = editSelectedAvatar;
@@ -887,6 +902,7 @@
       if (!myUserName) return checkAuth();
       if (amIRunning) {
         playSound('stop');
+        triggerVibrate([50, 30, 50]);
         pendingTimerStartTime = activeUsersData[myUserName].startTime;
         
         let durationMin = Math.round((Date.now() - pendingTimerStartTime) / 60000);
@@ -904,6 +920,7 @@
         document.getElementById("memo-modal").style.display = "flex";
       } else {
         playSound('start');
+        triggerVibrate(60);
         set(ref(db, `current/${myUserName}`), { startTime: Date.now(), avatar: myUserAvatar });
       }
     };
@@ -935,10 +952,10 @@
       pendingTimerStartTime = null;
     };
 
-    function calculateStreak(logs) {
+    function calculateStreakForUser(logs, targetUser) {
       const userDates = new Set();
       Object.values(logs).forEach(log => {
-        if (log.user === myUserName && log.date) {
+        if (log.user === targetUser && log.date) {
           userDates.add(log.date.slice(0, 10));
         }
       });
@@ -968,8 +985,7 @@
     }
 
     function updateStreakAndGoals() {
-      const streak = calculateStreak(allLogsData);
-      document.getElementById("stat-streak-val").innerText = `${streak}🔥`;
+      const streak = calculateStreakForUser(allLogsData, myUserName);
       document.getElementById("my-streak-badge").innerText = `🔥 ${streak} Streak`;
 
       const currentMonth = getLocalISOString(new Date()).slice(0, 7);
@@ -1281,9 +1297,16 @@
       renderCalendar();
     };
 
+    window.switchCalendarUser = (username) => {
+      playSound('click');
+      calendarTargetUser = username;
+      renderCalendar();
+    };
+
     function renderCalendar() {
       const t = i18n[currentLang];
       if (!myUserName) return;
+      if (!calendarTargetUser) calendarTargetUser = myUserName;
 
       const year = calendarDate.getFullYear();
       const month = calendarDate.getMonth();
@@ -1291,25 +1314,27 @@
       document.getElementById("cal-month-title").innerText = `${monthNames[month]} ${year}`;
 
       const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
-      let myMonthMin = 0;
-      const myTrainedDays = new Set();
+      let targetMonthMin = 0;
+      const targetTrainedDays = new Set();
       const trainedDaysSet = new Set();
 
       Object.values(allLogsData).forEach(log => {
-        // カレンダー上部のスタッツ用：常に自分の月間データを集計
-        if (log.date && log.date.startsWith(monthStr) && log.user === myUserName) {
-          myMonthMin += log.duration;
-          myTrainedDays.add(log.date.slice(0, 10));
+        // カレンダー上部のスタッツ用：選択中のターゲットユーザーの月間データを集計
+        if (log.date && log.date.startsWith(monthStr) && log.user === calendarTargetUser) {
+          targetMonthMin += log.duration;
+          targetTrainedDays.add(log.date.slice(0, 10));
         }
-        // カレンダーハイライト用：今月誰かしらがトレーニングした日を抽出
+        // カレンダーハイライト用：今月誰かがトレーニングした日
         if (log.date && log.date.startsWith(monthStr)) {
           trainedDaysSet.add(log.date.slice(0, 10));
         }
       });
 
-      // 上部の数値統計は常に自分のデータを正しく表示
-      document.getElementById("stat-days-val").innerText = myTrainedDays.size;
-      document.getElementById("stat-time-val").innerText = formatTimeFriendly(myMonthMin);
+      // 上部の統計数値を、選択中のユーザーのデータ＆連続日数（Streak）に更新
+      const targetStreak = calculateStreakForUser(allLogsData, calendarTargetUser);
+      document.getElementById("stat-days-val").innerText = targetTrainedDays.size;
+      document.getElementById("stat-time-val").innerText = formatTimeFriendly(targetMonthMin);
+      document.getElementById("stat-streak-val").innerText = `${targetStreak}🔥`;
 
       const container = document.getElementById("calendar-days-container");
       container.innerHTML = "";
@@ -1371,13 +1396,16 @@
         usersListEl.innerHTML = `<div style="color:var(--text-sub); font-size:0.9rem;">Sin registros</div>`;
         totalBadgeEl.innerText = `0 ${t.unitMin}`;
       } else {
-        let totalMinDay = 0;
-        logsForDayAll.forEach(l => totalMinDay += l.duration);
-        totalBadgeEl.innerText = formatTimeFriendly(totalMinDay);
+        let targetTotalMin = 0;
+        logsForDayAll.forEach(l => {
+          if (l.user === calendarTargetUser) targetTotalMin += l.duration;
+        });
+        totalBadgeEl.innerText = formatTimeFriendly(targetTotalMin);
 
         usersListEl.innerHTML = logsForDayAll.map(log => {
+          const isSelectedUser = log.user === calendarTargetUser;
           return `
-            <div class="cal-user-log-item">
+            <div class="cal-user-log-item" style="${isSelectedUser ? 'border-color:var(--accent); background:rgba(34,197,94,0.1);' : ''}" onclick="switchCalendarUser('${log.user}')">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
