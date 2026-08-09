@@ -115,10 +115,6 @@
     .cal-nav-btn:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); }
     .cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
-    .cal-target-user-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; }
-    .cal-user-pill { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 14px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; color: var(--text-sub); cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; transition: 0.2s; }
-    .cal-user-pill.active { background: rgba(34,197,94,0.2); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(34,197,94,0.3); }
-
     .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
     .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px 8px; text-align: center; }
     .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.3); margin-top: 4px; }
@@ -135,7 +131,8 @@
     .cal-detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
     .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
     
-    .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: 0.2s; }
+    .cal-user-log-item:hover { border-color: var(--accent); background: rgba(34,197,94,0.05); }
 
     /* アクティビティ（タイムライン）専用スタイル */
     .timeline-card-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
@@ -147,18 +144,16 @@
     .timeline-duration { color: var(--ring-inner); font-weight: 800; font-size: 1.1rem; font-family: 'Syne'; }
     .timeline-memo { font-size: 0.85rem; color: var(--text-sub); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 10px; word-break: break-all; }
     
-    .timeline-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
-    .like-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; color: var(--text-sub); }
-    .like-btn.liked { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: var(--red); }
-    .like-btn svg { width: 16px; height: 16px; fill: currentColor; stroke: none; transition: 0.2s; }
-    .like-btn.liked svg { fill: var(--red); filter: drop-shadow(0 0 6px rgba(244,63,94,0.5)); transform: scale(1.1); }
-    .like-count { font-size: 0.8rem; font-weight: 700; font-family: 'Syne'; }
+    .timeline-actions { display: flex; gap: 8px; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .action-icon-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; width: 44px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: var(--text-sub); }
+    .action-icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.2s; }
+    .action-icon-btn.liked { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: var(--red); }
+    .action-icon-btn.liked svg { fill: var(--red); stroke: var(--red); filter: drop-shadow(0 0 6px rgba(244,63,94,0.5)); transform: scale(1.08); }
+    .action-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    .comments-box { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
-    .comment-item { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .comment-input-row { display: flex; gap: 6px; margin-top: 4px; }
-    .comment-input { flex: 1; padding: 8px 12px; font-size: 0.85rem; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 10px; color: white; text-align: left; outline: none; }
-    .comment-submit-btn { background: rgba(34,197,94,0.15); border: 1px solid var(--card-border); color: var(--accent); padding: 0 12px; border-radius: 10px; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+    /* コメントモーダル */
+    .comment-list-box { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 14px; }
+    .comment-row { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; font-size: 0.85rem; }
 
     /* 通知モーダルリスト */
     .notif-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; }
@@ -253,6 +248,23 @@
       </div>
       <button class="btn-primary" onclick="submitTrainingLog(false)" id="t-btn-save-log">Guardar Registro ✨</button>
       <button class="btn-secondary" onclick="submitTrainingLog(true)" id="t-btn-skip-memo">Terminar sin nota</button>
+    </div>
+  </div>
+
+  <!-- コメントモーダル -->
+  <div id="comment-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+        <h2 style="font-size: 1.2rem;" id="t-comment-title">💬 コメント</h2>
+        <button onclick="closeCommentModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.2rem; cursor:pointer;">✕</button>
+      </div>
+      <div class="comment-list-box" id="modal-comment-list">
+        <div class="empty-msg">Sin comentarios</div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <input type="text" id="modal-comment-input" placeholder="コメント (50文字まで)" maxlength="50" style="text-align:left; font-size:0.9rem;" />
+        <button class="btn-primary" onclick="submitModalComment()" style="padding:12px; margin-top:8px;" id="t-comment-send">送信する</button>
+      </div>
     </div>
   </div>
 
@@ -370,9 +382,6 @@
           <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
-
-      <!-- ユーザー切り替えバー -->
-      <div class="cal-target-user-bar" id="cal-target-user-bar"></div>
 
       <div class="stats-row">
         <div class="stat-box">
@@ -645,7 +654,8 @@
     
     let calendarDate = new Date();
     let selectedDateStr = getLocalISOString().slice(0, 10);
-    let calendarTargetUser = null; // カレンダーで表示しているユーザー（nullなら自分）
+    let calendarTargetUser = null; // カレンダーで表示する対象ユーザー（デフォルトは自分）
+    let activeCommentLogKey = null; // コメントモーダルで開いているログキー
     
     let timerAnimationId;
     const CIRCUMFERENCE_OUTER = 691.15;
@@ -699,6 +709,7 @@
       setT("t-btn-add", t.btnAdd);
       setT("t-history-title", t.historyTitle);
       setT("t-logout", t.logout);
+      setT("t-comment-send", currentLang === 'es' ? "Enviar" : "送信する");
       
       const btnAction = document.getElementById("btn-timer-action");
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
@@ -724,7 +735,10 @@
         updateStreakAndGoals();
       }
       if(tabId === 'timeline') renderTimeline();
-      if(tabId === 'calendar') renderCalendar();
+      if(tabId === 'calendar') {
+        if(!calendarTargetUser) calendarTargetUser = myUserName;
+        renderCalendar();
+      }
       if(tabId === 'ranking') renderEnergyRace();
     };
 
@@ -1011,14 +1025,50 @@
       set(ref(db, `logs/${logKey}/likes`), likes);
     };
 
-    window.submitComment = (logKey) => {
+    window.openCommentModal = (logKey) => {
       playSound('click');
-      const inputEl = document.getElementById(`comment-input-${logKey}`);
-      const text = inputEl.value.trim();
-      if (!text) return;
+      activeCommentLogKey = logKey;
+      document.getElementById("comment-modal").style.display = "flex";
+      renderModalComments();
+    };
 
-      const logItem = allLogsData[logKey];
-      const commentsRef = ref(db, `logs/${logKey}/comments`);
+    window.closeCommentModal = () => {
+      playSound('click');
+      activeCommentLogKey = null;
+      document.getElementById("comment-modal").style.display = "none";
+      document.getElementById("modal-comment-input").value = "";
+    };
+
+    function renderModalComments() {
+      const container = document.getElementById("modal-comment-list");
+      if (!activeCommentLogKey || !allLogsData[activeCommentLogKey]) {
+        container.innerHTML = `<div class="empty-msg">Sin comentarios</div>`;
+        return;
+      }
+      const logItem = allLogsData[activeCommentLogKey];
+      const comments = logItem.comments || {};
+      const entries = Object.entries(comments);
+
+      if (entries.length === 0) {
+        container.innerHTML = `<div class="empty-msg">Sin comentarios</div>`;
+        return;
+      }
+
+      container.innerHTML = entries.map(([cKey, c]) => `
+        <div class="comment-row">
+          <strong style="color:var(--ring-inner);">${c.user}:</strong> <span style="color:#FFF;">${c.text}</span>
+        </div>
+      `).join("");
+    }
+
+    window.submitModalComment = () => {
+      playSound('click');
+      const inputEl = document.getElementById("modal-comment-input");
+      const text = inputEl.value.trim();
+      if (!text || !activeCommentLogKey) return;
+
+      const logItem = allLogsData[activeCommentLogKey];
+      const commentsRef = ref(db, `logs/${activeCommentLogKey}/comments`);
       
       push(commentsRef, {
         user: myUserName,
@@ -1038,6 +1088,7 @@
       }
 
       inputEl.value = "";
+      renderModalComments();
     };
 
     function updateHomeStatusText() {
@@ -1076,6 +1127,9 @@
       updateStreakAndGoals();
       if (document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
       if (document.getElementById('view-mypage').classList.contains('active')) renderMyLogs();
+      if (activeCommentLogKey && document.getElementById("comment-modal").style.display === "flex") {
+        renderModalComments();
+      }
     });
 
     onValue(ref(db, "notifications"), (snapshot) => {
@@ -1183,12 +1237,7 @@
         const likeCount = Object.keys(likes).length;
         const likeNames = Object.keys(likes).join(", ");
 
-        const comments = log.comments || {};
-        const commentsHtml = Object.values(comments).map(c => `
-          <div class="comment-item">
-            <div><strong style="color:var(--ring-inner);">${c.user}:</strong> <span style="color:#FFF;">${c.text}</span></div>
-          </div>
-        `).join("");
+        const commentsCount = log.comments ? Object.keys(log.comments).length : 0;
 
         return `
           <div class="timeline-card-item">
@@ -1206,18 +1255,15 @@
             ${log.memo ? `<div class="timeline-memo">💬 ${log.memo}</div>` : ''}
             
             <div class="timeline-actions">
-              <button class="like-btn ${isLikedByMe ? 'liked' : ''}" onclick="toggleLike('${log.key}')" title="${likeNames}">
+              <button class="action-icon-btn ${isLikedByMe ? 'liked' : ''}" onclick="toggleLike('${log.key}')" title="${likeNames}">
                 <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                <span class="like-count">${likeCount}</span>
+                ${likeCount > 0 ? `<span style="font-size:0.75rem; font-weight:700; margin-left:4px;">${likeCount}</span>` : ''}
               </button>
-            </div>
 
-            <div class="comments-box">
-              ${commentsHtml}
-              <div class="comment-input-row">
-                <input type="text" id="comment-input-${log.key}" class="comment-input" placeholder="コメント (50文字まで)" maxlength="50" />
-                <button class="comment-submit-btn" onclick="submitComment('${log.key}')">送信</button>
-              </div>
+              <button class="action-icon-btn" onclick="openCommentModal('${log.key}')">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                ${commentsCount > 0 ? `<span style="font-size:0.75rem; font-weight:700; margin-left:4px;">${commentsCount}</span>` : ''}
+              </button>
             </div>
           </div>
         `;
@@ -1230,7 +1276,7 @@
       renderCalendar();
     };
 
-    window.setCalendarTargetUser = (username) => {
+    window.switchCalendarUser = (username) => {
       playSound('click');
       calendarTargetUser = username;
       renderCalendar();
@@ -1239,20 +1285,6 @@
     function renderCalendar() {
       const t = i18n[currentLang];
       if (!calendarTargetUser && myUserName) calendarTargetUser = myUserName;
-
-      // ユーザー一覧を作成
-      const allUsersSet = new Set();
-      Object.values(allLogsData).forEach(log => {
-        if (log.user) allUsersSet.add(log.user);
-      });
-      if (myUserName) allUsersSet.add(myUserName);
-
-      const userBarEl = document.getElementById("cal-target-user-bar");
-      userBarEl.innerHTML = Array.from(allUsersSet).map(u => `
-        <div class="cal-user-pill ${u === calendarTargetUser ? 'active' : ''}" onclick="setCalendarTargetUser('${u}')">
-          👤 ${u}
-        </div>
-      `).join("");
 
       const year = calendarDate.getFullYear();
       const month = calendarDate.getMonth();
@@ -1264,7 +1296,15 @@
       let totalMonthMin = 0;
       const trainedDaysSet = new Set();
 
-      Object.entries(allLogsData).forEach(([key, log]) => {
+      // 数値表示用：常に「自分のデータ」をベースにする
+      let myMonthMin = 0;
+      const myTrainedDays = new Set();
+      Object.values(allLogsData).forEach(log => {
+        if (log.date && log.date.startsWith(monthStr) && log.user === myUserName) {
+          myMonthMin += log.duration;
+          myTrainedDays.add(log.date.slice(0, 10));
+        }
+        // カレンダーハイライト用：選択されているターゲットユーザーのログを抽出
         if (log.date && log.date.startsWith(monthStr) && log.user === calendarTargetUser) {
           const dateKey = log.date.slice(0, 10);
           if (!dayLogs[dateKey]) dayLogs[dateKey] = [];
@@ -1274,8 +1314,10 @@
         }
       });
 
-      document.getElementById("stat-days-val").innerText = trainedDaysSet.size;
-      document.getElementById("stat-time-val").innerText = formatTimeFriendly(totalMonthMin);
+      // 上部の数値統計は自分自身のデータ（日数・合計時間・連続日数）を表示
+      const myStreak = calculateStreak(allLogsData);
+      document.getElementById("stat-days-val").innerText = myTrainedDays.size;
+      document.getElementById("stat-time-val").innerText = formatTimeFriendly(myMonthMin);
 
       const container = document.getElementById("calendar-days-container");
       container.innerHTML = "";
@@ -1302,15 +1344,15 @@
         cell.innerText = day;
         cell.onclick = (e) => {
           playSound('click');
-          selectCalendarDay(dateKey, dayLogs[dateKey] || [], e.currentTarget);
+          selectCalendarDay(dateKey, e.currentTarget);
         };
         container.appendChild(cell);
       }
 
-      selectCalendarDay(selectedDateStr, dayLogs[selectedDateStr] || [], null, false);
+      selectCalendarDay(selectedDateStr, null, false);
     }
 
-    function selectCalendarDay(dateKey, logsForDay, clickedEl, updateSelectionState = true) {
+    function selectCalendarDay(dateKey, clickedEl, updateSelectionState = true) {
       if (updateSelectionState) {
         selectedDateStr = dateKey;
         document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
@@ -1325,21 +1367,32 @@
       const [y, m, d] = dateKey.split('-');
       dateTextEl.innerText = currentLang === 'es' ? `${d}/${m}/${y}` : `${m}月${d}日`;
 
-      if (logsForDay.length === 0) {
+      // その日にトレーニングしたすべてのログを収集
+      const logsForDayAll = [];
+      Object.entries(allLogsData).forEach(([key, log]) => {
+        if (log.date && log.date.startsWith(dateKey)) {
+          logsForDayAll.push({ ...log, key });
+        }
+      });
+
+      if (logsForDayAll.length === 0) {
         usersListEl.innerHTML = `<div style="color:var(--text-sub); font-size:0.9rem;">Sin registros</div>`;
         totalBadgeEl.innerText = `0 ${t.unitMin}`;
       } else {
-        let totalMin = 0;
-        logsForDay.forEach(l => totalMin += l.duration);
-        totalBadgeEl.innerText = formatTimeFriendly(totalMin);
+        let targetTotalMin = 0;
+        logsForDayAll.forEach(l => {
+          if (l.user === calendarTargetUser) targetTotalMin += l.duration;
+        });
+        totalBadgeEl.innerText = formatTimeFriendly(targetTotalMin);
 
-        usersListEl.innerHTML = logsForDay.map(log => {
+        usersListEl.innerHTML = logsForDayAll.map(log => {
+          const isSelectedUser = log.user === calendarTargetUser;
           return `
-            <div class="cal-user-log-item">
+            <div class="cal-user-log-item" style="${isSelectedUser ? 'border-color:var(--accent); background:rgba(34,197,94,0.1);' : ''}" onclick="switchCalendarUser('${log.user}')">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
-                  <span style="color:#FFF; font-weight:800;">${log.user}</span>
+                  <span style="color:#FFF; font-weight:800;">${log.user} ${isSelectedUser ? '✓' : ''}</span>
                 </div>
                 <span style="color:var(--ring-inner); font-weight:800;">${log.duration} ${t.unitMin}</span>
               </div>
