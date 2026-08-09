@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -14,7 +14,6 @@
   
   <style>
     :root {
-      /* 前回の落ち着いたネイビー＆インディゴブルーに戻す */
       --bg: #0b1120;
       --card-bg: #151f32;
       --card-border: rgba(255, 255, 255, 0.08);
@@ -24,7 +23,6 @@
       --ring-inner: #38bdf8;
       --green: #10b981;
       --red: #f43f5e;
-      --amber: #f59e0b;
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
     }
@@ -33,11 +31,12 @@
     
     body { background-color: var(--bg); color: var(--text-main); max-width: 480px; margin: 0 auto; padding: 20px 16px calc(90px + env(safe-area-inset-bottom)); min-height: 100vh; overflow-x: hidden; }
     
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .brand { display: flex; align-items: center; gap: 12px; }
     .brand-icon { background: var(--accent-gradient); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; }
     .brand-title h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.02em; }
     
+    /* 言語スイッチ（ES / JA） */
     .lang-switcher { display: flex; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 3px; gap: 2px; }
     .lang-btn { background: none; border: none; color: var(--text-sub); padding: 6px 12px; font-size: 0.75rem; font-weight: 700; border-radius: 16px; cursor: pointer; transition: 0.2s; }
     .lang-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4); }
@@ -51,53 +50,63 @@
     /* 初回登録モーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 17, 32, 0.95); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px); }
     .modal-content { width: 100%; max-width: 400px; }
-    
     .form-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
     label { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); }
     input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; color: white; outline: none; font-size: 1.1rem; text-align: center; }
     input:focus { border-color: var(--accent); }
-    
     .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .avatar-option { font-size: 1.8rem; text-align: center; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 16px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .avatar-option.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.15); transform: scale(1.05); }
-    
     .btn-primary { width: 100%; background: var(--accent-gradient); color: white; border: none; padding: 18px; border-radius: 20px; font-weight: 700; font-size: 1.1rem; cursor: pointer; box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.4); }
     
     /* -----------------------------------
-       ストップウォッチUI
+       ホーム：ステータス表示
     ------------------------------------ */
-    .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0; position: relative; }
+    .home-status-box { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 16px; text-align: center; margin-bottom: 10px; border: 1px solid var(--card-border); }
+    .home-status-title { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .home-status-text { font-size: 1rem; font-weight: 700; color: white; }
+    .status-free { color: var(--green); }
+    
+    /* -----------------------------------
+       ホーム：ストップウォッチUI
+    ------------------------------------ */
+    .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 20px; position: relative; }
     .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
     .ring-track { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 14; }
     .ring-progress-outer { fill: none; stroke: var(--ring-outer); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     .ring-progress-inner { fill: none; stroke: var(--ring-inner); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     
-    .timer-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+    .timer-display { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
     .time-main { font-size: 2.8rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; }
-    .time-sub { font-size: 0.9rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
-    .start-prompt { font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; animation: pulseText 2s infinite; cursor: pointer; }
-    @keyframes pulseText { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-    
-    .btn-stop-large { background: rgba(244, 63, 94, 0.15); color: var(--red); border: 1px solid rgba(244, 63, 94, 0.3); padding: 14px 40px; border-radius: 20px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.1); }
+    .time-sub { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
 
-    /* 他の利用者ステータス */
-    .others-status { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 16px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--card-border); }
-    .others-title { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; }
-    .other-user { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 12px; }
+    /* タイマー用ボタン */
+    .timer-action-btn { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--card-border); padding: 14px 40px; border-radius: 20px; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-top: 10px; transition: 0.2s; }
+    .timer-action-btn.start { background: rgba(16, 185, 129, 0.15); color: var(--green); border-color: rgba(16, 185, 129, 0.3); }
+    .timer-action-btn.stop { background: rgba(244, 63, 94, 0.15); color: var(--red); border-color: rgba(244, 63, 94, 0.3); }
 
-    /* レース＆マイページ共通 */
+    /* -----------------------------------
+       カレンダー・ランキング・マイページ共通
+    ------------------------------------ */
     .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
     
-    /* レース風ランキング */
-    .race-track { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
-    .race-lane { display: flex; flex-direction: column; gap: 6px; }
-    .race-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; }
-    .race-bar-bg { width: 100%; background: rgba(0,0,0,0.3); height: 28px; border-radius: 14px; position: relative; overflow: hidden; }
-    .race-bar-fill { height: 100%; background: var(--accent-gradient); border-radius: 14px; transition: width 1s ease-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 1rem; }
+    /* マイページ用プロフィールヘッダー */
+    .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
+    .profile-avatar { font-size: 2.5rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+    .profile-name { font-size: 1.4rem; font-weight: 700; }
 
-    .log-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--card-border); }
-    .log-date { font-size: 0.85rem; color: var(--text-sub); }
-    .log-dur { font-weight: 700; color: #FFF; font-size: 1.1rem; }
+    /* カレンダー集計デザイン */
+    .cal-summary-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 24px; }
+    .cal-summary-card { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .cal-user { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .cal-total { font-weight: 700; color: var(--ring-inner); font-size: 1.1rem; }
+
+    /* リストデザイン（ランキング/履歴/カレンダー） */
+    .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--card-border); }
+    .list-item:last-child { border-bottom: none; }
+    .list-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; }
+    .list-title { font-weight: 700; color: #FFF; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
+    .list-val { font-weight: 700; color: var(--accent); font-size: 1rem; }
     .btn-del { background: rgba(244, 63, 94, 0.15); color: var(--red); border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.75rem; }
     .empty-msg { text-align: center; color: var(--text-sub); padding: 20px; font-size: 0.9rem; }
 
@@ -116,11 +125,11 @@
     <div class="modal-content card">
       <h2 style="text-align:center; margin-bottom: 20px; font-size: 1.5rem;" id="t-modal-title">Welcome</h2>
       <div class="form-group">
-        <label id="t-modal-name">あなたの名前</label>
+        <label id="t-modal-name">Tu nombre</label>
         <input type="text" id="regNameInput" placeholder="Name" />
       </div>
       <div class="form-group">
-        <label id="t-modal-avatar">アバター</label>
+        <label id="t-modal-avatar">Avatar</label>
         <div class="avatar-grid">
           <div class="avatar-option selected" onclick="selectAvatar(this, '🐶')">🐶</div>
           <div class="avatar-option" onclick="selectAvatar(this, '🐱')">🐱</div>
@@ -132,7 +141,7 @@
           <div class="avatar-option" onclick="selectAvatar(this, '🏎️')">🏎️</div>
         </div>
       </div>
-      <button class="btn-primary" onclick="registerUser()" id="t-btn-register">はじめる 🚀</button>
+      <button class="btn-primary" onclick="registerUser()" id="t-btn-register">Comenzar 🚀</button>
     </div>
   </div>
 
@@ -144,60 +153,64 @@
       </div>
     </div>
     <div class="lang-switcher">
-      <button class="lang-btn active" id="btn-ja" onclick="switchLang('ja')">JA</button>
-      <button class="lang-btn" id="btn-es" onclick="switchLang('es')">ES</button>
+      <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
+      <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
     </div>
   </header>
 
-  <!-- 🏠 ホームビュー (ストップウォッチ) -->
+  <!-- 🏠 ホームビュー -->
   <div id="view-home" class="view active">
     
+    <div class="home-status-box">
+      <div class="home-status-title" id="t-home-status-label">Estado Actual</div>
+      <div class="home-status-text status-free" id="home-status-text">Libre</div>
+    </div>
+
     <div class="timer-container">
-      <svg class="progress-ring" width="280" height="280">
-        <!-- 外側（1時間で1周） -->
-        <circle class="ring-track" cx="140" cy="140" r="120" />
-        <circle class="ring-progress-outer" id="ring-outer" cx="140" cy="140" r="120" stroke-dasharray="753.98" stroke-dashoffset="753.98" />
-        
-        <!-- 内側（10分で1周） -->
-        <circle class="ring-track" cx="140" cy="140" r="94" />
-        <circle class="ring-progress-inner" id="ring-inner" cx="140" cy="140" r="94" stroke-dasharray="590.62" stroke-dashoffset="590.62" />
+      <svg class="progress-ring" width="260" height="260">
+        <!-- 外側（1時間） -->
+        <circle class="ring-track" cx="130" cy="130" r="110" />
+        <circle class="ring-progress-outer" id="ring-outer" cx="130" cy="130" r="110" stroke-dasharray="691.15" stroke-dashoffset="691.15" />
+        <!-- 内側（10分） -->
+        <circle class="ring-track" cx="130" cy="130" r="86" />
+        <circle class="ring-progress-inner" id="ring-inner" cx="130" cy="130" r="86" stroke-dasharray="540.35" stroke-dashoffset="540.35" />
       </svg>
       
-      <div class="timer-display" id="timer-display-area">
-        <!-- 未スタート時 -->
-        <div id="start-view" onclick="startGym()">
-          <div class="start-prompt" id="t-tap-start">TAP TO START</div>
-        </div>
-        <!-- 稼働時 -->
-        <div id="running-view" style="display:none;">
-          <div class="time-main" id="time-text">00:00</div>
-          <div class="time-sub" id="time-text-sub">MM:SS</div>
-        </div>
+      <div class="timer-display">
+        <div class="time-main" id="time-text">00:00</div>
+        <div class="time-sub">MM:SS</div>
       </div>
     </div>
 
-    <div style="text-align: center; height: 60px;">
-      <button id="btn-stop-gym" class="btn-stop-large" onclick="stopGym()" style="display:none;">STOP</button>
+    <div style="text-align: center;">
+      <button id="btn-timer-action" class="timer-action-btn start" onclick="toggleTimer()">START</button>
     </div>
+  </div>
 
-    <!-- さりげない他者の利用状況 -->
-    <div class="others-status" id="others-status-container" style="display: none;">
-      <div class="others-title" id="t-others">🔥 誰かがトレーニング中</div>
-      <div id="others-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+  <!-- 📅 カレンダービュー -->
+  <div id="view-calendar" class="view">
+    <div class="card">
+      <h2 class="section-title" id="t-cal-title">📅 Calendario del Mes</h2>
+      
+      <h3 style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;" id="t-cal-total">⏱️ Tiempo Total</h3>
+      <div class="cal-summary-grid" id="cal-summary-list">
+        <!-- 合計時間が入る -->
+      </div>
+
+      <h3 style="font-size:0.85rem; color:var(--text-sub); margin-top:20px; margin-bottom:8px;" id="t-cal-daily">📝 Registro Diario</h3>
+      <div id="cal-daily-list" style="display:flex; flex-direction:column;">
+        <div class="empty-msg">Sin datos</div>
+      </div>
     </div>
   </div>
 
   <!-- 🏆 ランキングビュー -->
   <div id="view-ranking" class="view">
     <div class="card">
-      <h2 class="section-title" id="t-race-title">🏆 今月のランキングレース</h2>
-      <div style="margin-bottom: 24px;">
-        <h3 style="font-size:0.85rem; color:var(--text-sub); margin-bottom:8px;" id="t-race-time">⏱️ 合計時間 (分)</h3>
-        <div id="race-time" class="race-track"><div class="empty-msg">データなし</div></div>
-      </div>
+      <h2 class="section-title" id="t-race-title">🏆 Ranking Mensual</h2>
       <div>
-        <h3 style="font-size:0.85rem; color:var(--text-sub); margin-bottom:8px;" id="t-race-count">🔥 利用回数</h3>
-        <div id="race-count" class="race-track"><div class="empty-msg">データなし</div></div>
+        <h3 style="font-size:0.85rem; color:var(--text-sub); margin-bottom:8px;" id="t-race-count">🔥 Visitas</h3>
+        <div id="race-count" style="display:flex; flex-direction:column;"><div class="empty-msg">Sin datos</div></div>
       </div>
     </div>
   </div>
@@ -205,24 +218,28 @@
   <!-- 👤 マイページビュー -->
   <div id="view-mypage" class="view">
     <div class="card">
-      <h2 class="section-title" id="t-my-title">👤 マイページ</h2>
       
-      <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px; margin-bottom: 24px;">
-        <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;" id="t-manual-title">➕ 過去の記録を手動追加</h3>
+      <div class="profile-header">
+        <div class="profile-avatar" id="my-avatar-display">👤</div>
+        <div class="profile-name" id="my-name-display">Name</div>
+      </div>
+      
+      <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
+        <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;" id="t-manual-title">➕ Añadir registro manual</h3>
         <div style="display:flex; gap:8px;">
-          <input type="date" id="manualDate" style="flex:1; padding:12px; background:rgba(0,0,0,0.2); border:1px solid var(--card-border); border-radius: 12px; color: white;">
-          <input type="number" id="manualMin" placeholder="分数" style="width:80px; padding:12px; background:rgba(0,0,0,0.2); border:1px solid var(--card-border); border-radius: 12px; color: white;">
-          <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:white; padding:0 16px; font-weight:700; cursor:pointer;">追加</button>
+          <input type="date" id="manualDate" style="flex:1; padding:12px; background:rgba(0,0,0,0.3); border:1px solid var(--card-border); border-radius: 12px; color: white;">
+          <input type="number" id="manualMin" placeholder="Min" style="width:70px; padding:12px; background:rgba(0,0,0,0.3); border:1px solid var(--card-border); border-radius: 12px; color: white;">
+          <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:white; padding:0 16px; font-weight:700; cursor:pointer;">Añadir</button>
         </div>
       </div>
 
-      <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px;" id="t-history-title">📅 今月の履歴</h3>
+      <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px;" id="t-history-title">📅 Mi Historial</h3>
       <div id="my-logs-list" style="display:flex; flex-direction:column;">
-        <div class="empty-msg">記録がありません</div>
+        <div class="empty-msg">Sin datos</div>
       </div>
       
       <div style="margin-top: 30px; text-align: center;">
-        <button onclick="resetUser()" style="background:transparent; border:none; color:var(--text-sub); font-size:0.8rem; cursor:pointer; text-decoration:underline;">プロフィールをリセット (ログアウト)</button>
+        <button onclick="resetUser()" style="background:transparent; border:none; color:var(--text-sub); font-size:0.8rem; cursor:pointer; text-decoration:underline;" id="t-logout">Cerrar sesión</button>
       </div>
     </div>
   </div>
@@ -230,15 +247,19 @@
   <nav class="bottom-nav">
     <button class="nav-btn active" id="nav-home" onclick="switchTab('home')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span id="t-nav-home">タイマー</span>
+      <span id="t-nav-home">Inicio</span>
+    </button>
+    <button class="nav-btn" id="nav-calendar" onclick="switchTab('calendar')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span id="t-nav-cal">Calendario</span>
     </button>
     <button class="nav-btn" id="nav-ranking" onclick="switchTab('ranking')">
       <svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
-      <span id="t-nav-ranking">ランキング</span>
+      <span id="t-nav-ranking">Ranking</span>
     </button>
     <button class="nav-btn" id="nav-mypage" onclick="switchTab('mypage')">
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span id="t-nav-mypage">マイページ</span>
+      <span id="t-nav-mypage">Perfil</span>
     </button>
   </nav>
 
@@ -259,70 +280,90 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // 安全にテキストを更新する関数（エラー防止）
+    function setT(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.innerText = text;
+    }
+
     const i18n = {
-      ja: {
-        modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
-        tapStart: "TAP TO START", others: "🔥 誰かがトレーニング中",
-        raceTitle: "🏆 今月のランキングレース", raceTime: "⏱️ 合計時間 (分)", raceCount: "🔥 利用回数", emptyData: "データなし",
-        myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴",
-        navHome: "タイマー", navRanking: "ランキング", navMypage: "マイページ", unitMin: "分", unitCount: "回",
-        btnDelete: "削除", alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
-        alertManual: "日付と正しい分数を入力してください", confirmDelete: "この記録を削除しますか？",
-        promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。"
-      },
       es: {
         modalTitle: "Bienvenido", modalName: "Tu nombre", modalAvatar: "Avatar", btnRegister: "Comenzar 🚀",
-        tapStart: "TOCA PARA INICIAR", others: "🔥 Entrenando ahora",
-        raceTitle: "🏆 Clasificación Mensual", raceTime: "⏱️ Tiempo total (min)", raceCount: "🔥 Visitas", emptyData: "Sin datos",
-        myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Historial",
-        navHome: "Reloj", navRanking: "Ranking", navMypage: "Perfil", unitMin: "min", unitCount: "visitas",
-        btnDelete: "Borrar", alertName: "Por favor escribe tu nombre", alertAlready: "¡Ya estás entrenando!",
+        homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
+        btnStart: "EMPEZAR", btnStop: "TERMINAR",
+        calTitle: "📅 Calendario Mensual", calTotal: "⏱️ Tiempo Total", calDaily: "📝 Registro Diario",
+        raceTitle: "🏆 Ranking Mensual", raceCount: "🔥 Visitas", emptyData: "Sin datos",
+        myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Mi Historial", logout: "Cerrar sesión",
+        navHome: "Inicio", navCal: "Calendario", navRanking: "Ranking", navMypage: "Perfil",
+        unitMin: "min", unitHour: "h", unitCount: "visitas", btnDelete: "Borrar",
+        alertName: "Por favor escribe tu nombre", alertAlready: "¡Ya estás entrenando!",
         alertManual: "Ingresa una fecha y minutos válidos", confirmDelete: "¿Borrar este registro?",
         promptStopAlert: "⚠️ Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:"
+      },
+      ja: {
+        modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
+        homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
+        btnStart: "スタート", btnStop: "ストップ",
+        calTitle: "📅 今月のカレンダー", calTotal: "⏱️ 今月の合計時間", calDaily: "📝 日別の記録",
+        raceTitle: "🏆 今月のランキング", raceCount: "🔥 利用回数", emptyData: "データなし",
+        myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴", logout: "ログアウト (リセット)",
+        navHome: "タイマー", navCal: "カレンダー", navRanking: "ランキング", navMypage: "マイページ",
+        unitMin: "分", unitHour: "時間", unitCount: "回", btnDelete: "削除",
+        alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
+        alertManual: "日付と正しい分数を入力してください", confirmDelete: "この記録を削除しますか？",
+        promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。"
       }
     };
 
-    let currentLang = localStorage.getItem("gym_lang") || "ja";
+    let currentLang = localStorage.getItem("gym_lang") || "es";
     let activeUsersData = {};
     let allLogsData = {};
     let selectedAvatar = "🐶";
     let myUserName = localStorage.getItem("gym_my_name") || "";
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
+    let amIRunning = false;
     
     let timerAnimationId;
-    const CIRCUMFERENCE_OUTER = 753.98;
-    const CIRCUMFERENCE_INNER = 590.62;
+    const CIRCUMFERENCE_OUTER = 691.15; // 2 * pi * 110
+    const CIRCUMFERENCE_INNER = 540.35; // 2 * pi * 86
     const SECONDS_1HR = 3600;
     const SECONDS_10MIN = 600;
 
     window.switchLang = (lang) => {
       currentLang = lang;
       localStorage.setItem("gym_lang", lang);
-      document.getElementById("btn-ja").className = lang === "ja" ? "lang-btn active" : "lang-btn";
       document.getElementById("btn-es").className = lang === "es" ? "lang-btn active" : "lang-btn";
+      document.getElementById("btn-ja").className = lang === "ja" ? "lang-btn active" : "lang-btn";
       updateI18n();
     };
 
     function updateI18n() {
       const t = i18n[currentLang];
-      document.getElementById("t-modal-title").innerText = t.modalTitle;
-      document.getElementById("t-modal-name").innerText = t.modalName;
-      document.getElementById("t-modal-avatar").innerText = t.modalAvatar;
-      document.getElementById("t-btn-register").innerText = t.btnRegister;
-      document.getElementById("t-tap-start").innerText = t.tapStart;
-      document.getElementById("t-others").innerText = t.others;
-      document.getElementById("t-race-title").innerText = t.raceTitle;
-      document.getElementById("t-race-time").innerText = t.raceTime;
-      document.getElementById("t-race-count").innerText = t.raceCount;
-      document.getElementById("t-my-title").innerText = t.myTitle;
-      document.getElementById("t-manual-title").innerText = t.manualTitle;
-      document.getElementById("t-btn-add").innerText = t.btnAdd;
-      document.getElementById("t-history-title").innerText = t.historyTitle;
-      document.getElementById("t-nav-home").innerText = t.navHome;
-      document.getElementById("t-nav-ranking").innerText = t.navRanking;
-      document.getElementById("t-nav-mypage").innerText = t.navMypage;
+      setT("t-modal-title", t.modalTitle);
+      setT("t-modal-name", t.modalName);
+      setT("t-modal-avatar", t.modalAvatar);
+      setT("t-btn-register", t.btnRegister);
+      setT("t-home-status-label", t.homeStatusLabel);
+      setT("t-cal-title", t.calTitle);
+      setT("t-cal-total", t.calTotal);
+      setT("t-cal-daily", t.calDaily);
+      setT("t-race-title", t.raceTitle);
+      setT("t-race-count", t.raceCount);
+      setT("t-my-title", t.myTitle);
+      setT("t-manual-title", t.manualTitle);
+      setT("t-btn-add", t.btnAdd);
+      setT("t-history-title", t.historyTitle);
+      setT("t-logout", t.logout);
+      setT("t-nav-home", t.navHome);
+      setT("t-nav-cal", t.navCal);
+      setT("t-nav-ranking", t.navRanking);
+      setT("t-nav-mypage", t.navMypage);
       
-      renderOthersStatus();
+      const btnAction = document.getElementById("btn-timer-action");
+      if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
+      
+      updateHomeStatusText();
+      renderCalendar();
       renderRaceRanking();
       if(myUserName) renderMyLogs();
     }
@@ -333,6 +374,7 @@
       document.getElementById(`nav-${tabId}`).classList.add('active');
       document.getElementById(`view-${tabId}`).classList.add('active');
       if(tabId === 'mypage' && myUserName) renderMyLogs();
+      if(tabId === 'calendar') renderCalendar();
     };
 
     window.selectAvatar = (el, icon) => {
@@ -346,6 +388,8 @@
         document.getElementById("auth-modal").style.display = "flex";
       } else {
         document.getElementById("auth-modal").style.display = "none";
+        document.getElementById("my-name-display").innerText = myUserName;
+        document.getElementById("my-avatar-display").innerText = myUserAvatar;
         checkMyTimerStatus();
       }
     }
@@ -359,7 +403,10 @@
       localStorage.setItem("gym_my_name", name);
       localStorage.setItem("gym_my_avatar", selectedAvatar);
       
+      document.getElementById("my-name-display").innerText = myUserName;
+      document.getElementById("my-avatar-display").innerText = myUserAvatar;
       document.getElementById("auth-modal").style.display = "none";
+      
       checkMyTimerStatus();
       renderMyLogs();
     };
@@ -370,16 +417,24 @@
       location.reload();
     };
 
+    // --- 時間フォーマット関数 ---
+    function formatTimeFriendly(totalMinutes) {
+      const t = i18n[currentLang];
+      if (totalMinutes < 60) return `${totalMinutes} ${t.unitMin}`;
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      return m > 0 ? `${h}${t.unitHour} ${m}${t.unitMin}` : `${h}${t.unitHour}`;
+    }
+
+    // --- タイマー処理 ---
     function updateTimerUI(startTime) {
       const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
-      
       const mins = Math.floor(elapsedSec / 60);
       const secs = (elapsedSec % 60).toString().padStart(2, '0');
       document.getElementById("time-text").innerText = `${mins.toString().padStart(2,'0')}:${secs}`;
 
       const outerProgress = (elapsedSec % SECONDS_1HR) / SECONDS_1HR;
       const innerProgress = (elapsedSec % SECONDS_10MIN) / SECONDS_10MIN;
-
       document.getElementById("ring-outer").style.strokeDashoffset = CIRCUMFERENCE_OUTER - (outerProgress * CIRCUMFERENCE_OUTER);
       document.getElementById("ring-inner").style.strokeDashoffset = CIRCUMFERENCE_INNER - (innerProgress * CIRCUMFERENCE_INNER);
 
@@ -389,141 +444,182 @@
     function checkMyTimerStatus() {
       if (!myUserName) return;
       const myData = activeUsersData[myUserName];
-      
-      const startView = document.getElementById("start-view");
-      const runningView = document.getElementById("running-view");
-      const stopBtn = document.getElementById("btn-stop-gym");
+      const btnAction = document.getElementById("btn-timer-action");
+      const t = i18n[currentLang];
 
       if (myData && myData.startTime) {
-        startView.style.display = "none";
-        runningView.style.display = "flex";
-        stopBtn.style.display = "inline-block";
+        amIRunning = true;
+        btnAction.innerText = t.btnStop;
+        btnAction.className = "timer-action-btn stop";
         if (!timerAnimationId) updateTimerUI(myData.startTime);
       } else {
+        amIRunning = false;
+        btnAction.innerText = t.btnStart;
+        btnAction.className = "timer-action-btn start";
         cancelAnimationFrame(timerAnimationId);
         timerAnimationId = null;
-        startView.style.display = "flex";
-        runningView.style.display = "none";
-        stopBtn.style.display = "none";
-        
+        document.getElementById("time-text").innerText = "00:00";
         document.getElementById("ring-outer").style.strokeDashoffset = CIRCUMFERENCE_OUTER;
         document.getElementById("ring-inner").style.strokeDashoffset = CIRCUMFERENCE_INNER;
       }
     }
 
-    window.startGym = () => {
+    window.toggleTimer = () => {
       if (!myUserName) return checkAuth();
-      if (activeUsersData[myUserName]) return;
-      set(ref(db, `current/${myUserName}`), { startTime: Date.now(), avatar: myUserAvatar });
-    };
+      if (amIRunning) {
+        // Stop
+        const startTime = activeUsersData[myUserName].startTime;
+        let durationMin = Math.round((Date.now() - startTime) / 60000);
+        if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
 
-    window.stopGym = () => {
-      if (!myUserName || !activeUsersData[myUserName]) return;
-      const t = i18n[currentLang];
-      const startTime = activeUsersData[myUserName].startTime;
-      let durationMin = Math.round((Date.now() - startTime) / 60000);
-      
-      if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
+        if (durationMin >= 180) {
+          let msg = i18n[currentLang].promptStopAlert.replace("{min}", durationMin);
+          let manualInput = prompt(msg, "60");
+          if (manualInput === null) return;
+          let parsed = parseInt(manualInput, 10);
+          if (!isNaN(parsed) && parsed > 0) durationMin = parsed;
+        }
 
-      if (durationMin >= 180) {
-        let msg = t.promptStopAlert.replace("{min}", durationMin);
-        let manualInput = prompt(msg, "60");
-        if (manualInput === null) return;
-        let parsed = parseInt(manualInput, 10);
-        if (!isNaN(parsed) && parsed > 0) durationMin = parsed;
+        push(ref(db, "logs"), {
+          user: myUserName,
+          avatar: myUserAvatar,
+          startTime: startTime,
+          duration: durationMin,
+          month: new Date().toISOString().slice(0, 7),
+          date: new Date().toISOString()
+        });
+        remove(ref(db, `current/${myUserName}`));
+      } else {
+        // Start
+        set(ref(db, `current/${myUserName}`), { startTime: Date.now(), avatar: myUserAvatar });
       }
-
-      push(ref(db, "logs"), {
-        user: myUserName,
-        startTime: startTime,
-        duration: durationMin,
-        month: new Date().toISOString().slice(0, 7),
-        date: new Date().toISOString()
-      });
-      remove(ref(db, `current/${myUserName}`));
     };
+
+    function updateHomeStatusText() {
+      const t = i18n[currentLang];
+      const statusEl = document.getElementById("home-status-text");
+      const users = Object.keys(activeUsersData);
+      
+      if (users.length === 0) {
+        statusEl.innerText = t.statusFree;
+        statusEl.className = "home-status-text status-free";
+      } else if (users.length === 1) {
+        const u = users[0];
+        statusEl.innerText = currentLang === 'es' ? `${u} ${t.statusBusy}` : `${u}${t.statusBusy}`;
+        statusEl.className = "home-status-text";
+        statusEl.style.color = "var(--ring-outer)";
+      } else {
+        statusEl.innerText = currentLang === 'es' ? `${users.length} ${t.statusMulti}` : `${users.length}${t.statusMulti}`;
+        statusEl.className = "home-status-text";
+        statusEl.style.color = "var(--ring-outer)";
+      }
+    }
 
     onValue(ref(db, "current"), (snapshot) => {
       activeUsersData = snapshot.val() || {};
-      
       Object.keys(activeUsersData).forEach(key => {
-        if (!activeUsersData[key] || !activeUsersData[key].startTime) {
-          delete activeUsersData[key];
-        }
+        if (!activeUsersData[key] || !activeUsersData[key].startTime) delete activeUsersData[key];
       });
-
+      updateHomeStatusText();
       checkMyTimerStatus();
-      renderOthersStatus();
     });
-
-    function renderOthersStatus() {
-      if (!myUserName) return;
-      const container = document.getElementById("others-status-container");
-      const listEl = document.getElementById("others-list");
-      
-      const others = Object.entries(activeUsersData).filter(([name]) => name !== myUserName);
-      
-      if (others.length === 0) {
-        container.style.display = "none";
-      } else {
-        container.style.display = "flex";
-        listEl.innerHTML = others.map(([name, data]) => {
-          return `<div class="other-user">${data.avatar || "👤"} ${name}</div>`;
-        }).join("");
-      }
-    }
 
     onValue(ref(db, "logs"), (snapshot) => {
       allLogsData = snapshot.val() || {};
       renderRaceRanking();
-      if (document.getElementById('view-mypage').classList.contains('active')) {
-        renderMyLogs();
-      }
+      if (document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
+      if (document.getElementById('view-mypage').classList.contains('active')) renderMyLogs();
     });
 
+    // --- カレンダー処理 ---
+    function renderCalendar() {
+      const t = i18n[currentLang];
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      const userTotals = {};
+      const dailyLogs = [];
+
+      Object.entries(allLogsData).forEach(([key, log]) => {
+        if (log.month === currentMonth) {
+          // 合計時間の集計
+          if (!userTotals[log.user]) userTotals[log.user] = { avatar: log.avatar || "👤", min: 0 };
+          userTotals[log.user].min += log.duration;
+          
+          // 日別用データ
+          dailyLogs.push({ ...log, id: key });
+        }
+      });
+
+      // 合計時間リスト描画
+      const summaryList = document.getElementById("cal-summary-list");
+      const sortedTotals = Object.entries(userTotals).sort((a, b) => b[1].min - a[1].min);
+      if (sortedTotals.length === 0) {
+        summaryList.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
+      } else {
+        summaryList.innerHTML = sortedTotals.map(([user, data]) => `
+          <div class="cal-summary-card">
+            <div class="cal-user"><span>${data.avatar}</span> ${user}</div>
+            <div class="cal-total">${formatTimeFriendly(data.min)}</div>
+          </div>
+        `).join("");
+      }
+
+      // 日別履歴リスト描画
+      const dailyList = document.getElementById("cal-daily-list");
+      dailyLogs.sort((a, b) => new Date(b.date) - new Date(a.date)); // 新しい順
+      if (dailyLogs.length === 0) {
+        dailyList.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
+      } else {
+        dailyList.innerHTML = dailyLogs.map(log => {
+          const d = new Date(log.date);
+          const dateStr = currentLang === 'es' 
+            ? `${d.getDate()}/${d.getMonth()+1} - ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
+            : `${d.getMonth()+1}月${d.getDate()}日 ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+          
+          return `
+            <div class="list-item">
+              <div>
+                <div class="list-date">${dateStr}</div>
+                <div class="list-title"><span>${log.avatar || "👤"}</span> ${log.user}</div>
+              </div>
+              <div class="list-val">${log.duration} ${t.unitMin}</div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+    // --- ランキング（回数）処理 ---
     function renderRaceRanking() {
       const t = i18n[currentLang];
       const currentMonth = new Date().toISOString().slice(0, 7);
-      const counts = {}; const times = {}; 
+      const counts = {}; 
 
       Object.values(allLogsData).forEach(log => {
         if (log.month === currentMonth) {
           counts[log.user] = (counts[log.user] || 0) + 1;
-          times[log.user] = (times[log.user] || 0) + log.duration;
         }
       });
 
-      drawRace("race-time", times, t.unitMin);
-      drawRace("race-count", counts, t.unitCount);
-    }
-
-    function drawRace(elementId, dataMap, unit) {
-      const t = i18n[currentLang];
-      const sorted = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
-      const listEl = document.getElementById(elementId);
-      if (sorted.length === 0) { listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`; return; }
-
-      const maxVal = sorted[0][1];
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const listEl = document.getElementById("race-count");
+      
+      if (sorted.length === 0) { 
+        listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`; 
+        return; 
+      }
 
       listEl.innerHTML = sorted.map(([user, val], idx) => {
-        const percent = Math.max(10, (val / maxVal) * 100);
         let rankIcon = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : "👤";
-        const color = user === myUserName ? "var(--ring-inner)" : "#F8FAFC";
-
         return `
-          <div class="race-lane">
-            <div class="race-header">
-              <span style="color:${color}">${rankIcon} ${user}</span>
-              <span style="color:var(--accent);">${val} ${unit}</span>
-            </div>
-            <div class="race-bar-bg">
-              <div class="race-bar-fill" style="width: ${percent}%;"></div>
-            </div>
+          <div class="list-item" style="padding: 18px 0;">
+            <div class="list-title"><span style="font-size:1.3rem;">${rankIcon}</span> ${user}</div>
+            <div class="list-val">${val} ${t.unitCount}</div>
           </div>
         `;
       }).join("");
     }
 
+    // --- マイページ処理 ---
     window.renderMyLogs = () => {
       const t = i18n[currentLang];
       const listEl = document.getElementById("my-logs-list");
@@ -541,12 +637,15 @@
 
       listEl.innerHTML = userLogs.map(([key, log]) => {
         const d = new Date(log.date);
-        const dateStr = `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        const dateStr = currentLang === 'es' 
+            ? `${d.getDate()}/${d.getMonth()+1} - ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
+            : `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            
         return `
-          <div class="log-item">
+          <div class="list-item">
             <div>
-              <div class="log-date">${dateStr}</div>
-              <div class="log-dur">${log.duration} ${t.unitMin}</div>
+              <div class="list-date">${dateStr}</div>
+              <div class="list-title" style="color:white;">${log.duration} ${t.unitMin}</div>
             </div>
             <button class="btn-del" onclick="deleteLog('${key}')">${t.btnDelete}</button>
           </div>
@@ -568,6 +667,7 @@
 
       push(ref(db, "logs"), {
         user: myUserName,
+        avatar: myUserAvatar,
         startTime: logDate.getTime(),
         duration: minVal,
         month: logDate.toISOString().slice(0, 7),
