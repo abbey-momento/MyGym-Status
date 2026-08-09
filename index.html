@@ -448,6 +448,12 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // --- 🕒 現地時間（ユーザーのデバイス）に合わせた日付文字列を生成するヘルパー関数 ---
+    function getLocalISOString(d = new Date()) {
+      const pad = (n) => n.toString().padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
     const AVATAR_LIST = [
       '🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐸', '🐵', '🦄',
       '⚡', '🔥', '🚀', '⭐', '💎', '🦾', '🏆', '🎯', '🎸', '🕹️', '🎧', '👾',
@@ -505,10 +511,6 @@
       const el = document.getElementById(id);
       if (el) el.innerText = text;
     }
-    function setP(id, text) {
-      const el = document.getElementById(id);
-      if (el) el.placeholder = text;
-    }
 
     const i18n = {
       es: {
@@ -562,7 +564,7 @@
     let editingLogKey = null;
     
     let calendarDate = new Date();
-    let selectedDateStr = new Date().toISOString().slice(0, 10);
+    let selectedDateStr = getLocalISOString().slice(0, 10); // 現地時間ベースの今日
     
     let timerAnimationId;
     const CIRCUMFERENCE_OUTER = 691.15;
@@ -808,7 +810,6 @@
       }
     };
 
-    // メモをスキップする場合は skipMemo=true
     window.submitTrainingLog = (skipMemo = false) => {
       playSound('click');
       const memo = skipMemo ? "" : document.getElementById("trainingMemoInput").value.trim();
@@ -816,15 +817,19 @@
       let durationMin = Math.round((Date.now() - startTime) / 60000);
       if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
 
+      // 完了した「今この瞬間」の現地時間を保存する（0時を過ぎていれば翌日になる）
+      const now = new Date();
+      const localISO = getLocalISOString(now);
+
       push(ref(db, "logs"), {
         user: myUserName,
         avatar: myUserAvatar,
-        startTime: startTime,
+        startTime: startTime, // 実際の開始タイムスタンプはそのまま
         duration: durationMin,
         memo: memo || "",
         stamps: {},
-        month: new Date().toISOString().slice(0, 7),
-        date: new Date().toISOString()
+        month: localISO.slice(0, 7), // YYYY-MM
+        date: localISO // YYYY-MM-DDTHH:mm:ss
       });
 
       remove(ref(db, `current/${myUserName}`));
@@ -845,16 +850,16 @@
 
       let streak = 0;
       let d = new Date();
-      let todayStr = d.toISOString().slice(0, 10);
+      let todayStr = getLocalISOString(d).slice(0, 10);
       
       if (!userDates.has(todayStr)) {
         d.setDate(d.getDate() - 1);
-        let yesterdayStr = d.toISOString().slice(0, 10);
+        let yesterdayStr = getLocalISOString(d).slice(0, 10);
         if (!userDates.has(yesterdayStr)) return 0;
       }
 
       while (true) {
-        let dateStr = d.toISOString().slice(0, 10);
+        let dateStr = getLocalISOString(d).slice(0, 10);
         if (userDates.has(dateStr)) {
           streak++;
           d.setDate(d.getDate() - 1);
@@ -870,7 +875,7 @@
       document.getElementById("stat-streak-val").innerText = `${streak}🔥`;
       document.getElementById("my-streak-badge").innerText = `🔥 ${streak} Streak`;
 
-      const currentMonth = new Date().toISOString().slice(0, 7);
+      const currentMonth = getLocalISOString(new Date()).slice(0, 7);
       let totalSessions = 0;
       Object.values(allLogsData).forEach(log => {
         if (log.user === myUserName && log.month === currentMonth) {
@@ -1063,7 +1068,7 @@
 
     function renderEnergyRace() {
       const t = i18n[currentLang];
-      const currentMonth = new Date().toISOString().slice(0, 7);
+      const currentMonth = getLocalISOString(new Date()).slice(0, 7);
       const userTotals = {}; 
 
       Object.values(allLogsData).forEach(log => {
@@ -1126,7 +1131,7 @@
       const listEl = document.getElementById("my-logs-list");
       if (!myUserName) return;
 
-      const currentMonth = new Date().toISOString().slice(0, 7);
+      const currentMonth = getLocalISOString(new Date()).slice(0, 7);
       const userLogs = Object.entries(allLogsData)
         .filter(([key, log]) => log.user === myUserName && log.month === currentMonth)
         .sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
@@ -1137,7 +1142,8 @@
       }
 
       listEl.innerHTML = userLogs.map(([key, log]) => {
-        const d = new Date(log.date);
+        // 表示時も、保存された絶対時間(startTime)を使ってローカルの日付にする
+        const d = new Date(log.startTime);
         const dateStr = currentLang === 'es' 
             ? `${d.getDate()}/${d.getMonth()+1} - ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
             : `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
@@ -1179,6 +1185,7 @@
       if (diffMin <= 0) return alert(t.alertTimeOrder);
 
       const logDate = new Date(`${dateVal}T${timeFrom}:00`);
+      const localISO = getLocalISOString(logDate);
 
       push(ref(db, "logs"), {
         user: myUserName,
@@ -1188,7 +1195,7 @@
         memo: memo || "",
         stamps: {},
         month: dateVal.slice(0, 7),
-        date: logDate.toISOString()
+        date: localISO // 現地時間基準の文字列で保存
       });
 
       document.getElementById("manualTimeFrom").value = "10:00";
@@ -1203,8 +1210,9 @@
       const log = allLogsData[key];
       if (!log) return;
       
-      const d = new Date(log.date);
-      const dateStr = d.toISOString().slice(0, 10);
+      // 文字列のパースエラーを防ぐため、絶対時間(startTime)を現地時間に変換して表示
+      const d = new Date(log.startTime);
+      const dateStr = getLocalISOString(d).slice(0, 10);
       const hFrom = d.getHours().toString().padStart(2, '0');
       const mFrom = d.getMinutes().toString().padStart(2, '0');
       
@@ -1248,13 +1256,14 @@
       if (diffMin <= 0) return alert(t.alertTimeOrder);
 
       const logDate = new Date(`${dateVal}T${timeFrom}:00`);
+      const localISO = getLocalISOString(logDate);
 
       update(ref(db, `logs/${editingLogKey}`), {
         startTime: logDate.getTime(),
         duration: diffMin,
         memo: memo || "",
         month: dateVal.slice(0, 7),
-        date: logDate.toISOString()
+        date: localISO // 修正時も現地時間基準で保存
       }).then(() => {
         closeEditLogModal();
       });
