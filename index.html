@@ -62,11 +62,9 @@
     .view.active { display: flex; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* カードの左側の線を他の枠線と同じ細さに調整し、全体の位置ズレを解消 */
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; overflow: hidden; }
     .card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
 
-    /* モーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 6, 26, 0.95); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px); }
     .modal-content { width: 100%; max-width: 400px; }
     .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
@@ -81,13 +79,11 @@
     .btn-primary { width: 100%; background: var(--accent-gradient); color: #0D061A; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 20px rgba(34,197,94,0.4); }
     .btn-secondary { width: 100%; background: rgba(34,197,94,0.1); color: var(--accent); border: 1px solid var(--card-border); padding: 12px; border-radius: 14px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     
-    /* ホームステータス */
     .home-status-box { background: rgba(0,0,0,0.3); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 10px; border: 1px solid var(--card-border); }
     .home-status-title { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
     .home-status-text { font-size: 1rem; font-weight: 700; color: white; }
     .status-free { color: var(--green); text-shadow: 0 0 8px rgba(34,197,94,0.4); }
     
-    /* タイマーUI */
     .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 20px; position: relative; }
     .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(34,197,94,0.2)); }
     .ring-track { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 14; }
@@ -108,7 +104,11 @@
     /* カレンダービュー */
     .cal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .cal-title-month { font-size: 1.3rem; font-weight: 800; color: #FFF; font-family: 'Syne', sans-serif; text-transform: capitalize; }
-    .cal-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: white; padding: 6px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; }
+    
+    /* SVG化された月移動ボタン */
+    .cal-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: white; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+    .cal-nav-btn:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); }
+    .cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
     .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; text-align: center; }
@@ -127,7 +127,6 @@
     .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
     .cal-user-log-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-weight: 700; }
 
-    /* 共通パーツ */
     .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: 0.05em; color: #FFF; }
     .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
     .profile-avatar { font-size: 2.5rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid var(--card-border); }
@@ -141,7 +140,6 @@
     .btn-del { background: rgba(244, 63, 94, 0.15); color: var(--red); border: 1px solid rgba(244,63,94,0.3); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.75rem; }
     .empty-msg { text-align: center; color: var(--text-sub); padding: 20px; font-size: 0.9rem; }
 
-    /* ボトムナビゲーション */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(13, 6, 26, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--card-border); z-index: 1000; }
     .nav-btn { background: transparent; border: none; color: var(--text-sub); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s; }
     .nav-btn.active { color: var(--accent); }
@@ -237,9 +235,14 @@
   <div id="view-calendar" class="view">
     <div class="card">
       <div class="cal-header-row">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)">◀</button>
+        <!-- SVGの月移動ボタン -->
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
         <div class="cal-title-month" id="cal-month-title">agosto 2026</div>
-        <button class="cal-nav-btn" onclick="changeMonth(1)">▶</button>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
       </div>
 
       <div class="stats-row">
@@ -779,21 +782,21 @@
         if (dateKey === selectedDateStr) cell.classList.add("selected");
 
         cell.innerText = day;
-        cell.onclick = () => {
+        cell.onclick = (e) => {
           playSound('click');
-          selectCalendarDay(dateKey, dayLogs[dateKey] || []);
+          selectCalendarDay(dateKey, dayLogs[dateKey] || [], e.currentTarget);
         };
         container.appendChild(cell);
       }
 
-      selectCalendarDay(selectedDateStr, dayLogs[selectedDateStr] || [], false);
+      selectCalendarDay(selectedDateStr, dayLogs[selectedDateStr] || [], null, false);
     }
 
-    function selectCalendarDay(dateKey, logsForDay, updateSelectionState = true) {
+    function selectCalendarDay(dateKey, logsForDay, clickedEl, updateSelectionState = true) {
       if (updateSelectionState) {
         selectedDateStr = dateKey;
         document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
-        event && event.currentTarget && event.currentTarget.classList.add('selected');
+        if (clickedEl) clickedEl.classList.add('selected');
       }
 
       const t = i18n[currentLang];
@@ -809,16 +812,23 @@
         totalBadgeEl.innerText = `0 ${t.unitMin}`;
       } else {
         let totalMin = 0;
-        logsForDay.forEach(l => totalMin += l.duration);
+        let userSummary = {};
+        
+        logsForDay.forEach(l => {
+          totalMin += l.duration;
+          if (!userSummary[l.user]) userSummary[l.user] = { avatar: l.avatar || "👤", min: 0 };
+          userSummary[l.user].min += l.duration;
+        });
+
         totalBadgeEl.innerText = formatTimeFriendly(totalMin);
 
-        usersListEl.innerHTML = logsForDay.map(log => `
+        usersListEl.innerHTML = Object.entries(userSummary).map(([user, data]) => `
           <div class="cal-user-log-row">
             <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
-              <span style="color:#FFF;">${log.user}</span>
+              <span style="font-size:1.2rem;">${data.avatar}</span>
+              <span style="color:#FFF;">${user}</span>
             </div>
-            <span style="color:var(--ring-inner);">${log.duration} ${t.unitMin}</span>
+            <span style="color:var(--ring-inner); font-weight:800;">${formatTimeFriendly(data.min)}</span>
           </div>
         `).join("");
       }
@@ -881,7 +891,7 @@
               <div class="list-date">${dateStr}</div>
               <div class="list-title" style="color:white;">${log.duration} ${t.unitMin}</div>
             </div>
-            <button class="btn-del" onclick="playSound('click'); deleteLog('${key}')">${t.btnDelete}</button>
+            <button class="btn-del" onclick="deleteLog('${key}')">${t.btnDelete}</button>
           </div>
         `;
       }).join("");
@@ -895,7 +905,7 @@
       const dateVal = document.getElementById("manualDate").value;
       const minVal = parseInt(document.getElementById("manualMin").value, 10);
 
-      if (!dateVal || !minVal || minVal <= 0) return alert(i18n[currentLang].alertManual);
+      if (!dateVal || !minVal || minVal <= 0) return alert(t.alertManual);
 
       const logDate = new Date(dateVal);
       logDate.setHours(12);
@@ -913,6 +923,7 @@
     };
 
     window.deleteLog = (key) => {
+      playSound('click');
       const t = i18n[currentLang];
       if (confirm(t.confirmDelete)) {
         remove(ref(db, `logs/${key}`));
