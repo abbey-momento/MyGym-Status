@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>我が家のジム利用状況</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 16px; background: #f8f9fa; color: #333; }
+    h1 { text-align: center; font-size: 1.5rem; margin-bottom: 20px; }
+    .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .status-box { font-size: 1.2rem; font-weight: bold; margin: 16px 0; padding: 16px; border-radius: 12px; text-align: center; }
+    .free { background: #e8f5e9; color: #2e7d32; }
+    .busy { background: #ffebee; color: #c62828; }
+    select, button { width: 100%; padding: 14px; margin: 8px 0; font-size: 1rem; border-radius: 10px; border: 1px solid #ddd; appearance: none; }
+    select { background: white; }
+    button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button:active { opacity: 0.8; }
+    button.stop { background: #dc3545; }
+    .ranking-title { font-size: 1.1rem; font-weight: bold; margin-top: 16px; border-bottom: 2px solid #eee; padding-bottom: 4px; }
+    ol { padding-left: 20px; margin: 8px 0; }
+    li { margin: 6px 0; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+
+  <h1>🏋️‍♂️ ファミリージム</h1>
+
+  <div class="card">
+    <div id="status" class="status-box free">読み込み中...</div>
+    
+    <select id="userName">
+      <option value="">利用する人の名前を選択</option>
+      <option value="お父さん">お父さん</option>
+      <option value="お母さん">お母さん</option>
+      <option value="自分">自分</option>
+      <!-- 必要に応じて名前の選択肢を増やしてください -->
+    </select>
+    
+    <button id="startBtn" onclick="startGym()">利用開始 🚀</button>
+    <button id="stopBtn" onclick="stopGym()" class="stop" style="display:none;">利用終了 🏁</button>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size: 1.2rem; margin-top: 0;">🏆 今月の利用ランキング</h2>
+    <div class="ranking-title">🥇 利用回数</div>
+    <ol id="countRanking"><li>データがありません</li></ol>
+    <div class="ranking-title">⏱️ 合計時間 (分)</div>
+    <ol id="timeRanking"><li>データがありません</li></ol>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // スクリーンショットの設定情報をセット
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwu8QoQvf3WUtAKAlvz8s2nbfNkcsGPEA",
+      authDomain: "mygym-status.firebaseapp.com",
+      databaseURL: "https://mygym-status-default-rtdb.firebaseio.com",
+      projectId: "mygym-status",
+      storageBucket: "mygym-status.firebasestorage.app",
+      messagingSenderId: "541527735055",
+      appId: "1:541527735055:web:9f14d9f742636abe261c7a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const statusEl = document.getElementById("status");
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const userNameSelect = document.getElementById("userName");
+
+    let currentStatus = null;
+
+    // リアルタイムで利用状況を監視
+    onValue(ref(db, "current"), (snapshot) => {
+      currentStatus = snapshot.val();
+      if (currentStatus && currentStatus.isBusy) {
+        statusEl.className = "status-box busy";
+        statusEl.innerText = `🔴 ${currentStatus.user} さんが利用中`;
+        startBtn.style.display = "none";
+        stopBtn.style.display = "block";
+      } else {
+        statusEl.className = "status-box free";
+        statusEl.innerText = "🟢 現在だれも使っていません（空き）";
+        startBtn.style.display = "block";
+        stopBtn.style.display = "none";
+      }
+    });
+
+    // 利用開始処理
+    window.startGym = () => {
+      const user = userNameSelect.value;
+      if (!user) return alert("名前を選択してください！");
+      set(ref(db, "current"), {
+        isBusy: true,
+        user: user,
+        startTime: Date.now()
+      });
+    };
+
+    // 利用終了処理
+    window.stopGym = () => {
+      if (!currentStatus || !currentStatus.isBusy) return;
+      const endTime = Date.now();
+      const durationMin = Math.round((endTime - currentStatus.startTime) / 1000 / 60);
+
+      // 履歴に保存
+      push(ref(db, "logs"), {
+        user: currentStatus.user,
+        startTime: currentStatus.startTime,
+        endTime: endTime,
+        duration: durationMin,
+        month: new Date().toISOString().slice(0, 7) // YYYY-MM
+      });
+
+      // ステータスをクリア
+      set(ref(db, "current"), { isBusy: false });
+    };
+
+    // ランキングのリアルタイム集計
+    onValue(ref(db, "logs"), (snapshot) => {
+      const logs = snapshot.val();
+      if (!logs) return;
+
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      const counts = {};
+      const times = {};
+
+      Object.values(logs).forEach(log => {
+        if (log.month === currentMonth) {
+          counts[log.user] = (counts[log.user] || 0) + 1;
+          times[log.user] = (times[log.user] || 0) + log.duration;
+        }
+      });
+
+      renderRanking("countRanking", counts, "回");
+      renderRanking("timeRanking", times, "分");
+    });
+
+    function renderRanking(elementId, dataMap, unit) {
+      const sorted = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
+      const listEl = document.getElementById(elementId);
+      if (sorted.length === 0) return;
+      listEl.innerHTML = sorted.map(([user, val]) => `<li><b>${user}</b>: ${val} ${unit}</li>`).join("");
+    }
+  </script>
+</body>
+</html>
