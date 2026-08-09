@@ -126,6 +126,24 @@
     .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
     .cal-user-log-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-weight: 700; }
 
+    /* 🏆 新しいワクワクするサイバー・レースランキングデザイン */
+    .race-card-item { background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; position: relative; overflow: hidden; transition: 0.2s; }
+    .race-card-item.is-top1 { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); background: linear-gradient(135deg, rgba(23,12,46,0.9), rgba(255,215,0,0.08)); }
+    .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
+
+    .race-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; position: relative; z-index: 2; }
+    .race-user-info { display: flex; align-items: center; gap: 10px; }
+    .race-avatar-box { font-size: 1.5rem; width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); }
+    .race-name { font-weight: 800; font-size: 1.05rem; color: #FFF; display: flex; align-items: center; gap: 6px; }
+    .race-score-wrap { text-align: right; }
+    .race-score-main { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.4); }
+    .race-score-sub { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
+
+    /* プログレスバー（エネルギーゲージ） */
+    .race-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; position: relative; z-index: 2; }
+    .race-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring-inner)); border-radius: 4px; transition: width 0.6s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px rgba(34,197,94,0.5); }
+    .is-top1 .race-bar-fill { background: linear-gradient(90deg, #FFD700, #FF8C00); box-shadow: 0 0 12px rgba(255,215,0,0.6); }
+
     .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: 0.05em; color: #FFF; }
     .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
     .profile-avatar { font-size: 2.5rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid var(--card-border); }
@@ -278,13 +296,12 @@
     </div>
   </div>
 
-  <!-- 🏆 ランキングビュー -->
+  <!-- 🏆 ランキングビュー（サイバー・エネルギーレース仕様） -->
   <div id="view-ranking" class="view">
     <div class="card">
-      <h2 class="section-title" id="t-race-title">🏆 Ranking Mensual</h2>
-      <div>
-        <h3 style="font-size:0.85rem; color:var(--text-sub); margin-bottom:8px;" id="t-race-count">🔥 Visitas</h3>
-        <div id="race-count" style="display:flex; flex-direction:column;"><div class="empty-msg">Sin datos</div></div>
+      <h2 class="section-title" id="t-race-title">🏆 Energy Race</h2>
+      <div id="race-list-container" style="display:flex; flex-direction:column;">
+        <div class="empty-msg">Sin datos</div>
       </div>
     </div>
   </div>
@@ -301,7 +318,6 @@
         </div>
       </div>
       
-      <!-- 手動登録フォーム（年月日 ＋ 何時から何時まで） -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
         <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;" id="t-manual-title">➕ Añadir registro manual</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
@@ -432,11 +448,11 @@
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días de entrenamiento", statTime: "Tiempo total", selectDayMsg: "Selecciona un día",
-        raceTitle: "🏆 Ranking Mensual", raceCount: "🔥 Visitas", emptyData: "Sin datos",
+        raceTitle: "🏆 Energy Race", emptyData: "Sin datos",
         myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Mi Historial", logout: "Cerrar sesión",
         labelFrom: "Desde", labelTo: "Hasta",
         navHome: "Inicio", navCal: "Calendario", navRanking: "Ranking", navMypage: "Perfil",
-        unitMin: "min", unitHour: "h", unitCount: "visitas", btnDelete: "Borrar",
+        unitMin: "min", unitHour: "h", btnDelete: "Borrar",
         alertName: "Por favor escribe tu nombre", alertAlready: "¡Ya estás entrenando!",
         alertManual: "Ingresa una fecha, hora de inicio y fin válidas", alertTimeOrder: "La hora de fin debe ser posterior a la de inicio", confirmDelete: "¿Borrar este registro?",
         promptStopAlert: "⚠️ Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:",
@@ -448,11 +464,11 @@
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "トレーニング日数", statTime: "今月の合計時間", selectDayMsg: "カレンダーの日付を選択",
-        raceTitle: "🏆 今月のランキング", raceCount: "🔥 利用回数", emptyData: "データなし",
+        raceTitle: "🏆 エネルギーレース", emptyData: "データなし",
         myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴", logout: "ログアウト (リセット)",
         labelFrom: "開始時間", labelTo: "終了時間",
         navHome: "タイマー", navCal: "カレンダー", navRanking: "ランキング", navMypage: "マイページ",
-        unitMin: "分", unitHour: "時間", unitCount: "回", btnDelete: "削除",
+        unitMin: "分", unitHour: "時間", btnDelete: "削除",
         alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
         alertManual: "日付と正しい開始・終了時間を入力してください", alertTimeOrder: "終了時間は開始時間より後にしてください", confirmDelete: "この記録を削除しますか？",
         promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
@@ -503,7 +519,6 @@
       setT("t-stat-days", t.statDays);
       setT("t-stat-time", t.statTime);
       setT("t-race-title", t.raceTitle);
-      setT("t-race-count", t.raceCount);
       setT("t-my-title", t.myTitle);
       setT("t-manual-title", t.manualTitle);
       setT("t-label-from", t.labelFrom);
@@ -521,7 +536,7 @@
       
       updateHomeStatusText();
       renderCalendar();
-      renderRaceRanking();
+      renderEnergyRace();
       if(myUserName) renderMyLogs();
     }
 
@@ -533,6 +548,7 @@
       document.getElementById(`view-${tabId}`).classList.add('active');
       if(tabId === 'mypage' && myUserName) renderMyLogs();
       if(tabId === 'calendar') renderCalendar();
+      if(tabId === 'ranking') renderEnergyRace();
     };
 
     window.selectAvatarOption = (el, icon) => {
@@ -615,7 +631,7 @@
       document.getElementById("my-avatar-display").innerText = myUserAvatar;
       document.getElementById("edit-modal").style.display = "none";
       
-      renderRaceRanking();
+      renderEnergyRace();
       renderCalendar();
       renderMyLogs();
     };
@@ -734,7 +750,7 @@
 
     onValue(ref(db, "logs"), (snapshot) => {
       allLogsData = snapshot.val() || {};
-      renderRaceRanking();
+      renderEnergyRace();
       if (document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
       if (document.getElementById('view-mypage').classList.contains('active')) renderMyLogs();
     });
@@ -846,31 +862,62 @@
       }
     }
 
-    function renderRaceRanking() {
+    // --- ワクワクするサイバー・エネルギーレースの描画 ---
+    function renderEnergyRace() {
       const t = i18n[currentLang];
       const currentMonth = new Date().toISOString().slice(0, 7);
-      const counts = {}; 
+      const userTotals = {}; 
 
       Object.values(allLogsData).forEach(log => {
         if (log.month === currentMonth) {
-          counts[log.user] = (counts[log.user] || 0) + 1;
+          if (!userTotals[log.user]) {
+            userTotals[log.user] = { totalMin: 0, avatar: log.avatar || "👤" };
+          }
+          userTotals[log.user].totalMin += log.duration;
+          userTotals[log.user].avatar = log.avatar || userTotals[log.user].avatar;
         }
       });
 
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-      const listEl = document.getElementById("race-count");
+      const sorted = Object.entries(userTotals).sort((a, b) => b[1].totalMin - a[1].totalMin);
+      const listEl = document.getElementById("race-list-container");
       
       if (sorted.length === 0) { 
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`; 
         return; 
       }
 
-      listEl.innerHTML = sorted.map(([user, val], idx) => {
-        let rankIcon = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : "👤";
+      const maxMin = sorted[0][1].totalMin || 1;
+
+      listEl.innerHTML = sorted.map(([user, data], idx) => {
+        const isTop1 = idx === 0;
+        const isMe = user === myUserName;
+        const percentage = Math.min(100, Math.max(8, Math.round((data.totalMin / maxMin) * 100)));
+        let rankBadge = idx === 0 ? "👑 1st" : idx === 1 ? "🥈 2nd" : idx === 2 ? "🥉 3rd" : `#${idx+1}`;
+        
+        let cardClass = "race-card-item";
+        if (isTop1) cardClass += " is-top1";
+        if (isMe) cardClass += " is-me";
+
         return `
-          <div class="list-item" style="padding: 18px 0;">
-            <div class="list-title"><span style="font-size:1.3rem;">${rankIcon}</span> ${user}</div>
-            <div class="list-val">${val} ${t.unitCount}</div>
+          <div class="${cardClass}">
+            <div class="race-info-row">
+              <div class="race-user-info">
+                <div class="race-avatar-box">${data.avatar}</div>
+                <div>
+                  <div class="race-name">
+                    ${user} ${isMe ? '<span style="font-size:0.65rem; background:rgba(0,240,255,0.2); color:var(--ring-inner); padding:2px 6px; border-radius:6px;">YOU</span>' : ''}
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">${rankBadge}</div>
+                </div>
+              </div>
+              <div class="race-score-wrap">
+                <div class="race-score-main">${formatTimeFriendly(data.totalMin)}</div>
+                <div class="race-score-sub">Total Energy</div>
+              </div>
+            </div>
+            <div class="race-bar-container">
+              <div class="race-bar-fill" style="width: ${percentage}%;"></div>
+            </div>
           </div>
         `;
       }).join("");
@@ -884,7 +931,7 @@
       const currentMonth = new Date().toISOString().slice(0, 7);
       const userLogs = Object.entries(allLogsData)
         .filter(([key, log]) => log.user === myUserName && log.month === currentMonth)
-        .sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
+        .sort((a, b) => new Date(b[1].date) - new Date(b[1].date));
 
       if (userLogs.length === 0) {
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
@@ -909,7 +956,6 @@
       }).join("");
     };
 
-    // --- 「何時何分〜何時何分」から自動で分数を計算して登録する手動追加 ---
     window.addManualLog = () => {
       playSound('click');
       const t = i18n[currentLang];
