@@ -654,8 +654,8 @@
     
     let calendarDate = new Date();
     let selectedDateStr = getLocalISOString().slice(0, 10);
-    let calendarTargetUser = null; // カレンダーで表示する対象ユーザー（デフォルトは自分）
-    let activeCommentLogKey = null; // コメントモーダルで開いているログキー
+    let calendarTargetUser = null; // カレンダーハイライト用（デフォルトは自分）
+    let activeCommentLogKey = null;
     
     let timerAnimationId;
     const CIRCUMFERENCE_OUTER = 691.15;
@@ -1293,28 +1293,26 @@
 
       const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
       const dayLogs = {}; 
-      let totalMonthMin = 0;
-      const trainedDaysSet = new Set();
-
-      // 数値表示用：常に「自分のデータ」をベースにする
       let myMonthMin = 0;
       const myTrainedDays = new Set();
+      const trainedDaysSet = new Set();
+
       Object.values(allLogsData).forEach(log => {
+        // 常に自分自身の月間データを計算（上部スタッツ用）
         if (log.date && log.date.startsWith(monthStr) && log.user === myUserName) {
           myMonthMin += log.duration;
           myTrainedDays.add(log.date.slice(0, 10));
         }
-        // カレンダーハイライト用：選択されているターゲットユーザーのログを抽出
+        // カレンダーハイライト用：選択中のターゲットユーザーのログを抽出
         if (log.date && log.date.startsWith(monthStr) && log.user === calendarTargetUser) {
           const dateKey = log.date.slice(0, 10);
           if (!dayLogs[dateKey]) dayLogs[dateKey] = [];
           dayLogs[dateKey].push({ ...log, key });
-          totalMonthMin += log.duration;
           trainedDaysSet.add(dateKey);
         }
       });
 
-      // 上部の数値統計は自分自身のデータ（日数・合計時間・連続日数）を表示
+      // 上部の数値統計は常に自分のデータを表示
       const myStreak = calculateStreak(allLogsData);
       document.getElementById("stat-days-val").innerText = myTrainedDays.size;
       document.getElementById("stat-time-val").innerText = formatTimeFriendly(myMonthMin);
@@ -1367,7 +1365,7 @@
       const [y, m, d] = dateKey.split('-');
       dateTextEl.innerText = currentLang === 'es' ? `${d}/${m}/${y}` : `${m}月${d}日`;
 
-      // その日にトレーニングしたすべてのログを収集
+      // その日にトレーニングしたすべてのユーザーのログを収集
       const logsForDayAll = [];
       Object.entries(allLogsData).forEach(([key, log]) => {
         if (log.date && log.date.startsWith(dateKey)) {
@@ -1392,7 +1390,7 @@
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
-                  <span style="color:#FFF; font-weight:800;">${log.user} ${isSelectedUser ? '✓' : ''}</span>
+                  <span style="color:#FFF; font-weight:800;">${log.user}</span>
                 </div>
                 <span style="color:var(--ring-inner); font-weight:800;">${log.duration} ${t.unitMin}</span>
               </div>
