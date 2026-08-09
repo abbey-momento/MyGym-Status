@@ -69,7 +69,7 @@
     .modal-content { width: 100%; max-width: 400px; }
     .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
     label { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
-    input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; color: white; outline: none; font-size: 1.1rem; text-align: center; }
+    input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; color: white; outline: none; font-size: 1rem; text-align: center; }
     input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(34,197,94,0.3); }
     
     .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 160px; overflow-y: auto; padding-right: 4px; }
@@ -105,7 +105,6 @@
     .cal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .cal-title-month { font-size: 1.3rem; font-weight: 800; color: #FFF; font-family: 'Syne', sans-serif; text-transform: capitalize; }
     
-    /* SVG化された月移動ボタン */
     .cal-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: white; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
     .cal-nav-btn:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); }
     .cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
@@ -235,7 +234,6 @@
   <div id="view-calendar" class="view">
     <div class="card">
       <div class="cal-header-row">
-        <!-- SVGの月移動ボタン -->
         <button class="cal-nav-btn" onclick="changeMonth(-1)">
           <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
@@ -303,12 +301,22 @@
         </div>
       </div>
       
+      <!-- 手動登録フォーム（年月日 ＋ 何時から何時まで） -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
         <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;" id="t-manual-title">➕ Añadir registro manual</h3>
-        <div style="display:flex; gap:8px;">
-          <input type="date" id="manualDate" style="flex:1; padding:12px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 12px; color: white;">
-          <input type="number" id="manualMin" placeholder="Min" style="width:70px; padding:12px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 12px; color: white;">
-          <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:#0D061A; padding:0 16px; font-weight:800; cursor:pointer;">Añadir</button>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <input type="date" id="manualDate" style="width:100%; padding:12px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 12px; color: white;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:0.7rem;" id="t-label-from">Desde</label>
+              <input type="time" id="manualTimeFrom" value="10:00" style="padding:10px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 12px; color: white;">
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:0.7rem;" id="t-label-to">Hasta</label>
+              <input type="time" id="manualTimeTo" value="11:00" style="padding:10px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 12px; color: white;">
+            </div>
+          </div>
+          <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:#0D061A; padding:14px; font-weight:800; cursor:pointer; margin-top:4px;">Añadir</button>
         </div>
       </div>
 
@@ -426,10 +434,11 @@
         statDays: "Días de entrenamiento", statTime: "Tiempo total", selectDayMsg: "Selecciona un día",
         raceTitle: "🏆 Ranking Mensual", raceCount: "🔥 Visitas", emptyData: "Sin datos",
         myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Mi Historial", logout: "Cerrar sesión",
+        labelFrom: "Desde", labelTo: "Hasta",
         navHome: "Inicio", navCal: "Calendario", navRanking: "Ranking", navMypage: "Perfil",
         unitMin: "min", unitHour: "h", unitCount: "visitas", btnDelete: "Borrar",
         alertName: "Por favor escribe tu nombre", alertAlready: "¡Ya estás entrenando!",
-        alertManual: "Ingresa una fecha y minutos válidos", confirmDelete: "¿Borrar este registro?",
+        alertManual: "Ingresa una fecha, hora de inicio y fin válidas", alertTimeOrder: "La hora de fin debe ser posterior a la de inicio", confirmDelete: "¿Borrar este registro?",
         promptStopAlert: "⚠️ Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:",
         months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
       },
@@ -441,10 +450,11 @@
         statDays: "トレーニング日数", statTime: "今月の合計時間", selectDayMsg: "カレンダーの日付を選択",
         raceTitle: "🏆 今月のランキング", raceCount: "🔥 利用回数", emptyData: "データなし",
         myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴", logout: "ログアウト (リセット)",
+        labelFrom: "開始時間", labelTo: "終了時間",
         navHome: "タイマー", navCal: "カレンダー", navRanking: "ランキング", navMypage: "マイページ",
         unitMin: "分", unitHour: "時間", unitCount: "回", btnDelete: "削除",
         alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
-        alertManual: "日付と正しい分数を入力してください", confirmDelete: "この記録を削除しますか？",
+        alertManual: "日付と正しい開始・終了時間を入力してください", alertTimeOrder: "終了時間は開始時間より後にしてください", confirmDelete: "この記録を削除しますか？",
         promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
       }
@@ -496,6 +506,8 @@
       setT("t-race-count", t.raceCount);
       setT("t-my-title", t.myTitle);
       setT("t-manual-title", t.manualTitle);
+      setT("t-label-from", t.labelFrom);
+      setT("t-label-to", t.labelTo);
       setT("t-btn-add", t.btnAdd);
       setT("t-history-title", t.historyTitle);
       setT("t-logout", t.logout);
@@ -897,29 +909,40 @@
       }).join("");
     };
 
+    // --- 「何時何分〜何時何分」から自動で分数を計算して登録する手動追加 ---
     window.addManualLog = () => {
       playSound('click');
       const t = i18n[currentLang];
       if (!myUserName) return;
       
       const dateVal = document.getElementById("manualDate").value;
-      const minVal = parseInt(document.getElementById("manualMin").value, 10);
+      const timeFrom = document.getElementById("manualTimeFrom").value;
+      const timeTo = document.getElementById("manualTimeTo").value;
 
-      if (!dateVal || !minVal || minVal <= 0) return alert(t.alertManual);
+      if (!dateVal || !timeFrom || !timeTo) return alert(t.alertManual);
 
-      const logDate = new Date(dateVal);
-      logDate.setHours(12);
+      const [fromH, fromM] = timeFrom.split(':').map(Number);
+      const [toH, toM] = timeTo.split(':').map(Number);
+
+      const startMinutes = fromH * 60 + fromM;
+      const endMinutes = toH * 60 + toM;
+      let diffMin = endMinutes - startMinutes;
+
+      if (diffMin <= 0) return alert(t.alertTimeOrder);
+
+      const logDate = new Date(`${dateVal}T${timeFrom}:00`);
 
       push(ref(db, "logs"), {
         user: myUserName,
         avatar: myUserAvatar,
         startTime: logDate.getTime(),
-        duration: minVal,
-        month: logDate.toISOString().slice(0, 7),
+        duration: diffMin,
+        month: dateVal.slice(0, 7),
         date: logDate.toISOString()
       });
 
-      document.getElementById("manualMin").value = "";
+      document.getElementById("manualTimeFrom").value = "10:00";
+      document.getElementById("manualTimeTo").value = "11:00";
     };
 
     window.deleteLog = (key) => {
