@@ -49,9 +49,12 @@
     }
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-icon { background: var(--accent-gradient); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; box-shadow: 0 0 15px rgba(34,197,94,0.4); }
-    .brand-title h1 { font-size: 1.4rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(34,197,94,0.5); }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    
+    /* SVGロゴアイコン */
+    .brand-logo-svg { width: 38px; height: 38px; filter: drop-shadow(0 0 8px rgba(34,197,94,0.5)); }
+    
+    .brand-title h1 { font-size: 1.3rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(34,197,94,0.5); }
     
     .lang-switcher { display: flex; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 3px; gap: 2px; }
     .lang-btn { background: none; border: none; color: var(--text-sub); padding: 6px 12px; font-size: 0.75rem; font-weight: 700; border-radius: 16px; cursor: pointer; transition: 0.2s; }
@@ -64,17 +67,21 @@
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; }
     .card::before { content: ""; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--accent); border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
 
-    /* 初回登録モーダル */
+    /* 初回登録＆編集モーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 6, 26, 0.95); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px); }
     .modal-content { width: 100%; max-width: 400px; }
     .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
     label { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
     input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; color: white; outline: none; font-size: 1.1rem; text-align: center; }
     input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(34,197,94,0.3); }
-    .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .avatar-option { font-size: 1.8rem; text-align: center; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 14px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-    .avatar-option.selected { border-color: var(--accent); background: rgba(34,197,94,0.15); transform: scale(1.05); }
-    .btn-primary { width: 100%; background: var(--accent-gradient); color: #0D061A; border: none; padding: 18px; border-radius: 16px; font-weight: 800; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 20px rgba(34,197,94,0.4); }
+    
+    /* アバターグリッド（種類を大幅増加） */
+    .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 160px; overflow-y: auto; padding-right: 4px; }
+    .avatar-option { font-size: 1.5rem; text-align: center; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+    .avatar-option.selected { border-color: var(--accent); background: rgba(34,197,94,0.2); transform: scale(1.05); }
+    
+    .btn-primary { width: 100%; background: var(--accent-gradient); color: #0D061A; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 20px rgba(34,197,94,0.4); }
+    .btn-secondary { width: 100%; background: rgba(34,197,94,0.1); color: var(--accent); border: 1px solid var(--card-border); padding: 12px; border-radius: 14px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     
     /* ホームステータス */
     .home-status-box { background: rgba(0,0,0,0.3); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 10px; border: 1px solid var(--card-border); }
@@ -82,7 +89,7 @@
     .home-status-text { font-size: 1rem; font-weight: 700; color: white; }
     .status-free { color: var(--green); text-shadow: 0 0 8px rgba(34,197,94,0.4); }
     
-    /* タイマーUI（数字のブレ完全防止） */
+    /* タイマーUI */
     .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 20px; position: relative; }
     .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(34,197,94,0.2)); }
     .ring-track { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 14; }
@@ -91,16 +98,8 @@
     
     .timer-display { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
     .time-main { 
-      font-size: 2.8rem; 
-      font-weight: 800; 
-      letter-spacing: 2px; 
-      margin-bottom: 4px; 
-      line-height: 1; 
-      color: #FFF; 
-      text-shadow: 0 0 15px rgba(255,255,255,0.4);
-      /* 等幅にして数字の伸縮によるブレを完全に防ぐ */
-      font-variant-numeric: tabular-nums;
-      font-feature-settings: "tnum";
+      font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; color: #FFF; text-shadow: 0 0 15px rgba(255,255,255,0.4);
+      font-variant-numeric: tabular-nums; font-feature-settings: "tnum";
     }
     .time-sub { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
 
@@ -125,11 +124,12 @@
     .cal-day.has-activity { background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(0,240,255,0.25)); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(34,197,94,0.3); }
     .cal-day.selected { border: 2px solid #FFF; transform: scale(1.05); }
 
-    .cal-detail-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .cal-detail-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .cal-detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
     .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
-    .cal-detail-val { font-size: 1.1rem; font-weight: 800; color: var(--accent); font-family: 'Syne', sans-serif; }
+    .cal-user-log-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-weight: 700; }
 
-    /* その他共通パーツ */
+    /* 共通パーツ */
     .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: 0.05em; color: #FFF; }
     .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
     .profile-avatar { font-size: 2.5rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid var(--card-border); }
@@ -163,24 +163,46 @@
       </div>
       <div class="form-group">
         <label id="t-modal-avatar">Avatar</label>
-        <div class="avatar-grid">
-          <div class="avatar-option selected" onclick="selectAvatar(this, '🐶')">🐶</div>
-          <div class="avatar-option" onclick="selectAvatar(this, '🐱')">🐱</div>
-          <div class="avatar-option" onclick="selectAvatar(this, '🐰')">🐰</div>
-          <div class="avatar-option" onclick="selectAvatar(this, '🦊')">🦊</div>
-          <div class="avatar-option" onclick="selectAvatar(this, '🐻')">🐻</div>
-          <div class="avatar-option" onclick="selectAvatar(this, '🐼')">🐼</div>
-          <div class="avatar-option" onclick="selectAvatar(this, '🦁')">🦁</div>
-          <div class="avatar-option" onclick="selectAvatar(this, '🏎️')">🏎️</div>
+        <div class="avatar-grid" id="modal-avatar-grid">
+          <!-- JSで大量生成 -->
         </div>
       </div>
       <button class="btn-primary" onclick="registerUser()" id="t-btn-register">Comenzar 🚀</button>
     </div>
   </div>
 
+  <!-- プロフィール編集モーダル -->
+  <div id="edit-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content card">
+      <h2 style="text-align:center; margin-bottom: 20px; font-size: 1.5rem;" id="t-edit-title">Editar Perfil</h2>
+      <div class="form-group">
+        <label id="t-edit-name">Tu nombre</label>
+        <input type="text" id="editNameInput" />
+      </div>
+      <div class="form-group">
+        <label id="t-edit-avatar">Avatar</label>
+        <div class="avatar-grid" id="edit-avatar-grid">
+          <!-- JSで大量生成 -->
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveEditedProfile()" id="t-btn-save">Guardar</button>
+      <button class="btn-secondary" onclick="closeEditModal()" id="t-btn-cancel">Cancelar</button>
+    </div>
+  </div>
+
   <header>
     <div class="brand">
-      <div class="brand-icon">⚡</div>
+      <!-- レトロフューチャーコンセプトのカスタムSVGロゴ -->
+      <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" rx="24" fill="#170C2E" stroke="#22C55E" stroke-width="4"/>
+        <path d="M30 50L45 30H70L55 50H70L40 75L48 55H30Z" fill="url(#paint0_linear)" stroke="#00F0FF" stroke-width="3" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="paint0_linear" x1="30" y1="30" x2="70" y2="75" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#22C55E"/>
+            <stop offset="1" stop-color="#00F0FF"/>
+          </linearGradient>
+        </defs>
+      </svg>
       <div class="brand-title">
         <h1>MyGym</h1>
       </div>
@@ -250,12 +272,15 @@
 
       <div class="calendar-grid" id="calendar-days-container"></div>
 
+      <!-- 選択した日の詳細（全ユーザー表示対応） -->
       <div class="cal-detail-card" id="cal-selected-detail">
-        <div>
+        <div class="cal-detail-header">
           <div class="cal-detail-date" id="selected-date-text">Selecciona un día</div>
-          <div id="selected-date-users" style="font-weight:700; font-size:0.95rem; margin-top:2px;">-</div>
+          <div id="selected-date-total-badge" style="font-weight:800; color:var(--accent); font-family:'Syne';">0 min</div>
         </div>
-        <div class="cal-detail-val" id="selected-date-total">0 min</div>
+        <div id="selected-date-users-list" style="display:flex; flex-direction:column; gap:6px;">
+          <div style="color:var(--text-sub); font-size:0.9rem;">Sin registros</div>
+        </div>
       </div>
     </div>
   </div>
@@ -277,7 +302,10 @@
       
       <div class="profile-header">
         <div class="profile-avatar" id="my-avatar-display">👤</div>
-        <div class="profile-name" id="my-name-display">Name</div>
+        <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
+          <div class="profile-name" id="my-name-display">Name</div>
+          <button onclick="openEditModal()" style="background:rgba(34,197,94,0.15); border:1px solid var(--card-border); color:var(--accent); padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.75rem; cursor:pointer; width:fit-content;" id="t-edit-profile-btn">Editar Perfil</button>
+        </div>
       </div>
       
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
@@ -336,12 +364,22 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // --- 🔊 ピコピコ効果音ジェネレーター (Web Audio API) ---
+    // アバターのリストを大幅に拡充
+    const AVATAR_LIST = [
+      '🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐸', '🐵', '🦄',
+      '⚡', '🔥', '🚀', '⭐', '💎', '🦾', '🏆', '🎯', '🎸', '🕹️', '🎧', '👾',
+      '🍎', '🍕', '☕', '🍉', '🌵', '🌴', '🌊', '☀️', '🌙', '👻', '🤖', '💀'
+    ];
+
+    function renderAvatarSelectors() {
+      const html = AVATAR_LIST.map((icon, idx) => `<div class="avatar-option ${idx===0?'selected':''}" onclick="selectAvatarOption(this, '${icon}')">${icon}</div>`).join("");
+      document.getElementById("modal-avatar-grid").innerHTML = html;
+      document.getElementById("edit-avatar-grid").innerHTML = html;
+    }
+
     let audioCtx = null;
     function getAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       return audioCtx;
     }
 
@@ -349,45 +387,35 @@
       try {
         const ctx = getAudioContext();
         if (ctx.state === 'suspended') ctx.resume();
-
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
-
         const now = ctx.currentTime;
 
         if (type === 'start') {
-          // 起動音（ピピッ！と高くなる）
           osc.type = 'square';
           osc.frequency.setValueAtTime(440, now);
           osc.frequency.setValueAtTime(880, now + 0.08);
           gain.gain.setValueAtTime(0.1, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-          osc.start(now);
-          osc.stop(now + 0.25);
+          osc.start(now); osc.stop(now + 0.25);
         } else if (type === 'stop') {
-          // 完了音（ピポッ、と低くなる）
           osc.type = 'square';
           osc.frequency.setValueAtTime(880, now);
           osc.frequency.setValueAtTime(440, now + 0.1);
           gain.gain.setValueAtTime(0.1, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-          osc.start(now);
-          osc.stop(now + 0.3);
+          osc.start(now); osc.stop(now + 0.3);
         } else if (type === 'click') {
-          // 軽いクリック音（ポコッ）
           osc.type = 'sine';
           osc.frequency.setValueAtTime(300, now);
           osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
           gain.gain.setValueAtTime(0.08, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-          osc.start(now);
-          osc.stop(now + 0.05);
+          osc.start(now); osc.stop(now + 0.05);
         }
-      } catch (e) {
-        console.log("Audio not allowed yet");
-      }
+      } catch (e) {}
     }
 
     function setT(id, text) {
@@ -398,6 +426,7 @@
     const i18n = {
       es: {
         modalTitle: "Bienvenido", modalName: "Tu nombre", modalAvatar: "Avatar", btnRegister: "Comenzar 🚀",
+        editTitle: "Editar Perfil", editName: "Tu nombre", editAvatar: "Avatar", btnSave: "Guardar", btnCancel: "Cancelar", editBtn: "Editar Perfil",
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días de entrenamiento", statTime: "Tiempo total", selectDayMsg: "Selecciona un día",
@@ -412,6 +441,7 @@
       },
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
+        editTitle: "プロフィール編集", editName: "あなたの名前", editAvatar: "アバター", btnSave: "保存する", btnCancel: "キャンセル", editBtn: "プロフィール編集",
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "トレーニング日数", statTime: "今月の合計時間", selectDayMsg: "カレンダーの日付を選択",
@@ -430,6 +460,7 @@
     let activeUsersData = {};
     let allLogsData = {};
     let selectedAvatar = "🐶";
+    let editSelectedAvatar = "🐶";
     let myUserName = localStorage.getItem("gym_my_name") || "";
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
     let amIRunning = false;
@@ -458,6 +489,12 @@
       setT("t-modal-name", t.modalName);
       setT("t-modal-avatar", t.modalAvatar);
       setT("t-btn-register", t.btnRegister);
+      setT("t-edit-title", t.editTitle);
+      setT("t-edit-name", t.editName);
+      setT("t-edit-avatar", t.editAvatar);
+      setT("t-btn-save", t.btnSave);
+      setT("t-btn-cancel", t.btnCancel);
+      setT("t-edit-profile-btn", t.editBtn);
       setT("t-home-status-label", t.homeStatusLabel);
       setT("t-stat-days", t.statDays);
       setT("t-stat-time", t.statTime);
@@ -492,11 +529,19 @@
       if(tabId === 'calendar') renderCalendar();
     };
 
-    window.selectAvatar = (el, icon) => {
+    window.selectAvatarOption = (el, icon) => {
       playSound('click');
-      document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedAvatar = icon;
+      // どちらのモーダルか判定して選択状態を分ける
+      const parent = el.closest('#modal-avatar-grid');
+      if (parent) {
+        parent.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedAvatar = icon;
+      } else {
+        document.querySelectorAll('#edit-avatar-grid .avatar-option').forEach(opt => opt.classList.remove('selected'));
+        el.classList.add('selected');
+        editSelectedAvatar = icon;
+      }
     };
 
     function checkAuth() {
@@ -525,6 +570,50 @@
       document.getElementById("auth-modal").style.display = "none";
       
       checkMyTimerStatus();
+      renderMyLogs();
+    };
+
+    window.openEditModal = () => {
+      playSound('click');
+      document.getElementById("editNameInput").value = myUserName;
+      editSelectedAvatar = myUserAvatar;
+      
+      // 編集用グリッドの選択状態を合わせる
+      document.querySelectorAll('#edit-avatar-grid .avatar-option').forEach(opt => {
+        if (opt.innerText === myUserAvatar) opt.classList.add('selected');
+        else opt.classList.remove('selected');
+      });
+
+      document.getElementById("edit-modal").style.display = "flex";
+    };
+
+    window.closeEditModal = () => {
+      playSound('click');
+      document.getElementById("edit-modal").style.display = "none";
+    };
+
+    window.saveEditedProfile = () => {
+      playSound('start');
+      const newName = document.getElementById("editNameInput").value.trim();
+      if (!newName) return alert(i18n[currentLang].alertName);
+
+      // 古い名前の稼働中データがあれば移動または更新
+      if (activeUsersData[myUserName]) {
+        set(ref(db, `current/${newName}`), { startTime: activeUsersData[myUserName].startTime, avatar: editSelectedAvatar });
+        remove(ref(db, `current/${myUserName}`));
+      }
+
+      myUserName = newName;
+      myUserAvatar = editSelectedAvatar;
+      localStorage.setItem("gym_my_name", myUserName);
+      localStorage.setItem("gym_my_avatar", myUserAvatar);
+
+      document.getElementById("my-name-display").innerText = myUserName;
+      document.getElementById("my-avatar-display").innerText = myUserAvatar;
+      document.getElementById("edit-modal").style.display = "none";
+      
+      renderRaceRanking();
+      renderCalendar();
       renderMyLogs();
     };
 
@@ -721,32 +810,30 @@
 
       const t = i18n[currentLang];
       const dateTextEl = document.getElementById("selected-date-text");
-      const usersTextEl = document.getElementById("selected-date-users");
-      const totalValEl = document.getElementById("selected-date-total");
+      const usersListEl = document.getElementById("selected-date-users-list");
+      const totalBadgeEl = document.getElementById("selected-date-total-badge");
 
       const [y, m, d] = dateKey.split('-');
       dateTextEl.innerText = currentLang === 'es' ? `${d}/${m}/${y}` : `${m}月${d}日`;
 
       if (logsForDay.length === 0) {
-        usersTextEl.innerText = "-";
-        usersTextEl.style.color = "var(--text-sub)";
-        totalValEl.innerText = `0 ${t.unitMin}`;
+        usersListEl.innerHTML = `<div style="color:var(--text-sub); font-size:0.9rem;">Sin registros</div>`;
+        totalBadgeEl.innerText = `0 ${t.unitMin}`;
       } else {
         let totalMin = 0;
-        let userSummary = {};
-        logsForDay.forEach(l => {
-          totalMin += l.duration;
-          if (!userSummary[l.user]) userSummary[l.user] = { avatar: l.avatar || "👤", min: 0 };
-          userSummary[l.user].min += l.duration;
-        });
+        logsForDay.forEach(l => totalMin += l.duration);
+        totalBadgeEl.innerText = formatTimeFriendly(totalMin);
 
-        const userStr = Object.entries(userSummary)
-          .map(([name, data]) => `${data.avatar} ${name} (${data.min}m)`)
-          .join(", ");
-
-        usersTextEl.innerText = userStr;
-        usersTextEl.style.color = "#FFF";
-        totalValEl.innerText = formatTimeFriendly(totalMin);
+        // 全ユーザーの個別記録を表示
+        usersListEl.innerHTML = logsForDay.map(log => `
+          <div class="cal-user-log-row">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
+              <span style="color:#FFF;">${log.user}</span>
+            </div>
+            <span style="color:var(--ring-inner);">${log.duration} ${t.unitMin}</span>
+          </div>
+        `).join("");
       }
     }
 
@@ -846,6 +933,7 @@
     };
 
     document.addEventListener("DOMContentLoaded", () => {
+      renderAvatarSelectors();
       switchLang(currentLang);
       checkAuth();
     });
