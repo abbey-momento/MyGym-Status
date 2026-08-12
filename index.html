@@ -70,10 +70,9 @@
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; overflow: hidden; width: 100%; }
     .card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
 
-    /* シンプルでサラッとしたモーダル */
+    /* シンプルなモーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 6, 26, 0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px); }
     .modal-content { width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; background: #130a24; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); position: relative; }
-    .modal-content::before { display: none; }
 
     .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; width: 100%; }
     label { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
@@ -616,7 +615,7 @@
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak",
         raceTitle: "🏆 Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
-        myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Mi Historial", logout: "Cerrar sesión",
+        myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Historial Reciente", logout: "Cerrar sesión",
         goalTitle: "🎯 Meta Mensual (sesiones)", btnSaveGoal: "Guardar Meta",
         memoTitle: "¡Buen trabajo! 💪", memoSub: "Añade una nota o comentario", btnSaveLog: "Guardar Registro ✨", btnSkipMemo: "Terminar sin nota",
         editLogTitle: "Editar Registro", btnSaveEditLog: "Guardar Cambios", btnCancelEditLog: "Cancelar",
@@ -634,7 +633,7 @@
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続",
         raceTitle: "🏆 エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
-        myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 今月の履歴", logout: "ログアウト (リセット)",
+        myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 最近の履歴", logout: "ログアウト (リセット)",
         goalTitle: "🎯 今月の目標回数 (回)", btnSaveGoal: "目標を保存",
         memoTitle: "お疲れ様でした！ 💪", memoSub: "メモやコメントを残そう", btnSaveLog: "記録を保存する ✨", btnSkipMemo: "メモなしで完了",
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
@@ -645,6 +644,11 @@
         promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
       }
+    };
+
+    const NOTIF_MESSAGES = {
+      es: { like: "ha dado 'Me gusta' a tu entrenamiento", comment: "ha comentado tu entrenamiento" },
+      ja: { like: "があなたのトレーニングにいいねしました", comment: "があなたのトレーニングにコメントしました" }
     };
 
     let currentLang = localStorage.getItem("gym_lang") || "es";
@@ -663,7 +667,7 @@
     
     let calendarDate = new Date();
     let selectedDateStr = getLocalISOString().slice(0, 10);
-    let calendarTargetUser = null; // カレンダー上部統計用の対象ユーザー
+    let calendarTargetUser = null; 
     let activeCommentLogKey = null;
     
     let timerAnimationId;
@@ -1020,6 +1024,17 @@
       
       if (likes[myUserName]) {
         delete likes[myUserName];
+        
+        const notifsRef = ref(db, "notifications");
+        onValue(notifsRef, (snap) => {
+          const val = snap.val();
+          for(let k in val) {
+            if(val[k].targetUser === logItem.user && val[k].fromUser === myUserName && val[k].logKey === logKey && val[k].type === "like") {
+              remove(ref(db, `notifications/${k}`));
+            }
+          }
+        }, { onlyOnce: true });
+
       } else {
         likes[myUserName] = true;
         if (logItem.user !== myUserName) {
@@ -1027,7 +1042,8 @@
             targetUser: logItem.user,
             fromUser: myUserName,
             type: "like",
-            text: `${myUserName} があなたの投稿にハートを送りました`,
+            text: `${myUserName} ${NOTIF_MESSAGES[currentLang].like}`,
+            logKey: logKey,
             timestamp: Date.now(),
             read: false
           });
@@ -1082,9 +1098,7 @@
       if (!text || !activeCommentLogKey) return;
 
       const logItem = allLogsData[activeCommentLogKey];
-      const commentsRef = ref(db, `logs/${activeCommentLogKey}/comments`);
-      
-      push(commentsRef, {
+      const newCommentRef = push(ref(db, `logs/${activeCommentLogKey}/comments`), {
         user: myUserName,
         text: text,
         timestamp: Date.now()
@@ -1095,7 +1109,9 @@
           targetUser: logItem.user,
           fromUser: myUserName,
           type: "comment",
-          text: `${myUserName}: "${text}"`,
+          text: `${myUserName} ${NOTIF_MESSAGES[currentLang].comment}: "${text}"`,
+          logKey: activeCommentLogKey,
+          commentKey: newCommentRef.key, 
           timestamp: Date.now(),
           read: false
         });
@@ -1110,6 +1126,16 @@
       remove(ref(db, `logs/${logKey}/comments/${commentKey}`)).then(() => {
         renderModalComments();
       });
+
+      const notifsRef = ref(db, "notifications");
+      onValue(notifsRef, (snap) => {
+        const val = snap.val();
+        for(let k in val) {
+          if(val[k].commentKey === commentKey) {
+            remove(ref(db, `notifications/${k}`));
+          }
+        }
+      }, { onlyOnce: true });
     };
 
     function updateHomeStatusText() {
@@ -1319,18 +1345,15 @@
       const trainedDaysSet = new Set();
 
       Object.values(allLogsData).forEach(log => {
-        // カレンダー上部のスタッツ用：選択中のターゲットユーザーの月間データを集計
         if (log.date && log.date.startsWith(monthStr) && log.user === calendarTargetUser) {
           targetMonthMin += log.duration;
           targetTrainedDays.add(log.date.slice(0, 10));
         }
-        // カレンダーハイライト用：今月誰かがトレーニングした日
         if (log.date && log.date.startsWith(monthStr)) {
           trainedDaysSet.add(log.date.slice(0, 10));
         }
       });
 
-      // 上部の統計数値を、選択中のユーザーのデータ＆連続日数（Streak）に更新
       const targetStreak = calculateStreakForUser(allLogsData, calendarTargetUser);
       document.getElementById("stat-days-val").innerText = targetTrainedDays.size;
       document.getElementById("stat-time-val").innerText = formatTimeFriendly(targetMonthMin);
@@ -1384,7 +1407,6 @@
       const [y, m, d] = dateKey.split('-');
       dateTextEl.innerText = currentLang === 'es' ? `${d}/${m}/${y}` : `${m}月${d}日`;
 
-      // その日にトレーニングしたすべてのユーザーのログを収集
       const logsForDayAll = [];
       Object.entries(allLogsData).forEach(([key, log]) => {
         if (log.date && log.date.startsWith(dateKey)) {
@@ -1485,10 +1507,10 @@
       const listEl = document.getElementById("my-logs-list");
       if (!myUserName) return;
 
-      const currentMonth = getLocalISOString(new Date()).slice(0, 7);
       const userLogs = Object.entries(allLogsData)
-        .filter(([key, log]) => log.user === myUserName && log.month === currentMonth)
-        .sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
+        .filter(([key, log]) => log.user === myUserName)
+        .sort((a, b) => new Date(b[1].date) - new Date(a[1].date))
+        .slice(0, 30);
 
       if (userLogs.length === 0) {
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
