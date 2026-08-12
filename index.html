@@ -55,7 +55,7 @@
     .brand-title h1 { font-size: 1.3rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(34,197,94,0.5); }
     
     .header-right { display: flex; align-items: center; gap: 10px; }
-    .notif-bell-btn { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: var(--text-sub); cursor: pointer; position: relative; transition: 0.2s; }
+    .notif-bell-btn { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 50%; width: 38px; height: 38px; align-items: center; justify-content: center; color: var(--text-sub); cursor: pointer; position: relative; transition: 0.2s; }
     .notif-bell-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
     .notif-badge { position: absolute; top: -2px; right: -2px; background: var(--red); color: white; font-size: 0.6rem; font-weight: 800; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 6px var(--red); }
     
@@ -70,7 +70,6 @@
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; overflow: hidden; width: 100%; }
     .card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
 
-    /* シンプルなモーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 6, 26, 0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px); }
     .modal-content { width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; background: #130a24; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); position: relative; }
 
@@ -99,20 +98,15 @@
     .ring-progress-inner { fill: none; stroke: var(--ring-inner); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     
     .timer-display { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
-    .time-main { 
-      font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; color: #FFF; text-shadow: 0 0 15px rgba(255,255,255,0.4);
-      font-variant-numeric: tabular-nums; font-feature-settings: "tnum";
-    }
+    .time-main { font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; color: #FFF; text-shadow: 0 0 15px rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
     .time-sub { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
 
     .timer-action-btn { background: rgba(34, 197, 94, 0.1); color: var(--green); border: 1px solid var(--card-border); padding: 14px 40px; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(34,197,94,0.2); margin-top: 10px; transition: 0.2s; }
     .timer-action-btn.start { background: rgba(34, 197, 94, 0.15); color: var(--green); border-color: rgba(34, 197, 94, 0.4); }
     .timer-action-btn.stop { background: rgba(244, 63, 94, 0.15); color: var(--red); border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 15px rgba(244,63,94,0.2); }
 
-    /* カレンダービュー */
     .cal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .cal-title-month { font-size: 1.3rem; font-weight: 800; color: #FFF; font-family: 'Syne', sans-serif; text-transform: capitalize; }
-    
     .cal-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: white; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
     .cal-nav-btn:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); }
     .cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
@@ -137,7 +131,7 @@
     .cal-user-log-item:hover { border-color: var(--accent); background: rgba(34,197,94,0.05); }
 
     /* アクティビティ（タイムライン）専用スタイル */
-    .timeline-card-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .timeline-card-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; transition: 0.3s; }
     .timeline-header { display: flex; justify-content: space-between; align-items: center; }
     .timeline-user-box { display: flex; align-items: center; gap: 8px; }
     .timeline-avatar { font-size: 1.3rem; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); }
@@ -153,18 +147,21 @@
     .action-icon-btn.liked svg { fill: var(--red); stroke: var(--red); filter: drop-shadow(0 0 6px rgba(244,63,94,0.5)); transform: scale(1.08); }
     .action-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* コメントモーダル */
+    @keyframes highlightFlash {
+      0% { background: rgba(34, 197, 94, 0.3); border-color: var(--accent); transform: scale(1.02); }
+      100% { background: rgba(0,0,0,0.3); border-color: var(--card-border); transform: scale(1); }
+    }
+    .highlight-log { animation: highlightFlash 1.5s ease-out; }
+
     .comment-list-box { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-bottom: 12px; }
     .comment-row { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px 10px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
 
-    /* 通知モーダルリスト */
-    .notif-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; }
+    .notif-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; transition: 0.2s; }
+    .notif-item:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
 
-    /* レースランキング */
     .race-card-item { background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; position: relative; overflow: hidden; transition: 0.2s; }
     .race-card-item.is-top1 { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); background: linear-gradient(135deg, rgba(23,12,46,0.9), rgba(255,215,0,0.08)); }
     .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
-
     .race-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; position: relative; z-index: 2; }
     .race-user-info { display: flex; align-items: center; gap: 10px; }
     .race-avatar-box { font-size: 1.5rem; width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); }
@@ -172,7 +169,6 @@
     .race-score-wrap { text-align: right; }
     .race-score-main { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.4); }
     .race-score-sub { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
-
     .race-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; position: relative; z-index: 2; }
     .race-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring-inner)); border-radius: 4px; transition: width 0.6s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px rgba(34,197,94,0.5); }
     .is-top1 .race-bar-fill { background: linear-gradient(90deg, #FFD700, #FF8C00); box-shadow: 0 0 12px rgba(255,215,0,0.6); }
@@ -181,7 +177,6 @@
     .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
     .profile-avatar { font-size: 2.5rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid var(--card-border); }
     .profile-name { font-size: 1.4rem; font-weight: 800; }
-
     .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .list-item:last-child { border-bottom: none; }
     .list-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; }
@@ -240,7 +235,7 @@
     </div>
   </div>
 
-  <!-- ひとことメモ入力モーダル（ストップ時） -->
+  <!-- ひとことメモ入力モーダル -->
   <div id="memo-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
       <h2 style="text-align:center; margin-bottom: 6px; font-size: 1.2rem;" id="t-memo-title">¡Buen trabajo! 💪</h2>
@@ -302,7 +297,7 @@
         <h2 style="font-size: 1.1rem;" id="t-notif-title">🔔 通知</h2>
         <button onclick="closeNotificationModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
       </div>
-      <div id="notification-list-container" style="display:flex; flex-direction:column; max-height: 250px; overflow-y:auto;">
+      <div id="notification-list-container" style="display:flex; flex-direction:column; max-height: 350px; overflow-y:auto;">
         <div class="empty-msg">Sin notificaciones</div>
       </div>
     </div>
@@ -325,7 +320,8 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="notif-bell-btn" onclick="openNotificationModal()">
+      <!-- 通知ボタン（初期状態では非表示） -->
+      <div class="notif-bell-btn" id="notif-bell-btn" onclick="openNotificationModal()" style="display: none;">
         <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         <div class="notif-badge" id="notif-badge" style="display:none;">0</div>
       </div>
@@ -334,7 +330,6 @@
 
   <!-- 🏠 ホームビュー -->
   <div id="view-home" class="view active">
-    
     <div class="home-status-box">
       <div class="home-status-title" id="t-home-status-label">Estado Actual</div>
       <div class="home-status-text status-free" id="home-status-text">Libre</div>
@@ -437,7 +432,6 @@
   <!-- 👤 マイページビュー -->
   <div id="view-mypage" class="view">
     <div class="card">
-      
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
         <h2 class="section-title" style="margin-bottom:0;" id="t-my-title">👤 マイページ</h2>
         <div class="lang-switcher">
@@ -457,7 +451,6 @@
         </div>
       </div>
       
-      <!-- 目標設定エリア（回数） -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--card-border);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
           <h3 style="font-size: 0.85rem; color:var(--text-sub);" id="t-goal-title">🎯 Meta Mensual (sesiones)</h3>
@@ -472,7 +465,6 @@
         </div>
       </div>
 
-      <!-- 手動登録フォーム -->
       <div class="manual-log-box">
         <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;" id="t-manual-title">➕ Añadir registro manual</h3>
         <div style="display:flex; flex-direction:column; gap:10px; width: 100%;">
@@ -492,7 +484,7 @@
         </div>
       </div>
 
-      <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px;" id="t-history-title">📅 Mi Historial</h3>
+      <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px;" id="t-history-title">📅 Historial Reciente</h3>
       <div id="my-logs-list" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
       </div>
@@ -504,7 +496,7 @@
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-btn active" id="nav-home" onclick="switchTab('home')">
+    <button class="nav-btn" id="nav-home" onclick="switchTab('home')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </button>
     <button class="nav-btn" id="nav-timeline" onclick="switchTab('timeline')">
@@ -624,7 +616,8 @@
         alertName: "Por favor escribe tu nombre", alertAlready: "¡Ya estás entrenando!",
         alertManual: "Ingresa una fecha, hora de inicio y fin válidas", alertTimeOrder: "La hora de fin debe ser posterior a la de inicio", confirmDelete: "¿Borrar este registro?",
         promptStopAlert: "⚠️ Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:",
-        months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+        months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+        deletedLog: "Este registro fue eliminado"
       },
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
@@ -642,7 +635,8 @@
         alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
         alertManual: "日付と正しい開始・終了時間を入力してください", alertTimeOrder: "終了時間は開始時間より後にしてください", confirmDelete: "この記録を削除しますか？",
         promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
-        months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+        months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+        deletedLog: "この投稿は削除されました"
       }
     };
 
@@ -743,6 +737,12 @@
       document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
       document.getElementById(`nav-${tabId}`).classList.add('active');
       document.getElementById(`view-${tabId}`).classList.add('active');
+      
+      const notifBtn = document.getElementById("notif-bell-btn");
+      if(notifBtn) {
+        notifBtn.style.display = (tabId === 'timeline') ? 'flex' : 'none';
+      }
+
       if(tabId === 'mypage' && myUserName) {
         renderMyLogs();
         updateStreakAndGoals();
@@ -1222,6 +1222,34 @@
       document.getElementById("notification-modal").style.display = "none";
     };
 
+    window.goToLog = (logKey, notifKey) => {
+      playSound('click');
+      closeNotificationModal();
+      switchTab('timeline');
+
+      const findAndScroll = () => {
+        const el = document.getElementById(`log-${logKey}`);
+        if (el) {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('highlight-log');
+            setTimeout(() => el.classList.remove('highlight-log'), 2000);
+          }, 100);
+        } else {
+          const logsArray = Object.entries(allLogsData).map(([k, l]) => ({ ...l, key: k })).sort((a, b) => new Date(b.date) - new Date(a.date));
+          const index = logsArray.findIndex(l => l.key === logKey);
+          if (index !== -1) {
+            if (activityDisplayLimit <= index) {
+              activityDisplayLimit = index + 10;
+              renderTimeline();
+            }
+            setTimeout(findAndScroll, 100);
+          }
+        }
+      };
+      findAndScroll();
+    };
+
     function renderNotifications() {
       const container = document.getElementById("notification-list-container");
       const userNotifs = Object.entries(allNotifications)
@@ -1236,11 +1264,33 @@
       container.innerHTML = userNotifs.map(([key, notif]) => {
         const d = new Date(notif.timestamp);
         const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        
+        const logItem = allLogsData[notif.logKey];
+        let logPreview = '';
+        let clickAttr = '';
+        
+        if (logItem) {
+          const ld = new Date(logItem.startTime);
+          const logDateStr = currentLang === 'es' ? `${ld.getDate()}/${ld.getMonth()+1}` : `${ld.getMonth()+1}/${ld.getDate()}`;
+          const memoText = logItem.memo ? ` - ${logItem.memo.slice(0, 15)}${logItem.memo.length > 15 ? '...' : ''}` : '';
+          logPreview = `
+            <div style="font-size:0.75rem; color:var(--ring-inner); margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(0,240,255,0.2);">
+              📝 ${logDateStr} (${logItem.duration} ${i18n[currentLang].unitMin})${memoText}
+            </div>`;
+          clickAttr = `onclick="goToLog('${notif.logKey}', '${key}')" style="cursor:pointer;"`;
+        } else {
+          logPreview = `<div style="font-size:0.7rem; color:var(--red); margin-top:6px;">${i18n[currentLang].deletedLog}</div>`;
+          clickAttr = `style="opacity:0.6;"`;
+        }
+
         return `
-          <div class="notif-item">
-            <span style="font-size:1.1rem;">${notif.type === 'like' ? '❤️' : '💬'}</span>
-            <div style="flex:1; color:#FFF; word-break:break-all;">${notif.text}</div>
-            <div style="font-size:0.65rem; color:var(--text-sub);">${timeStr}</div>
+          <div class="notif-item" ${clickAttr}>
+            <span style="font-size:1.2rem;">${notif.type === 'like' ? '❤️' : '💬'}</span>
+            <div style="flex:1;">
+              <div style="color:#FFF; word-break:break-all; font-size:0.85rem;">${notif.text}</div>
+              ${logPreview}
+            </div>
+            <div style="font-size:0.65rem; color:var(--text-sub); align-self:flex-start; margin-top:2px;">${timeStr}</div>
           </div>
         `;
       }).join("");
@@ -1287,7 +1337,7 @@
         const commentsCount = log.comments ? Object.keys(log.comments).length : 0;
 
         return `
-          <div class="timeline-card-item">
+          <div class="timeline-card-item" id="log-${log.key}">
             <div class="timeline-header">
               <div class="timeline-user-box">
                 <div class="timeline-avatar">${log.avatar || '👤'}</div>
@@ -1659,6 +1709,7 @@
       renderAvatarSelectors();
       switchLang(currentLang);
       checkAuth();
+      switchTab('home'); // 初期化時にホームタブをセット（通知ボタン非表示のため）
     });
   </script>
 </body>
