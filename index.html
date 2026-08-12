@@ -320,7 +320,7 @@
       </div>
     </div>
     <div class="header-right">
-      <!-- 通知ボタン（初期状態では非表示） -->
+      <!-- 通知ボタン -->
       <div class="notif-bell-btn" id="notif-bell-btn" onclick="openNotificationModal()" style="display: none;">
         <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         <div class="notif-badge" id="notif-badge" style="display:none;">0</div>
@@ -721,41 +721,50 @@
       const btnAction = document.getElementById("btn-timer-action");
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
       
-      updateHomeStatusText();
-      renderTimeline();
-      renderCalendar();
-      renderEnergyRace();
+      try { updateHomeStatusText(); } catch(e){}
+      try { renderTimeline(); } catch(e){}
+      try { renderCalendar(); } catch(e){}
+      try { renderEnergyRace(); } catch(e){}
       if(myUserName) {
-        renderMyLogs();
-        updateStreakAndGoals();
+        try { renderMyLogs(); updateStreakAndGoals(); } catch(e){}
       }
     }
 
+    // エラーで止まらないように安全なタブ切り替えに変更
     window.switchTab = (tabId) => {
-      playSound('click');
+      try { playSound('click'); } catch(e) {}
+      
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-      document.getElementById(`nav-${tabId}`).classList.add('active');
-      document.getElementById(`view-${tabId}`).classList.add('active');
+      
+      const navBtn = document.getElementById(`nav-${tabId}`);
+      if(navBtn) navBtn.classList.add('active');
+      
+      const viewEl = document.getElementById(`view-${tabId}`);
+      if(viewEl) viewEl.classList.add('active');
       
       const notifBtn = document.getElementById("notif-bell-btn");
       if(notifBtn) {
         notifBtn.style.display = (tabId === 'timeline') ? 'flex' : 'none';
       }
 
-      if(tabId === 'mypage' && myUserName) {
-        renderMyLogs();
-        updateStreakAndGoals();
+      try {
+        if(tabId === 'mypage' && myUserName) {
+          renderMyLogs();
+          updateStreakAndGoals();
+        }
+        if(tabId === 'timeline') renderTimeline();
+        if(tabId === 'calendar') {
+          if(!calendarTargetUser && myUserName) calendarTargetUser = myUserName;
+          renderCalendar();
+        }
+        if(tabId === 'ranking') renderEnergyRace();
+      } catch(e) {
+        console.error("Render Error:", e);
       }
-      if(tabId === 'timeline') renderTimeline();
-      if(tabId === 'calendar') {
-        if(!calendarTargetUser && myUserName) calendarTargetUser = myUserName;
-        renderCalendar();
-      }
-      if(tabId === 'ranking') renderEnergyRace();
       
-      // タブ切り替え時も確実に上部にスクロールさせる
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // smoothだと稀にタップイベントを阻害することがあるため、autoに変更
+      try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) {}
     };
 
     window.selectAvatarOption = (el, icon) => {
@@ -872,12 +881,17 @@
       const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
       const mins = Math.floor(elapsedSec / 60);
       const secs = (elapsedSec % 60).toString().padStart(2, '0');
-      document.getElementById("time-text").innerText = `${mins.toString().padStart(2,'0')}:${secs}`;
+      const timeText = document.getElementById("time-text");
+      if(timeText) timeText.innerText = `${mins.toString().padStart(2,'0')}:${secs}`;
 
       const outerProgress = (elapsedSec % SECONDS_1HR) / SECONDS_1HR;
       const innerProgress = (elapsedSec % SECONDS_10MIN) / SECONDS_10MIN;
-      document.getElementById("ring-outer").style.strokeDashoffset = CIRCUMFERENCE_OUTER - (outerProgress * CIRCUMFERENCE_OUTER);
-      document.getElementById("ring-inner").style.strokeDashoffset = CIRCUMFERENCE_INNER - (innerProgress * CIRCUMFERENCE_INNER);
+      
+      const rOuter = document.getElementById("ring-outer");
+      if(rOuter) rOuter.style.strokeDashoffset = CIRCUMFERENCE_OUTER - (outerProgress * CIRCUMFERENCE_OUTER);
+      
+      const rInner = document.getElementById("ring-inner");
+      if(rInner) rInner.style.strokeDashoffset = CIRCUMFERENCE_INNER - (innerProgress * CIRCUMFERENCE_INNER);
 
       timerAnimationId = requestAnimationFrame(() => updateTimerUI(startTime));
     }
@@ -886,6 +900,8 @@
       if (!myUserName) return;
       const myData = activeUsersData[myUserName];
       const btnAction = document.getElementById("btn-timer-action");
+      if(!btnAction) return;
+
       const t = i18n[currentLang];
 
       if (myData && myData.startTime) {
@@ -993,7 +1009,8 @@
 
     function updateStreakAndGoals() {
       const streak = calculateStreakForUser(allLogsData, myUserName);
-      document.getElementById("my-streak-badge").innerText = `🔥 ${streak} Streak`;
+      const badge = document.getElementById("my-streak-badge");
+      if(badge) badge.innerText = `🔥 ${streak} Streak`;
 
       const currentMonth = getLocalISOString(new Date()).slice(0, 7);
       let totalSessions = 0;
@@ -1005,8 +1022,10 @@
 
       let percent = monthlyGoalCount > 0 ? Math.min(100, Math.round((totalSessions / monthlyGoalCount) * 100)) : 0;
       let suffix = currentLang === 'es' ? 'veces' : '回';
-      document.getElementById("goal-progress-text").innerText = `${percent}% (${totalSessions}/${monthlyGoalCount} ${suffix})`;
-      document.getElementById("goal-bar-fill").style.width = `${percent}%`;
+      const pgText = document.getElementById("goal-progress-text");
+      if(pgText) pgText.innerText = `${percent}% (${totalSessions}/${monthlyGoalCount} ${suffix})`;
+      const barFill = document.getElementById("goal-bar-fill");
+      if(barFill) barFill.style.width = `${percent}%`;
     }
 
     window.saveMonthlyGoal = () => {
@@ -1023,21 +1042,18 @@
     window.toggleLike = (logKey) => {
       playSound('click');
       const logItem = allLogsData[logKey];
+      if(!logItem) return;
+
       let likes = logItem.likes || {};
       
       if (likes[myUserName]) {
         delete likes[myUserName];
-        
-        const notifsRef = ref(db, "notifications");
-        onValue(notifsRef, (snap) => {
-          const val = snap.val();
-          for(let k in val) {
-            if(val[k].targetUser === logItem.user && val[k].fromUser === myUserName && val[k].logKey === logKey && val[k].type === "like") {
-              remove(ref(db, `notifications/${k}`));
-            }
+        // 自分のいいね通知を探して消す
+        Object.entries(allNotifications).forEach(([k, val]) => {
+          if(val.targetUser === logItem.user && val.fromUser === myUserName && val.logKey === logKey && val.type === "like") {
+            remove(ref(db, `notifications/${k}`));
           }
-        }, { onlyOnce: true });
-
+        });
       } else {
         likes[myUserName] = true;
         if (logItem.user !== myUserName) {
@@ -1101,6 +1117,8 @@
       if (!text || !activeCommentLogKey) return;
 
       const logItem = allLogsData[activeCommentLogKey];
+      if(!logItem) return;
+
       const newCommentRef = push(ref(db, `logs/${activeCommentLogKey}/comments`), {
         user: myUserName,
         text: text,
@@ -1130,20 +1148,18 @@
         renderModalComments();
       });
 
-      const notifsRef = ref(db, "notifications");
-      onValue(notifsRef, (snap) => {
-        const val = snap.val();
-        for(let k in val) {
-          if(val[k].commentKey === commentKey) {
-            remove(ref(db, `notifications/${k}`));
-          }
+      Object.entries(allNotifications).forEach(([k, val]) => {
+        if(val.commentKey === commentKey) {
+          remove(ref(db, `notifications/${k}`));
         }
-      }, { onlyOnce: true });
+      });
     };
 
     function updateHomeStatusText() {
       const t = i18n[currentLang];
       const statusEl = document.getElementById("home-status-text");
+      if(!statusEl) return;
+
       const users = Object.keys(activeUsersData);
       
       if (users.length === 0) {
@@ -1172,39 +1188,57 @@
 
     onValue(ref(db, "logs"), (snapshot) => {
       allLogsData = snapshot.val() || {};
-      renderTimeline();
-      renderEnergyRace();
-      updateStreakAndGoals();
-      if (document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
-      if (document.getElementById('view-mypage').classList.contains('active')) renderMyLogs();
-      if (activeCommentLogKey && document.getElementById("comment-modal").style.display === "flex") {
-        renderModalComments();
+      
+      try { renderTimeline(); } catch(e){}
+      try { renderEnergyRace(); } catch(e){}
+      try { updateStreakAndGoals(); } catch(e){}
+      
+      const calView = document.getElementById('view-calendar');
+      if (calView && calView.classList.contains('active')) { try { renderCalendar(); } catch(e){} }
+      
+      const myView = document.getElementById('view-mypage');
+      if (myView && myView.classList.contains('active')) { try { renderMyLogs(); } catch(e){} }
+      
+      const cModal = document.getElementById("comment-modal");
+      if (activeCommentLogKey && cModal && cModal.style.display === "flex") {
+        try { renderModalComments(); } catch(e){}
+      }
+
+      // ログが更新されたことで、消えたログの通知を除外して再表示
+      updateNotificationBadge();
+      const nModal = document.getElementById("notification-modal");
+      if (nModal && nModal.style.display === "flex") {
+        try { renderNotifications(); } catch(e){}
       }
     });
 
     onValue(ref(db, "notifications"), (snapshot) => {
       allNotifications = snapshot.val() || {};
       updateNotificationBadge();
-      if (document.getElementById("notification-modal").style.display === "flex") {
+      const nModal = document.getElementById("notification-modal");
+      if (nModal && nModal.style.display === "flex") {
         renderNotifications();
       }
     });
 
+    // 元投稿が「存在する」通知のみカウントする
     function updateNotificationBadge() {
       if (!myUserName) return;
       let unreadCount = 0;
       Object.values(allNotifications).forEach(notif => {
-        if (notif.targetUser === myUserName && !notif.read) {
+        if (notif.targetUser === myUserName && !notif.read && allLogsData[notif.logKey]) {
           unreadCount++;
         }
       });
 
       const badgeEl = document.getElementById("notif-badge");
-      if (unreadCount > 0) {
-        badgeEl.innerText = unreadCount;
-        badgeEl.style.display = "flex";
-      } else {
-        badgeEl.style.display = "none";
+      if(badgeEl) {
+        if (unreadCount > 0) {
+          badgeEl.innerText = unreadCount;
+          badgeEl.style.display = "flex";
+        } else {
+          badgeEl.style.display = "none";
+        }
       }
     }
 
@@ -1213,8 +1247,9 @@
       document.getElementById("notification-modal").style.display = "flex";
       renderNotifications();
 
+      // 元投稿が存在する通知だけ既読にする
       Object.entries(allNotifications).forEach(([key, notif]) => {
-        if (notif.targetUser === myUserName && !notif.read) {
+        if (notif.targetUser === myUserName && !notif.read && allLogsData[notif.logKey]) {
           update(ref(db, `notifications/${key}`), { read: true });
         }
       });
@@ -1253,10 +1288,12 @@
       findAndScroll();
     };
 
+    // 元投稿がすでに消えている通知は「完全に無視（表示しない）」
     function renderNotifications() {
       const container = document.getElementById("notification-list-container");
+      
       const userNotifs = Object.entries(allNotifications)
-        .filter(([key, notif]) => notif.targetUser === myUserName)
+        .filter(([key, notif]) => notif.targetUser === myUserName && allLogsData[notif.logKey])
         .sort((a, b) => b[1].timestamp - a[1].timestamp);
 
       if (userNotifs.length === 0) {
@@ -1269,22 +1306,15 @@
         const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         
         const logItem = allLogsData[notif.logKey];
-        let logPreview = '';
-        let clickAttr = '';
+        const ld = new Date(logItem.startTime);
+        const logDateStr = currentLang === 'es' ? `${ld.getDate()}/${ld.getMonth()+1}` : `${ld.getMonth()+1}/${ld.getDate()}`;
+        const memoText = logItem.memo ? ` - ${logItem.memo.slice(0, 15)}${logItem.memo.length > 15 ? '...' : ''}` : '';
         
-        if (logItem) {
-          const ld = new Date(logItem.startTime);
-          const logDateStr = currentLang === 'es' ? `${ld.getDate()}/${ld.getMonth()+1}` : `${ld.getMonth()+1}/${ld.getDate()}`;
-          const memoText = logItem.memo ? ` - ${logItem.memo.slice(0, 15)}${logItem.memo.length > 15 ? '...' : ''}` : '';
-          logPreview = `
-            <div style="font-size:0.75rem; color:var(--ring-inner); margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(0,240,255,0.2);">
-              📝 ${logDateStr} (${logItem.duration} ${i18n[currentLang].unitMin})${memoText}
-            </div>`;
-          clickAttr = `onclick="goToLog('${notif.logKey}', '${key}')" style="cursor:pointer;"`;
-        } else {
-          logPreview = `<div style="font-size:0.7rem; color:var(--red); margin-top:6px;">${i18n[currentLang].deletedLog}</div>`;
-          clickAttr = `style="opacity:0.6;"`;
-        }
+        const logPreview = `
+          <div style="font-size:0.75rem; color:var(--ring-inner); margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(0,240,255,0.2);">
+            📝 ${logDateStr} (${logItem.duration} ${i18n[currentLang].unitMin})${memoText}
+          </div>`;
+        const clickAttr = `onclick="goToLog('${notif.logKey}', '${key}')" style="cursor:pointer;"`;
 
         return `
           <div class="notif-item" ${clickAttr}>
@@ -1382,6 +1412,58 @@
       renderCalendar();
     };
 
+    function selectCalendarDay(dateKey, clickedEl, updateSelectionState = true) {
+      if (updateSelectionState) {
+        selectedDateStr = dateKey;
+        document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
+        if (clickedEl) clickedEl.classList.add('selected');
+      }
+
+      const t = i18n[currentLang];
+      const dateTextEl = document.getElementById("selected-date-text");
+      const usersListEl = document.getElementById("selected-date-users-list");
+      const totalBadgeEl = document.getElementById("selected-date-total-badge");
+
+      const [y, m, d] = dateKey.split('-');
+      if(dateTextEl) dateTextEl.innerText = currentLang === 'es' ? `${d}/${m}/${y}` : `${m}月${d}日`;
+
+      const logsForDayAll = [];
+      Object.entries(allLogsData).forEach(([key, log]) => {
+        if (log.date && log.date.startsWith(dateKey)) {
+          logsForDayAll.push({ ...log, key });
+        }
+      });
+
+      if (logsForDayAll.length === 0) {
+        if(usersListEl) usersListEl.innerHTML = "";
+        if(totalBadgeEl) totalBadgeEl.innerText = "";
+      } else {
+        let targetTotalMin = 0;
+        logsForDayAll.forEach(l => {
+          if (l.user === calendarTargetUser) targetTotalMin += l.duration;
+        });
+        if(totalBadgeEl) totalBadgeEl.innerText = formatTimeFriendly(targetTotalMin);
+
+        if(usersListEl) {
+          usersListEl.innerHTML = logsForDayAll.map(log => {
+            const isSelectedUser = log.user === calendarTargetUser;
+            return `
+              <div class="cal-user-log-item" style="${isSelectedUser ? 'border-color:var(--accent); background:rgba(34,197,94,0.1);' : ''}" onclick="switchCalendarUser('${log.user}')">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
+                    <span style="color:#FFF; font-weight:800;">${log.user}</span>
+                  </div>
+                  <span style="color:var(--ring-inner); font-weight:800;">${log.duration} ${t.unitMin}</span>
+                </div>
+                ${log.memo ? `<div style="font-size:0.85rem; color:var(--text-sub); background:rgba(0,0,0,0.2); padding:6px 8px; border-radius:8px;">💬 ${log.memo}</div>` : ''}
+              </div>
+            `;
+          }).join("");
+        }
+      }
+    }
+
     function renderCalendar() {
       const t = i18n[currentLang];
       if (!myUserName) return;
@@ -1390,7 +1472,8 @@
       const year = calendarDate.getFullYear();
       const month = calendarDate.getMonth();
       const monthNames = t.months;
-      document.getElementById("cal-month-title").innerText = `${monthNames[month]} ${year}`;
+      const titleEl = document.getElementById("cal-month-title");
+      if(titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
 
       const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
       let targetMonthMin = 0;
@@ -1408,11 +1491,19 @@
       });
 
       const targetStreak = calculateStreakForUser(allLogsData, calendarTargetUser);
-      document.getElementById("stat-days-val").innerText = targetTrainedDays.size;
-      document.getElementById("stat-time-val").innerText = formatTimeFriendly(targetMonthMin);
-      document.getElementById("stat-streak-val").innerText = `${targetStreak}🔥`;
+      
+      const dVal = document.getElementById("stat-days-val");
+      if(dVal) dVal.innerText = targetTrainedDays.size;
+      
+      const tVal = document.getElementById("stat-time-val");
+      if(tVal) tVal.innerText = formatTimeFriendly(targetMonthMin);
+      
+      const sVal = document.getElementById("stat-streak-val");
+      if(sVal) sVal.innerText = `${targetStreak}🔥`;
 
       const container = document.getElementById("calendar-days-container");
+      if(!container) return;
+      
       container.innerHTML = "";
 
       const firstDayIndex = new Date(year, month, 1).getDay();
@@ -1445,56 +1536,6 @@
       selectCalendarDay(selectedDateStr, null, false);
     }
 
-    function selectCalendarDay(dateKey, clickedEl, updateSelectionState = true) {
-      if (updateSelectionState) {
-        selectedDateStr = dateKey;
-        document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
-        if (clickedEl) clickedEl.classList.add('selected');
-      }
-
-      const t = i18n[currentLang];
-      const dateTextEl = document.getElementById("selected-date-text");
-      const usersListEl = document.getElementById("selected-date-users-list");
-      const totalBadgeEl = document.getElementById("selected-date-total-badge");
-
-      const [y, m, d] = dateKey.split('-');
-      dateTextEl.innerText = currentLang === 'es' ? `${d}/${m}/${y}` : `${m}月${d}日`;
-
-      const logsForDayAll = [];
-      Object.entries(allLogsData).forEach(([key, log]) => {
-        if (log.date && log.date.startsWith(dateKey)) {
-          logsForDayAll.push({ ...log, key });
-        }
-      });
-
-      if (logsForDayAll.length === 0) {
-        usersListEl.innerHTML = "";
-        totalBadgeEl.innerText = "";
-      } else {
-        let targetTotalMin = 0;
-        logsForDayAll.forEach(l => {
-          if (l.user === calendarTargetUser) targetTotalMin += l.duration;
-        });
-        totalBadgeEl.innerText = formatTimeFriendly(targetTotalMin);
-
-        usersListEl.innerHTML = logsForDayAll.map(log => {
-          const isSelectedUser = log.user === calendarTargetUser;
-          return `
-            <div class="cal-user-log-item" style="${isSelectedUser ? 'border-color:var(--accent); background:rgba(34,197,94,0.1);' : ''}" onclick="switchCalendarUser('${log.user}')">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
-                  <span style="color:#FFF; font-weight:800;">${log.user}</span>
-                </div>
-                <span style="color:var(--ring-inner); font-weight:800;">${log.duration} ${t.unitMin}</span>
-              </div>
-              ${log.memo ? `<div style="font-size:0.85rem; color:var(--text-sub); background:rgba(0,0,0,0.2); padding:6px 8px; border-radius:8px;">💬 ${log.memo}</div>` : ''}
-            </div>
-          `;
-        }).join("");
-      }
-    }
-
     function renderEnergyRace() {
       const t = i18n[currentLang];
       const currentMonth = getLocalISOString(new Date()).slice(0, 7);
@@ -1512,6 +1553,7 @@
 
       const sorted = Object.entries(userTotals).sort((a, b) => b[1].totalMin - a[1].totalMin);
       const listEl = document.getElementById("race-list-container");
+      if(!listEl) return;
       
       if (sorted.length === 0) { 
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`; 
@@ -1558,7 +1600,7 @@
     window.renderMyLogs = () => {
       const t = i18n[currentLang];
       const listEl = document.getElementById("my-logs-list");
-      if (!myUserName) return;
+      if (!listEl || !myUserName) return;
 
       const userLogs = Object.entries(allLogsData)
         .filter(([key, log]) => log.user === myUserName)
@@ -1700,29 +1742,36 @@
       });
     };
 
+    // ログ削除時に、紐づく通知もすべてDBから削除する
     window.deleteLog = (key) => {
       playSound('click');
       const t = i18n[currentLang];
       if (confirm(t.confirmDelete)) {
         remove(ref(db, `logs/${key}`));
+        
+        // 関連する通知をすべて検索して削除
+        Object.entries(allNotifications).forEach(([nKey, notif]) => {
+          if (notif.logKey === key) {
+            remove(ref(db, `notifications/${nKey}`));
+          }
+        });
       }
     };
 
     document.addEventListener("DOMContentLoaded", () => {
-      // ブラウザのスクロール位置復元を無効にして、強制的に一番上にセット
       if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
       }
-      window.scrollTo(0, 0);
+      
+      try { window.scrollTo(0, 0); } catch(e){}
 
       renderAvatarSelectors();
       switchLang(currentLang);
       checkAuth();
       switchTab('home');
 
-      // 念のため画面描画直後にもう一度一番上にスクロール
       setTimeout(() => {
-        window.scrollTo(0, 0);
+        try { window.scrollTo(0, 0); } catch(e){}
       }, 50);
     });
   </script>
