@@ -75,10 +75,15 @@
 
     .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; width: 100%; }
     label { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
-    input, textarea { width: 100%; max-width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: white; outline: none; font-size: 0.95rem; text-align: center; box-sizing: border-box; }
+    input[type="text"], input[type="number"], textarea, input[type="date"], input[type="time"] { width: 100%; max-width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: white; outline: none; font-size: 0.95rem; text-align: center; box-sizing: border-box; }
     input[type="date"], input[type="time"] { appearance: none; -webkit-appearance: none; }
     input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(34,197,94,0.2); }
     
+    .toggle-switch { position: relative; width: 46px; height: 26px; appearance: none; -webkit-appearance: none; background: rgba(255,255,255,0.1); border-radius: 13px; outline: none; cursor: pointer; transition: 0.3s; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); margin:0; }
+    .toggle-switch:checked { background: var(--accent); box-shadow: 0 0 10px rgba(34,197,94,0.4); }
+    .toggle-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    .toggle-switch:checked::after { transform: translateX(20px); }
+
     .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 150px; overflow-y: auto; padding-right: 4px; }
     .avatar-option { font-size: 1.4rem; text-align: center; padding: 6px; background: rgba(0,0,0,0.3); border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .avatar-option.selected { border-color: var(--accent); background: rgba(34,197,94,0.2); transform: scale(1.05); }
@@ -320,7 +325,6 @@
       </div>
     </div>
     <div class="header-right">
-      <!-- 通知ボタン -->
       <div class="notif-bell-btn" id="notif-bell-btn" onclick="openNotificationModal()" style="display: none;">
         <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         <div class="notif-badge" id="notif-badge" style="display:none;">0</div>
@@ -412,9 +416,7 @@
           <div class="cal-detail-date" id="selected-date-text">Selecciona un día</div>
           <div id="selected-date-total-badge" style="font-weight:800; color:var(--accent); font-family:'Syne';">0 min</div>
         </div>
-        <div id="selected-date-users-list" style="display:flex; flex-direction:column; gap:8px;">
-          <!-- 記録なしの場合は空になります -->
-        </div>
+        <div id="selected-date-users-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
     </div>
   </div>
@@ -450,6 +452,24 @@
           </div>
         </div>
       </div>
+
+      <!-- ⚙️ プライバシー設定 セクション -->
+      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
+        <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 16px;" id="t-privacy-title">⚙️ プライバシー・公開設定</h3>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-name">名前を公開する</span>
+          <input type="checkbox" class="toggle-switch" id="priv-showName" onchange="updatePrivacySetting('showName', this.checked)">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-time">運動時間を公開する</span>
+          <input type="checkbox" class="toggle-switch" id="priv-showTime" onchange="updatePrivacySetting('showTime', this.checked)">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-ranking">ランキングに参加する</span>
+          <input type="checkbox" class="toggle-switch" id="priv-inRanking" onchange="updatePrivacySetting('inRanking', this.checked)">
+        </div>
+      </div>
       
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--card-border);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
@@ -457,8 +477,8 @@
           <span id="goal-progress-text" style="font-size:0.8rem; font-weight:800; color:var(--ring-inner);">0%</span>
         </div>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-          <input type="number" id="goalInput" placeholder="Veces" style="flex:1; padding:10px; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius: 10px; color: white; font-size:0.9rem;" value="15">
-          <button onclick="saveMonthlyGoal()" id="t-btn-save-goal" style="background:rgba(0,240,255,0.15); border:1px solid var(--card-border); border-radius:10px; color:var(--ring-inner); padding:10px 14px; font-weight:700; cursor:pointer; font-size:0.85rem;">Guardar Meta</button>
+          <input type="number" id="goalInput" placeholder="Veces" style="flex:1; padding:10px; border-radius: 10px; font-size:0.9rem;" value="15">
+          <button onclick="saveMonthlyGoal()" id="t-btn-save-goal" style="background:rgba(0,240,255,0.15); border:1px solid var(--card-border); border-radius:10px; color:var(--ring-inner); padding:10px 14px; font-weight:700; cursor:pointer; font-size:0.85rem;">Guardar</button>
         </div>
         <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
           <div id="goal-bar-fill" style="width:0%; height:100%; background:var(--ring-inner); transition:0.4s;"></div>
@@ -479,7 +499,7 @@
               <input type="time" id="manualTimeTo" value="11:00" style="padding:10px; border-radius: 12px;" />
             </div>
           </div>
-          <input type="text" id="manualMemo" placeholder="Nota opcional (ej: Espalda y Bíceps)" style="padding:10px; border-radius: 10px; font-size:0.9rem;">
+          <input type="text" id="manualMemo" placeholder="Nota opcional" style="padding:10px; border-radius: 10px; font-size:0.9rem;">
           <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:#0D061A; padding:14px; font-weight:800; cursor:pointer; margin-top:4px;">Añadir</button>
         </div>
       </div>
@@ -535,11 +555,7 @@
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
 
-    const AVATAR_LIST = [
-      '🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐸', '🐵', '🦄',
-      '⚡', '🔥', '🚀', '⭐', '💎', '🦾', '🏆', '🎯', '🎸', '🕹️', '🎧', '👾',
-      '🍎', '🍕', '☕', '🍉', '🌵', '🌴', '🌊', '☀️', '🌙', '👻', '🤖', '💀'
-    ];
+    const AVATAR_LIST = ['🐶','🐱','🐰','🦊','🐻','🐼','🐨','🦁','🐯','🐸','🐵','🦄','⚡','🔥','🚀','⭐','💎','🦾','🏆','🎯','🎸','🕹️','🎧','👾','🍎','🍕','☕','🍉','🌵','🌴','🌊','☀️','🌙','👻','🤖','💀'];
 
     function renderAvatarSelectors() {
       const html = AVATAR_LIST.map((icon, idx) => `<div class="avatar-option ${idx===0?'selected':''}" onclick="selectAvatarOption(this, '${icon}')">${icon}</div>`).join("");
@@ -608,7 +624,7 @@
         statDays: "Días", statTime: "Total", statStreak: "Streak",
         raceTitle: "🏆 Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Historial Reciente", logout: "Cerrar sesión",
-        goalTitle: "🎯 Meta Mensual (sesiones)", btnSaveGoal: "Guardar Meta",
+        goalTitle: "🎯 Meta Mensual (sesiones)", btnSaveGoal: "Guardar",
         memoTitle: "¡Buen trabajo! 💪", memoSub: "Añade una nota o comentario", btnSaveLog: "Guardar Registro ✨", btnSkipMemo: "Terminar sin nota",
         editLogTitle: "Editar Registro", btnSaveEditLog: "Guardar Cambios", btnCancelEditLog: "Cancelar",
         labelFrom: "Desde", labelTo: "Hasta", editLabelFrom: "Desde", editLabelTo: "Hasta",
@@ -617,7 +633,9 @@
         alertManual: "Ingresa una fecha, hora de inicio y fin válidas", alertTimeOrder: "La hora de fin debe ser posterior a la de inicio", confirmDelete: "¿Borrar este registro?",
         promptStopAlert: "⚠️ Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:",
         months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
-        deletedLog: "Este registro fue eliminado"
+        deletedLog: "Este registro fue eliminado",
+        anonUser: "Anónimo", anonTime: "🔒",
+        privacyTitle: "⚙️ Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking"
       },
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
@@ -627,7 +645,7 @@
         statDays: "日数", statTime: "合計", statStreak: "連続",
         raceTitle: "🏆 エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 最近の履歴", logout: "ログアウト (リセット)",
-        goalTitle: "🎯 今月の目標回数 (回)", btnSaveGoal: "目標を保存",
+        goalTitle: "🎯 今月の目標回数 (回)", btnSaveGoal: "保存",
         memoTitle: "お疲れ様でした！ 💪", memoSub: "メモやコメントを残そう", btnSaveLog: "記録を保存する ✨", btnSkipMemo: "メモなしで完了",
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
@@ -636,7 +654,9 @@
         alertManual: "日付と正しい開始・終了時間を入力してください", alertTimeOrder: "終了時間は開始時間より後にしてください", confirmDelete: "この記録を削除しますか？",
         promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
-        deletedLog: "この投稿は削除されました"
+        deletedLog: "この投稿は削除されました",
+        anonUser: "匿名ユーザー", anonTime: "🔒",
+        privacyTitle: "⚙️ プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する"
       }
     };
 
@@ -649,6 +669,7 @@
     let activeUsersData = {};
     let allLogsData = {};
     let allNotifications = {};
+    let usersPrivacyData = {}; 
     let selectedAvatar = "🐶";
     let editSelectedAvatar = "🐶";
     let myUserName = localStorage.getItem("gym_my_name") || "";
@@ -718,6 +739,11 @@
       setT("t-logout", t.logout);
       setT("t-comment-send", currentLang === 'es' ? "Enviar" : "送信する");
       
+      setT("t-privacy-title", t.privacyTitle);
+      setT("t-priv-name", t.privName);
+      setT("t-priv-time", t.privTime);
+      setT("t-priv-ranking", t.privRank);
+      
       const btnAction = document.getElementById("btn-timer-action");
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
       
@@ -730,10 +756,34 @@
       }
     }
 
-    // エラーで止まらないように安全なタブ切り替えに変更
+    // プライバシー設定取得ヘルパー
+    function getPrivacy(username) {
+      const defaultPriv = { showName: true, showTime: true, inRanking: true };
+      if (usersPrivacyData && usersPrivacyData[username]) {
+        return { ...defaultPriv, ...usersPrivacyData[username] };
+      }
+      return defaultPriv;
+    }
+
+    // トグルスイッチ操作時
+    window.updatePrivacySetting = (key, value) => {
+      playSound('click');
+      if (!myUserName) return;
+      const currentPriv = getPrivacy(myUserName);
+      currentPriv[key] = value;
+      update(ref(db, `users/${myUserName}/privacy`), currentPriv);
+    };
+
+    function initPrivacyToggles() {
+      if (!myUserName) return;
+      const p = getPrivacy(myUserName);
+      document.getElementById("priv-showName").checked = p.showName;
+      document.getElementById("priv-showTime").checked = p.showTime;
+      document.getElementById("priv-inRanking").checked = p.inRanking;
+    }
+
     window.switchTab = (tabId) => {
       try { playSound('click'); } catch(e) {}
-      
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
       
@@ -744,14 +794,13 @@
       if(viewEl) viewEl.classList.add('active');
       
       const notifBtn = document.getElementById("notif-bell-btn");
-      if(notifBtn) {
-        notifBtn.style.display = (tabId === 'timeline') ? 'flex' : 'none';
-      }
+      if(notifBtn) notifBtn.style.display = (tabId === 'timeline') ? 'flex' : 'none';
 
       try {
         if(tabId === 'mypage' && myUserName) {
           renderMyLogs();
           updateStreakAndGoals();
+          initPrivacyToggles();
         }
         if(tabId === 'timeline') renderTimeline();
         if(tabId === 'calendar') {
@@ -759,11 +808,8 @@
           renderCalendar();
         }
         if(tabId === 'ranking') renderEnergyRace();
-      } catch(e) {
-        console.error("Render Error:", e);
-      }
+      } catch(e) { console.error(e); }
       
-      // smoothだと稀にタップイベントを阻害することがあるため、autoに変更
       try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) {}
     };
 
@@ -792,6 +838,7 @@
         if(!calendarTargetUser) calendarTargetUser = myUserName;
         checkMyTimerStatus();
         updateStreakAndGoals();
+        initPrivacyToggles();
       }
     }
 
@@ -807,6 +854,9 @@
       localStorage.setItem("gym_my_name", name);
       localStorage.setItem("gym_my_avatar", selectedAvatar);
       
+      // 初期プライバシー登録
+      set(ref(db, `users/${myUserName}/privacy`), { showName: true, showTime: true, inRanking: true });
+
       document.getElementById("my-name-display").innerText = myUserName;
       document.getElementById("my-avatar-display").innerText = myUserAvatar;
       document.getElementById("auth-modal").style.display = "none";
@@ -814,18 +864,17 @@
       checkMyTimerStatus();
       renderMyLogs();
       updateStreakAndGoals();
+      initPrivacyToggles();
     };
 
     window.openEditModal = () => {
       playSound('click');
       document.getElementById("editNameInput").value = myUserName;
       editSelectedAvatar = myUserAvatar;
-      
       document.querySelectorAll('#edit-avatar-grid .avatar-option').forEach(opt => {
         if (opt.innerText === myUserAvatar) opt.classList.add('selected');
         else opt.classList.remove('selected');
       });
-
       document.getElementById("edit-modal").style.display = "flex";
     };
 
@@ -839,9 +888,16 @@
       const newName = document.getElementById("editNameInput").value.trim();
       if (!newName) return alert(i18n[currentLang].alertName);
 
-      if (activeUsersData[myUserName]) {
-        set(ref(db, `current/${newName}`), { startTime: activeUsersData[myUserName].startTime, avatar: editSelectedAvatar });
-        remove(ref(db, `current/${myUserName}`));
+      if (newName !== myUserName) {
+        // 現在のステータス移行
+        if (activeUsersData[myUserName]) {
+          set(ref(db, `current/${newName}`), { startTime: activeUsersData[myUserName].startTime, avatar: editSelectedAvatar });
+          remove(ref(db, `current/${myUserName}`));
+        }
+        // プライバシー設定移行
+        const p = getPrivacy(myUserName);
+        set(ref(db, `users/${newName}/privacy`), p);
+        remove(ref(db, `users/${myUserName}/privacy`));
       }
 
       if (calendarTargetUser === myUserName) calendarTargetUser = newName;
@@ -982,27 +1038,21 @@
           userDates.add(log.date.slice(0, 10));
         }
       });
-
       if (userDates.size === 0) return 0;
-
       let streak = 0;
       let d = new Date();
       let todayStr = getLocalISOString(d).slice(0, 10);
-      
       if (!userDates.has(todayStr)) {
         d.setDate(d.getDate() - 1);
         let yesterdayStr = getLocalISOString(d).slice(0, 10);
         if (!userDates.has(yesterdayStr)) return 0;
       }
-
       while (true) {
         let dateStr = getLocalISOString(d).slice(0, 10);
         if (userDates.has(dateStr)) {
           streak++;
           d.setDate(d.getDate() - 1);
-        } else {
-          break;
-        }
+        } else { break; }
       }
       return streak;
     }
@@ -1048,7 +1098,6 @@
       
       if (likes[myUserName]) {
         delete likes[myUserName];
-        // 自分のいいね通知を探して消す
         Object.entries(allNotifications).forEach(([k, val]) => {
           if(val.targetUser === logItem.user && val.fromUser === myUserName && val.logKey === logKey && val.type === "like") {
             remove(ref(db, `notifications/${k}`));
@@ -1100,14 +1149,20 @@
         return;
       }
 
-      container.innerHTML = entries.map(([cKey, c]) => `
-        <div class="comment-row">
-          <div style="word-break:break-all; flex:1; padding-right:8px;">
-            <strong style="color:var(--ring-inner);">${c.user}:</strong> <span style="color:#FFF;">${c.text}</span>
+      container.innerHTML = entries.map(([cKey, c]) => {
+        const isMe = c.user === myUserName;
+        const cPriv = getPrivacy(c.user);
+        const displayName = (isMe || cPriv.showName) ? c.user : i18n[currentLang].anonUser;
+
+        return `
+          <div class="comment-row">
+            <div style="word-break:break-all; flex:1; padding-right:8px;">
+              <strong style="color:var(--ring-inner);">${displayName}:</strong> <span style="color:#FFF;">${c.text}</span>
+            </div>
+            ${isMe ? `<button onclick="deleteComment('${activeCommentLogKey}', '${cKey}')" style="background:none; border:none; color:var(--red); font-weight:bold; cursor:pointer; font-size:1rem; padding:0 4px;">✕</button>` : ''}
           </div>
-          ${c.user === myUserName ? `<button onclick="deleteComment('${activeCommentLogKey}', '${cKey}')" style="background:none; border:none; color:var(--red); font-weight:bold; cursor:pointer; font-size:1rem; padding:0 4px;">✕</button>` : ''}
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     window.submitModalComment = () => {
@@ -1167,7 +1222,9 @@
         statusEl.className = "home-status-text status-free";
       } else if (users.length === 1) {
         const u = users[0];
-        statusEl.innerText = currentLang === 'es' ? `${u} ${t.statusBusy}` : `${u}${t.statusBusy}`;
+        const priv = getPrivacy(u);
+        const dName = (u === myUserName || priv.showName) ? u : t.anonUser;
+        statusEl.innerText = currentLang === 'es' ? `${dName} ${t.statusBusy}` : `${dName}${t.statusBusy}`;
         statusEl.className = "home-status-text";
         statusEl.style.color = "var(--ring-outer)";
       } else {
@@ -1176,6 +1233,20 @@
         statusEl.style.color = "var(--ring-outer)";
       }
     }
+
+    onValue(ref(db, "users"), (snapshot) => {
+      const data = snapshot.val() || {};
+      usersPrivacyData = {};
+      Object.entries(data).forEach(([u, obj]) => {
+        if(obj.privacy) usersPrivacyData[u] = obj.privacy;
+      });
+      // プライバシーが更新されたら再描画
+      try { updateHomeStatusText(); } catch(e){}
+      try { renderTimeline(); } catch(e){}
+      try { renderCalendar(); } catch(e){}
+      try { renderEnergyRace(); } catch(e){}
+      try { renderModalComments(); } catch(e){}
+    });
 
     onValue(ref(db, "current"), (snapshot) => {
       activeUsersData = snapshot.val() || {};
@@ -1204,7 +1275,6 @@
         try { renderModalComments(); } catch(e){}
       }
 
-      // ログが更新されたことで、消えたログの通知を除外して再表示
       updateNotificationBadge();
       const nModal = document.getElementById("notification-modal");
       if (nModal && nModal.style.display === "flex") {
@@ -1221,7 +1291,6 @@
       }
     });
 
-    // 元投稿が「存在する」通知のみカウントする
     function updateNotificationBadge() {
       if (!myUserName) return;
       let unreadCount = 0;
@@ -1247,7 +1316,6 @@
       document.getElementById("notification-modal").style.display = "flex";
       renderNotifications();
 
-      // 元投稿が存在する通知だけ既読にする
       Object.entries(allNotifications).forEach(([key, notif]) => {
         if (notif.targetUser === myUserName && !notif.read && allLogsData[notif.logKey]) {
           update(ref(db, `notifications/${key}`), { read: true });
@@ -1288,7 +1356,6 @@
       findAndScroll();
     };
 
-    // 元投稿がすでに消えている通知は「完全に無視（表示しない）」
     function renderNotifications() {
       const container = document.getElementById("notification-list-container");
       
@@ -1310,9 +1377,21 @@
         const logDateStr = currentLang === 'es' ? `${ld.getDate()}/${ld.getMonth()+1}` : `${ld.getMonth()+1}/${ld.getDate()}`;
         const memoText = logItem.memo ? ` - ${logItem.memo.slice(0, 15)}${logItem.memo.length > 15 ? '...' : ''}` : '';
         
+        const isLogMine = logItem.user === myUserName;
+        const logPriv = getPrivacy(logItem.user);
+        const logDuration = (isLogMine || logPriv.showTime) ? `${logItem.duration} ${i18n[currentLang].unitMin}` : i18n[currentLang].anonTime;
+
+        // 送信者のプライバシー確認
+        const fromPriv = getPrivacy(notif.fromUser);
+        const isFromMe = notif.fromUser === myUserName;
+        const dFromName = (isFromMe || fromPriv.showName) ? notif.fromUser : i18n[currentLang].anonUser;
+
+        // テキスト内の古い名前を新しい表示名に置換
+        const replacedText = notif.text.replace(notif.fromUser, dFromName);
+
         const logPreview = `
           <div style="font-size:0.75rem; color:var(--ring-inner); margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(0,240,255,0.2);">
-            📝 ${logDateStr} (${logItem.duration} ${i18n[currentLang].unitMin})${memoText}
+            📝 ${logDateStr} (${logDuration})${memoText}
           </div>`;
         const clickAttr = `onclick="goToLog('${notif.logKey}', '${key}')" style="cursor:pointer;"`;
 
@@ -1320,7 +1399,7 @@
           <div class="notif-item" ${clickAttr}>
             <span style="font-size:1.2rem;">${notif.type === 'like' ? '❤️' : '💬'}</span>
             <div style="flex:1;">
-              <div style="color:#FFF; word-break:break-all; font-size:0.85rem;">${notif.text}</div>
+              <div style="color:#FFF; word-break:break-all; font-size:0.85rem;">${replacedText}</div>
               ${logPreview}
             </div>
             <div style="font-size:0.65rem; color:var(--text-sub); align-self:flex-start; margin-top:2px;">${timeStr}</div>
@@ -1339,6 +1418,7 @@
       const t = i18n[currentLang];
       const listEl = document.getElementById("timeline-list-container");
       const loadMoreEl = document.getElementById("load-more-container");
+      if(!listEl) return;
       
       const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key }));
       if (logsArray.length === 0) {
@@ -1365,9 +1445,21 @@
         const likes = log.likes || {};
         const isLikedByMe = !!likes[myUserName];
         const likeCount = Object.keys(likes).length;
-        const likeNames = Object.keys(likes).join(", ");
+        
+        let likeNamesArr = [];
+        Object.keys(likes).forEach(lu => {
+           const p = getPrivacy(lu);
+           likeNamesArr.push((lu === myUserName || p.showName) ? lu : t.anonUser);
+        });
+        const likeNames = likeNamesArr.join(", ");
 
         const commentsCount = log.comments ? Object.keys(log.comments).length : 0;
+
+        // プライバシー処理
+        const isMe = log.user === myUserName;
+        const priv = getPrivacy(log.user);
+        const displayName = (isMe || priv.showName) ? log.user : t.anonUser;
+        const displayDuration = (isMe || priv.showTime) ? `${log.duration} ${t.unitMin}` : t.anonTime;
 
         return `
           <div class="timeline-card-item" id="log-${log.key}">
@@ -1375,11 +1467,11 @@
               <div class="timeline-user-box">
                 <div class="timeline-avatar">${log.avatar || '👤'}</div>
                 <div>
-                  <div class="timeline-name">${log.user}</div>
+                  <div class="timeline-name">${displayName}</div>
                   <div class="timeline-time">${dateStr}</div>
                 </div>
               </div>
-              <div class="timeline-duration">${log.duration} ${t.unitMin}</div>
+              <div class="timeline-duration">${displayDuration}</div>
             </div>
             
             ${log.memo ? `<div class="timeline-memo">💬 ${log.memo}</div>` : ''}
@@ -1442,19 +1534,31 @@
         logsForDayAll.forEach(l => {
           if (l.user === calendarTargetUser) targetTotalMin += l.duration;
         });
-        if(totalBadgeEl) totalBadgeEl.innerText = formatTimeFriendly(targetTotalMin);
+        
+        // ターゲットが自分でない場合、時間の公開設定を確認
+        const tgtPriv = getPrivacy(calendarTargetUser);
+        const isTgtMe = calendarTargetUser === myUserName;
+        if(totalBadgeEl) {
+          totalBadgeEl.innerText = (isTgtMe || tgtPriv.showTime) ? formatTimeFriendly(targetTotalMin) : t.anonTime;
+        }
 
         if(usersListEl) {
           usersListEl.innerHTML = logsForDayAll.map(log => {
             const isSelectedUser = log.user === calendarTargetUser;
+            const isMe = log.user === myUserName;
+            const p = getPrivacy(log.user);
+            
+            const dName = (isMe || p.showName) ? log.user : t.anonUser;
+            const dTime = (isMe || p.showTime) ? `${log.duration} ${t.unitMin}` : t.anonTime;
+
             return `
               <div class="cal-user-log-item" style="${isSelectedUser ? 'border-color:var(--accent); background:rgba(34,197,94,0.1);' : ''}" onclick="switchCalendarUser('${log.user}')">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
-                    <span style="color:#FFF; font-weight:800;">${log.user}</span>
+                    <span style="color:#FFF; font-weight:800;">${dName}</span>
                   </div>
-                  <span style="color:var(--ring-inner); font-weight:800;">${log.duration} ${t.unitMin}</span>
+                  <span style="color:var(--ring-inner); font-weight:800;">${dTime}</span>
                 </div>
                 ${log.memo ? `<div style="font-size:0.85rem; color:var(--text-sub); background:rgba(0,0,0,0.2); padding:6px 8px; border-radius:8px;">💬 ${log.memo}</div>` : ''}
               </div>
@@ -1491,12 +1595,14 @@
       });
 
       const targetStreak = calculateStreakForUser(allLogsData, calendarTargetUser);
+      const isTgtMe = calendarTargetUser === myUserName;
+      const tgtPriv = getPrivacy(calendarTargetUser);
       
       const dVal = document.getElementById("stat-days-val");
       if(dVal) dVal.innerText = targetTrainedDays.size;
       
       const tVal = document.getElementById("stat-time-val");
-      if(tVal) tVal.innerText = formatTimeFriendly(targetMonthMin);
+      if(tVal) tVal.innerText = (isTgtMe || tgtPriv.showTime) ? formatTimeFriendly(targetMonthMin) : t.anonTime;
       
       const sVal = document.getElementById("stat-streak-val");
       if(sVal) sVal.innerText = `${targetStreak}🔥`;
@@ -1542,9 +1648,14 @@
       const userTotals = {}; 
 
       Object.values(allLogsData).forEach(log => {
+        const p = getPrivacy(log.user);
+        const isMe = log.user === myUserName;
+        // ランキング非参加の人は除外（自分以外）
+        if (!isMe && !p.inRanking) return;
+
         if (log.month === currentMonth) {
           if (!userTotals[log.user]) {
-            userTotals[log.user] = { totalMin: 0, avatar: log.avatar || "👤" };
+            userTotals[log.user] = { totalMin: 0, avatar: log.avatar || "👤", showName: p.showName };
           }
           userTotals[log.user].totalMin += log.duration;
           userTotals[log.user].avatar = log.avatar || userTotals[log.user].avatar;
@@ -1565,6 +1676,8 @@
       listEl.innerHTML = sorted.map(([user, data], idx) => {
         const isTop1 = idx === 0;
         const isMe = user === myUserName;
+        const dName = (isMe || data.showName) ? user : t.anonUser;
+
         const percentage = Math.min(100, Math.max(8, Math.round((data.totalMin / maxMin) * 100)));
         let rankBadge = idx === 0 ? "👑 1st" : idx === 1 ? "🥈 2nd" : idx === 2 ? "🥉 3rd" : `#${idx+1}`;
         
@@ -1579,7 +1692,7 @@
                 <div class="race-avatar-box">${data.avatar}</div>
                 <div>
                   <div class="race-name">
-                    ${user} ${isMe ? '<span style="font-size:0.65rem; background:rgba(0,240,255,0.2); color:var(--ring-inner); padding:2px 6px; border-radius:6px;">YOU</span>' : ''}
+                    ${dName} ${isMe ? '<span style="font-size:0.65rem; background:rgba(0,240,255,0.2); color:var(--ring-inner); padding:2px 6px; border-radius:6px;">YOU</span>' : ''}
                   </div>
                   <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">${rankBadge}</div>
                 </div>
@@ -1742,14 +1855,12 @@
       });
     };
 
-    // ログ削除時に、紐づく通知もすべてDBから削除する
     window.deleteLog = (key) => {
       playSound('click');
       const t = i18n[currentLang];
       if (confirm(t.confirmDelete)) {
         remove(ref(db, `logs/${key}`));
         
-        // 関連する通知をすべて検索して削除
         Object.entries(allNotifications).forEach(([nKey, notif]) => {
           if (notif.logKey === key) {
             remove(ref(db, `notifications/${nKey}`));
@@ -1759,10 +1870,7 @@
     };
 
     document.addEventListener("DOMContentLoaded", () => {
-      if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-      }
-      
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
       try { window.scrollTo(0, 0); } catch(e){}
 
       renderAvatarSelectors();
@@ -1770,9 +1878,7 @@
       checkAuth();
       switchTab('home');
 
-      setTimeout(() => {
-        try { window.scrollTo(0, 0); } catch(e){}
-      }, 50);
+      setTimeout(() => { try { window.scrollTo(0, 0); } catch(e){} }, 50);
     });
   </script>
 </body>
