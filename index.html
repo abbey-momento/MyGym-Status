@@ -10,21 +10,21 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg: #0D061A;
-      --card-bg: #170C2E;
-      --card-border: rgba(34, 197, 94, 0.2);
-      --accent: #22C55E;
-      --accent-gradient: linear-gradient(135deg, #22C55E, #10B981);
-      --ring-outer: #22C55E;
-      --ring-inner: #00F0FF;
-      --green: #22C55E;
+      --bg: #0B0F19;
+      --card-bg: #141B2B;
+      --card-border: rgba(47, 143, 255, 0.2);
+      --accent: #2F8FFF;
+      --accent-gradient: linear-gradient(135deg, #2F8FFF, #7CC4FF);
+      --ring-outer: #2F8FFF;
+      --ring-inner: #2DD4BF;
+      --green: #34D399;
       --red: #F43F5E;
       --text-main: #F8FAFC;
-      --text-sub: #A78BFA;
+      --text-sub: #8B93A7;
     }
     
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Zen Kaku Gothic New', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -32,9 +32,9 @@
     body {
       background-color: var(--bg);
       background-image: 
-        linear-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
-      background-size: 30px 30px;
+        linear-gradient(rgba(47, 143, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 143, 255, 0.05) 1px, transparent 1px);
+      background-size: 34px 34px;
       color: var(--text-main);
       max-width: 480px;
       margin: 0 auto;
@@ -44,15 +44,15 @@
     }
 
     h1, h2, h3, .time-main, .btn-primary, .timer-action-btn, .stat-num {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       letter-spacing: 0.03em;
     }
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .brand { display: flex; align-items: center; gap: 10px; }
     
-    .brand-logo-svg { width: 38px; height: 38px; filter: drop-shadow(0 0 8px rgba(34,197,94,0.5)); }
-    .brand-title h1 { font-size: 1.3rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(34,197,94,0.5); }
+    .brand-logo-svg { width: 38px; height: 38px; filter: drop-shadow(0 0 8px rgba(47, 143, 255,0.5)); }
+    .brand-title h1 { font-size: 1.3rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(47, 143, 255,0.5); }
     
     .header-right { display: flex; align-items: center; gap: 10px; }
     .notif-bell-btn { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 50%; width: 38px; height: 38px; align-items: center; justify-content: center; color: var(--text-sub); cursor: pointer; position: relative; transition: 0.2s; }
@@ -61,7 +61,7 @@
     
     .lang-switcher { display: flex; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 3px; gap: 2px; }
     .lang-btn { background: none; border: none; color: var(--text-sub); padding: 6px 12px; font-size: 0.75rem; font-weight: 700; border-radius: 16px; cursor: pointer; transition: 0.2s; }
-    .lang-btn.active { background: var(--accent); color: #0D061A; box-shadow: 0 0 10px var(--accent); }
+    .lang-btn.active { background: var(--accent); color: #0B0F19; box-shadow: 0 0 10px var(--accent); }
 
     .view { display: none; flex-direction: column; gap: 16px; animation: fadeIn 0.3s ease-out; }
     .view.active { display: flex; }
@@ -70,34 +70,34 @@
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; overflow: hidden; width: 100%; }
     .card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 6, 26, 0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px); }
-    .modal-content { width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; background: #130a24; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); position: relative; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 15, 25, 0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px); }
+    .modal-content { width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; background: #101623; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); position: relative; }
 
     .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; width: 100%; }
     label { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
     input[type="text"], input[type="number"], textarea, input[type="date"], input[type="time"] { width: 100%; max-width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: white; outline: none; font-size: 0.95rem; text-align: center; box-sizing: border-box; }
     input[type="date"], input[type="time"] { appearance: none; -webkit-appearance: none; }
-    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(34,197,94,0.2); }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(47, 143, 255,0.2); }
     
     .toggle-switch { position: relative; width: 46px; height: 26px; appearance: none; -webkit-appearance: none; background: rgba(255,255,255,0.1); border-radius: 13px; outline: none; cursor: pointer; transition: 0.3s; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); margin:0; }
-    .toggle-switch:checked { background: var(--accent); box-shadow: 0 0 10px rgba(34,197,94,0.4); }
+    .toggle-switch:checked { background: var(--accent); box-shadow: 0 0 10px rgba(47, 143, 255,0.4); }
     .toggle-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
     .toggle-switch:checked::after { transform: translateX(20px); }
 
     .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 150px; overflow-y: auto; padding-right: 4px; }
     .avatar-option { font-size: 1.4rem; text-align: center; padding: 6px; background: rgba(0,0,0,0.3); border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-    .avatar-option.selected { border-color: var(--accent); background: rgba(34,197,94,0.2); transform: scale(1.05); }
+    .avatar-option.selected { border-color: var(--accent); background: rgba(47, 143, 255,0.2); transform: scale(1.05); }
     
-    .btn-primary { width: 100%; background: var(--accent-gradient); color: #0D061A; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(34,197,94,0.3); }
-    .btn-secondary { width: 100%; background: rgba(34,197,94,0.1); color: var(--accent); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; margin-top: 8px; }
+    .btn-primary { width: 100%; background: var(--accent-gradient); color: #0B0F19; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(47, 143, 255,0.3); }
+    .btn-secondary { width: 100%; background: rgba(47, 143, 255,0.1); color: var(--accent); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; margin-top: 8px; }
     
     .home-status-box { background: rgba(0,0,0,0.3); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 10px; border: 1px solid var(--card-border); }
     .home-status-title { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
     .home-status-text { font-size: 1rem; font-weight: 700; color: white; }
-    .status-free { color: var(--green); text-shadow: 0 0 8px rgba(34,197,94,0.4); }
+    .status-free { color: var(--green); text-shadow: 0 0 8px rgba(52,211,153,0.4); }
     
     .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 20px; position: relative; }
-    .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(34,197,94,0.2)); }
+    .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(47, 143, 255,0.2)); }
     .ring-track { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 14; }
     .ring-progress-outer { fill: none; stroke: var(--ring-outer); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     .ring-progress-inner { fill: none; stroke: var(--ring-inner); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
@@ -106,26 +106,26 @@
     .time-main { font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; color: #FFF; text-shadow: 0 0 15px rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
     .time-sub { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
 
-    .timer-action-btn { background: rgba(34, 197, 94, 0.1); color: var(--green); border: 1px solid var(--card-border); padding: 14px 40px; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(34,197,94,0.2); margin-top: 10px; transition: 0.2s; }
-    .timer-action-btn.start { background: rgba(34, 197, 94, 0.15); color: var(--green); border-color: rgba(34, 197, 94, 0.4); }
+    .timer-action-btn { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid var(--card-border); padding: 14px 40px; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(52,211,153,0.2); margin-top: 10px; transition: 0.2s; }
+    .timer-action-btn.start { background: rgba(52,211,153,0.15); color: var(--green); border-color: rgba(52,211,153,0.4); }
     .timer-action-btn.stop { background: rgba(244, 63, 94, 0.15); color: var(--red); border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 15px rgba(244,63,94,0.2); }
 
     .cal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .cal-title-month { font-size: 1.3rem; font-weight: 800; color: #FFF; font-family: 'Syne', sans-serif; text-transform: capitalize; }
+    .cal-title-month { font-size: 1.3rem; font-weight: 800; color: #FFF; font-family: 'Space Grotesk', sans-serif; text-transform: capitalize; }
     .cal-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: white; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
-    .cal-nav-btn:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); }
+    .cal-nav-btn:hover { background: rgba(47, 143, 255,0.2); border-color: var(--accent); }
     .cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
     .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
     .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px 8px; text-align: center; }
-    .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.3); margin-top: 4px; }
+    .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(45, 212, 191,0.3); margin-top: 4px; }
     .stat-label { font-size: 0.65rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 20px; }
     .cal-weekday { text-align: center; font-size: 0.75rem; color: var(--text-sub); font-weight: 700; padding-bottom: 4px; }
     .cal-day { aspect-ratio: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: 0.2s; position: relative; }
     .cal-day.empty { background: transparent; border: none; cursor: default; }
-    .cal-day.has-activity { background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(0,240,255,0.25)); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(34,197,94,0.3); }
+    .cal-day.has-activity { background: linear-gradient(135deg, rgba(47, 143, 255,0.25), rgba(45, 212, 191,0.25)); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(47, 143, 255,0.3); }
     .cal-day.selected { border: 2px solid #FFF; transform: scale(1.05); }
 
     .cal-detail-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -133,7 +133,7 @@
     .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
     
     .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: 0.2s; }
-    .cal-user-log-item:hover { border-color: var(--accent); background: rgba(34,197,94,0.05); }
+    .cal-user-log-item:hover { border-color: var(--accent); background: rgba(47, 143, 255,0.05); }
 
     .timeline-card-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; transition: 0.3s; }
     .timeline-header { display: flex; justify-content: space-between; align-items: center; }
@@ -141,7 +141,7 @@
     .timeline-avatar { font-size: 1.3rem; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); }
     .timeline-name { color: #FFF; font-weight: 800; font-size: 0.95rem; }
     .timeline-time { color: var(--text-sub); font-size: 0.7rem; }
-    .timeline-duration { color: var(--ring-inner); font-weight: 800; font-size: 1.1rem; font-family: 'Syne'; }
+    .timeline-duration { color: var(--ring-inner); font-weight: 800; font-size: 1.1rem; font-family: 'Space Grotesk'; }
     .timeline-memo { font-size: 0.85rem; color: var(--text-sub); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 10px; word-break: break-all; }
     
     .timeline-actions { display: flex; gap: 8px; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
@@ -152,7 +152,7 @@
     .action-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     @keyframes highlightFlash {
-      0% { background: rgba(34, 197, 94, 0.3); border-color: var(--accent); transform: scale(1.02); }
+      0% { background: rgba(47, 143, 255, 0.3); border-color: var(--accent); transform: scale(1.02); }
       100% { background: rgba(0,0,0,0.3); border-color: var(--card-border); transform: scale(1); }
     }
     .highlight-log { animation: highlightFlash 1.5s ease-out; }
@@ -165,16 +165,16 @@
 
     .race-card-item { background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; position: relative; overflow: hidden; transition: 0.2s; }
     .race-card-item.is-top1 { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); background: linear-gradient(135deg, rgba(23,12,46,0.9), rgba(255,215,0,0.08)); }
-    .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
+    .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 15px rgba(45, 212, 191, 0.15); }
     .race-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; position: relative; z-index: 2; }
     .race-user-info { display: flex; align-items: center; gap: 10px; }
     .race-avatar-box { font-size: 1.5rem; width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); }
     .race-name { font-weight: 800; font-size: 1.05rem; color: #FFF; display: flex; align-items: center; gap: 6px; }
     .race-score-wrap { text-align: right; }
-    .race-score-main { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(0,240,255,0.4); }
+    .race-score-main { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(45, 212, 191,0.4); }
     .race-score-sub { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
     .race-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; position: relative; z-index: 2; }
-    .race-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring-inner)); border-radius: 4px; transition: width 0.6s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px rgba(34,197,94,0.5); }
+    .race-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring-inner)); border-radius: 4px; transition: width 0.6s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px rgba(47, 143, 255,0.5); }
     .is-top1 .race-bar-fill { background: linear-gradient(90deg, #FFD700, #FF8C00); box-shadow: 0 0 12px rgba(255,215,0,0.6); }
 
     .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: 0.05em; color: #FFF; }
@@ -188,7 +188,7 @@
     .list-title { font-weight: 700; color: #FFF; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
     
     .btn-action-svg { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: var(--text-sub); width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; margin-left: 6px; }
-    .btn-action-svg:hover { background: rgba(34,197,94,0.2); border-color: var(--accent); color: var(--accent); }
+    .btn-action-svg:hover { background: rgba(47, 143, 255,0.2); border-color: var(--accent); color: var(--accent); }
     .btn-action-svg.delete:hover { background: rgba(244,63,94,0.2); border-color: var(--red); color: var(--red); }
     .btn-action-svg svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -198,7 +198,7 @@
     
     .empty-msg { text-align: center; color: var(--text-sub); padding: 20px; font-size: 0.9rem; }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(13, 6, 26, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 16px 0 calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--card-border); z-index: 1000; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 16px 0 calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--card-border); z-index: 1000; }
     .nav-btn { background: transparent; border: none; color: var(--text-sub); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; padding: 4px 15px; }
     .nav-btn.active { color: var(--accent); }
     .nav-btn svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: 0.2s; }
@@ -311,12 +311,12 @@
   <header>
     <div class="brand">
       <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100" height="100" rx="24" fill="#170C2E" stroke="#22C55E" stroke-width="4"/>
-        <path d="M30 50L45 30H70L55 50H70L40 75L48 55H30Z" fill="url(#paint0_linear)" stroke="#00F0FF" stroke-width="3" stroke-linejoin="round"/>
+        <rect width="100" height="100" rx="24" fill="#141B2B" stroke="#2F8FFF" stroke-width="4"/>
+        <path d="M30 50L45 30H70L55 50H70L40 75L48 55H30Z" fill="url(#paint0_linear)" stroke="#2DD4BF" stroke-width="3" stroke-linejoin="round"/>
         <defs>
           <linearGradient id="paint0_linear" x1="30" y1="30" x2="70" y2="75" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#22C55E"/>
-            <stop offset="1" stop-color="#00F0FF"/>
+            <stop stop-color="#2F8FFF"/>
+            <stop offset="1" stop-color="#2DD4BF"/>
           </linearGradient>
         </defs>
       </svg>
@@ -414,7 +414,7 @@
       <div class="cal-detail-card" id="cal-selected-detail">
         <div class="cal-detail-header">
           <div class="cal-detail-date" id="selected-date-text">Selecciona un día</div>
-          <div id="selected-date-total-badge" style="font-weight:800; color:var(--accent); font-family:'Syne';">0 min</div>
+          <div id="selected-date-total-badge" style="font-weight:800; color:var(--accent); font-family:'Space Grotesk';">0 min</div>
         </div>
         <div id="selected-date-users-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
@@ -447,8 +447,8 @@
         <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
           <div class="profile-name" id="my-name-display">Name</div>
           <div style="display:flex; gap:8px; align-items:center;">
-            <span id="my-streak-badge" style="font-size:0.75rem; background:rgba(34,197,94,0.2); color:var(--accent); padding:2px 8px; border-radius:8px; font-weight:700;">🔥 0 Streak</span>
-            <button onclick="openEditModal()" style="background:rgba(34,197,94,0.15); border:1px solid var(--card-border); color:var(--accent); padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.75rem; cursor:pointer;" id="t-edit-profile-btn">Editar Perfil</button>
+            <span id="my-streak-badge" style="font-size:0.75rem; background:rgba(47, 143, 255,0.2); color:var(--accent); padding:2px 8px; border-radius:8px; font-weight:700;">🔥 0 Streak</span>
+            <button onclick="openEditModal()" style="background:rgba(47, 143, 255,0.15); border:1px solid var(--card-border); color:var(--accent); padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.75rem; cursor:pointer;" id="t-edit-profile-btn">Editar Perfil</button>
           </div>
         </div>
       </div>
@@ -478,7 +478,7 @@
         </div>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
           <input type="number" id="goalInput" placeholder="Veces" style="flex:1; padding:10px; border-radius: 10px; font-size:0.9rem;" value="15">
-          <button onclick="saveMonthlyGoal()" id="t-btn-save-goal" style="background:rgba(0,240,255,0.15); border:1px solid var(--card-border); border-radius:10px; color:var(--ring-inner); padding:10px 14px; font-weight:700; cursor:pointer; font-size:0.85rem;">Guardar</button>
+          <button onclick="saveMonthlyGoal()" id="t-btn-save-goal" style="background:rgba(45, 212, 191,0.15); border:1px solid var(--card-border); border-radius:10px; color:var(--ring-inner); padding:10px 14px; font-weight:700; cursor:pointer; font-size:0.85rem;">Guardar</button>
         </div>
         <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
           <div id="goal-bar-fill" style="width:0%; height:100%; background:var(--ring-inner); transition:0.4s;"></div>
@@ -500,7 +500,7 @@
             </div>
           </div>
           <input type="text" id="manualMemo" placeholder="Nota opcional" style="padding:10px; border-radius: 10px; font-size:0.9rem;">
-          <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:#0D061A; padding:14px; font-weight:800; cursor:pointer; margin-top:4px;">Añadir</button>
+          <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:#0B0F19; padding:14px; font-weight:800; cursor:pointer; margin-top:4px;">Añadir</button>
         </div>
       </div>
 
@@ -1390,7 +1390,7 @@
         const replacedText = notif.text.replace(notif.fromUser, dFromName);
 
         const logPreview = `
-          <div style="font-size:0.75rem; color:var(--ring-inner); margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(0,240,255,0.2);">
+          <div style="font-size:0.75rem; color:var(--ring-inner); margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(45, 212, 191,0.2);">
             📝 ${logDateStr} (${logDuration})${memoText}
           </div>`;
         const clickAttr = `onclick="goToLog('${notif.logKey}', '${key}')" style="cursor:pointer;"`;
@@ -1552,7 +1552,7 @@
             const dTime = (isMe || p.showTime) ? `${log.duration} ${t.unitMin}` : t.anonTime;
 
             return `
-              <div class="cal-user-log-item" style="${isSelectedUser ? 'border-color:var(--accent); background:rgba(34,197,94,0.1);' : ''}" onclick="switchCalendarUser('${log.user}')">
+              <div class="cal-user-log-item" style="${isSelectedUser ? 'border-color:var(--accent); background:rgba(47, 143, 255,0.1);' : ''}" onclick="switchCalendarUser('${log.user}')">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
@@ -1692,7 +1692,7 @@
                 <div class="race-avatar-box">${data.avatar}</div>
                 <div>
                   <div class="race-name">
-                    ${dName} ${isMe ? '<span style="font-size:0.65rem; background:rgba(0,240,255,0.2); color:var(--ring-inner); padding:2px 6px; border-radius:6px;">YOU</span>' : ''}
+                    ${dName} ${isMe ? '<span style="font-size:0.65rem; background:rgba(45, 212, 191,0.2); color:var(--ring-inner); padding:2px 6px; border-radius:6px;">YOU</span>' : ''}
                   </div>
                   <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">${rankBadge}</div>
                 </div>
