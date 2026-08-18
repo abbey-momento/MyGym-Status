@@ -10,7 +10,7 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -52,7 +52,7 @@
     .brand { display: flex; align-items: center; gap: 10px; }
     
     .brand-logo-svg { width: 38px; height: 38px; filter: drop-shadow(0 0 8px rgba(47, 143, 255,0.5)); }
-    .brand-title h1 { font-size: 1.3rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(47, 143, 255,0.5); }
+    .brand-title h1 { font-size: 1.3rem; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(47, 143, 255,0.5); font-family: 'Syne', sans-serif; }
     
     .header-right { display: flex; align-items: center; gap: 10px; }
     .notif-bell-btn { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 50%; width: 38px; height: 38px; align-items: center; justify-content: center; color: var(--text-sub); cursor: pointer; position: relative; transition: 0.2s; }
@@ -163,18 +163,19 @@
     .notif-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; transition: 0.2s; }
     .notif-item:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
 
-    .race-card-item { background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; position: relative; overflow: hidden; transition: 0.2s; }
-    .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 15px rgba(45, 212, 191, 0.15); }
-    .race-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; position: relative; z-index: 2; }
-    .race-user-info { display: flex; align-items: center; gap: 10px; }
-    .race-avatar-box { font-size: 1.5rem; width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); }
-    .race-name { font-weight: 800; font-size: 1.05rem; color: #FFF; display: flex; align-items: center; gap: 6px; }
+    .race-card-item { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 9px 12px; margin-bottom: 8px; position: relative; overflow: hidden; transition: 0.2s; }
+    .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 10px rgba(45, 212, 191, 0.1); }
+    .race-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; position: relative; z-index: 2; }
+    .race-user-info { display: flex; align-items: center; gap: 8px; }
+    .race-avatar-box { font-size: 1.1rem; width: 30px; height: 30px; background: rgba(255,255,255,0.04); border-radius: 9px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.06); }
+    .race-name { font-weight: 700; font-size: 0.85rem; color: var(--text-sub); display: flex; align-items: center; gap: 5px; }
     .race-score-wrap { text-align: right; }
-    .race-score-main { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(45, 212, 191,0.4); }
-    .race-score-sub { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
-    .race-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; position: relative; z-index: 2; }
-    .race-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring-inner)); border-radius: 4px; transition: width 0.6s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px rgba(47, 143, 255,0.5); }
+    .race-score-main { font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text-sub); }
+    .race-score-sub { font-size: 0.6rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; opacity: 0.7; }
+    .race-bar-container { width: 100%; height: 4px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; position: relative; z-index: 2; }
+    .race-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring-inner)); border-radius: 3px; opacity: 0.6; transition: width 0.6s cubic-bezier(0.1, 1, 0.1, 1); }
     .you-tag { font-size: 0.6rem; background: rgba(45, 212, 191,0.2); color: var(--ring-inner); padding: 2px 6px; border-radius: 6px; font-weight: 800; vertical-align: middle; }
+    .race-card-item.is-me .race-name, .race-card-item.is-me .race-score-main { color: var(--ring-inner); }
 
     @keyframes crownBounce {
       0%, 100% { transform: translateY(0) rotate(-6deg); }
@@ -474,10 +475,16 @@
   <div id="view-ranking" class="view">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
-        <h2 class="section-title" style="margin-bottom:0;" id="t-race-title">🏆 Energy Race</h2>
-        <button onclick="openHistoryModal()" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); color:var(--text-sub); padding:6px 10px; border-radius:10px; font-weight:700; font-size:0.75rem; cursor:pointer;" id="t-history-btn">🕘 Historial</button>
+        <h2 class="section-title" style="margin-bottom:0; display:flex; align-items:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+          <span id="t-race-title">Energy Race</span>
+        </h2>
+        <button onclick="openHistoryModal()" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); color:var(--text-sub); padding:6px 10px; border-radius:10px; font-weight:700; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="t-history-btn">Historial</span>
+        </button>
       </div>
-      <div id="race-countdown" style="font-size:0.75rem; color:var(--text-sub); font-weight:700; margin-bottom:10px;"></div>
+      <div id="race-countdown" style="font-size:0.75rem; color:var(--text-sub); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:5px;"></div>
       <div id="race-podium-container"></div>
       <div id="race-list-container" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
@@ -500,7 +507,10 @@
   <div id="history-modal" class="modal-overlay" style="display:none;">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-        <h2 style="font-size: 1.1rem;" id="t-results-history-title">🕘 Historial de resultados</h2>
+        <h2 style="font-size: 1.1rem; display:flex; align-items:center; gap:6px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="t-results-history-title">Historial de resultados</span>
+        </h2>
         <button onclick="closeHistoryModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
       </div>
       <div id="history-list-container" style="display:flex; flex-direction:column; gap:10px; max-height: 420px; overflow-y:auto;">
@@ -700,7 +710,7 @@
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak",
-        raceTitle: "🏆 Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
+        raceTitle: "Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Historial Reciente", logout: "Cerrar sesión",
         goalTitle: "🎯 Meta Mensual (sesiones)", btnSaveGoal: "Guardar",
         memoTitle: "¡Buen trabajo! 💪", memoSub: "Añade una nota o comentario", btnSaveLog: "Guardar Registro ✨", btnSkipMemo: "Terminar sin nota",
@@ -716,7 +726,7 @@
         privacyTitle: "⚙️ Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial! 🎉",
-        historyBtn: "🕘 Historial", historyTitle: "🕘 Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
+        historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
         winnerLabel: "Ganador/a de"
       },
       ja: {
@@ -725,7 +735,7 @@
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続",
-        raceTitle: "🏆 エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
+        raceTitle: "エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 最近の履歴", logout: "ログアウト (リセット)",
         goalTitle: "🎯 今月の目標回数 (回)", btnSaveGoal: "保存",
         memoTitle: "お疲れ様でした！ 💪", memoSub: "メモやコメントを残そう", btnSaveLog: "記録を保存する ✨", btnSkipMemo: "メモなしで完了",
@@ -741,7 +751,7 @@
         privacyTitle: "⚙️ プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！🎉",
-        historyBtn: "🕘 過去の結果", historyTitle: "🕘 過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
+        historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
         winnerLabel: "の優勝者"
       }
     };
@@ -833,7 +843,7 @@
       setT("t-priv-ranking", t.privRank);
 
       setT("t-history-btn", t.historyBtn);
-      setT("t-results-history-title", t.historyTitle);
+      setT("t-results-history-title", t.resultsHistoryTitle);
       setT("t-result-title", t.resultAnnounceTitle);
       setT("t-result-close", t.resultAnnounceClose);
       
@@ -1910,15 +1920,18 @@
       return lastDay - now.getDate();
     }
 
+    const CALENDAR_ICON_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+
     function renderCountdown() {
       const t = i18n[currentLang];
       const el = document.getElementById("race-countdown");
       if (!el) return;
       const daysLeft = getDaysLeftInMonth();
       const monthLabel = getMonthLabel(getLocalISOString(new Date()).slice(0, 7));
-      el.innerText = daysLeft <= 0 
-        ? `📅 ${monthLabel} — ${t.closesToday}` 
-        : `📅 ${monthLabel} — ${currentLang === 'es' ? `${daysLeft} ${t.daysLeftLabel}` : `あと${daysLeft}${t.daysLeftLabel}`}`;
+      const text = daysLeft <= 0 
+        ? `${monthLabel} — ${t.closesToday}` 
+        : `${monthLabel} — ${currentLang === 'es' ? `${daysLeft} ${t.daysLeftLabel}` : `あと${daysLeft}${t.daysLeftLabel}`}`;
+      el.innerHTML = `${CALENDAR_ICON_SVG}<span>${text}</span>`;
     }
 
     function renderEnergyRace() {
