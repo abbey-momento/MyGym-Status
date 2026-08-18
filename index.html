@@ -217,6 +217,15 @@
     .podium-base.base-2 { height: 54px; background: linear-gradient(180deg, rgba(203,213,225,0.2), rgba(203,213,225,0.04)); border: 1px solid rgba(203,213,225,0.4); color: #CBD5E1; font-size: 1.1rem; }
     .podium-base.base-3 { height: 40px; background: linear-gradient(180deg, rgba(205,127,50,0.25), rgba(205,127,50,0.04)); border: 1px solid rgba(205,127,50,0.4); color: #CD7F32; font-size: 1rem; }
 
+    .history-month-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px 14px; }
+    .history-month-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .history-month-label { font-weight: 800; color: #FFF; font-size: 0.95rem; }
+    .history-rank-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 0.82rem; color: var(--text-sub); border-top: 1px dashed rgba(255,255,255,0.06); }
+    .history-rank-row:first-of-type { border-top: none; }
+    .history-rank-row .h-user { display: flex; align-items: center; gap: 6px; color: #FFF; font-weight: 700; }
+    .history-rank-row .h-time { color: var(--ring-inner); font-weight: 800; font-family: 'Space Grotesk', sans-serif; }
+    .history-rank-row.rank-1 .h-user { color: #FFD700; }
+
     .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: 0.05em; color: #FFF; }
     .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
     .profile-avatar { font-size: 2.5rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid var(--card-border); }
@@ -464,10 +473,38 @@
   <!-- 🏆 ランキングビュー -->
   <div id="view-ranking" class="view">
     <div class="card">
-      <h2 class="section-title" id="t-race-title">🏆 Energy Race</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+        <h2 class="section-title" style="margin-bottom:0;" id="t-race-title">🏆 Energy Race</h2>
+        <button onclick="openHistoryModal()" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); color:var(--text-sub); padding:6px 10px; border-radius:10px; font-weight:700; font-size:0.75rem; cursor:pointer;" id="t-history-btn">🕘 Historial</button>
+      </div>
+      <div id="race-countdown" style="font-size:0.75rem; color:var(--text-sub); font-weight:700; margin-bottom:10px;"></div>
       <div id="race-podium-container"></div>
       <div id="race-list-container" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎉 月次結果発表モーダル -->
+  <div id="result-announce-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="text-align:center;">
+      <div style="font-size:2.2rem; margin-bottom: 4px;">🎉</div>
+      <h2 id="t-result-title" style="margin-bottom: 2px; font-size: 1.15rem;">¡Resultados del mes pasado!</h2>
+      <div id="result-announce-month" style="color:var(--text-sub); font-size:0.8rem; margin-bottom: 14px;"></div>
+      <div id="result-announce-podium"></div>
+      <button class="btn-primary" onclick="closeResultAnnounceModal()" style="margin-top: 14px;" id="t-result-close">¡Genial! 🎉</button>
+    </div>
+  </div>
+
+  <!-- 🕘 過去の結果履歴モーダル -->
+  <div id="history-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+        <h2 style="font-size: 1.1rem;" id="t-results-history-title">🕘 Historial de resultados</h2>
+        <button onclick="closeHistoryModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
+      </div>
+      <div id="history-list-container" style="display:flex; flex-direction:column; gap:10px; max-height: 420px; overflow-y:auto;">
+        <div class="empty-msg">Aún no hay resultados cerrados</div>
       </div>
     </div>
   </div>
@@ -676,7 +713,11 @@
         months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
         deletedLog: "Este registro fue eliminado",
         anonUser: "Anónimo", anonTime: "🔒",
-        privacyTitle: "⚙️ Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking"
+        privacyTitle: "⚙️ Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking",
+        daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
+        resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial! 🎉",
+        historyBtn: "🕘 Historial", historyTitle: "🕘 Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
+        winnerLabel: "Ganador/a de"
       },
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
@@ -697,7 +738,11 @@
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
         deletedLog: "この投稿は削除されました",
         anonUser: "匿名ユーザー", anonTime: "🔒",
-        privacyTitle: "⚙️ プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する"
+        privacyTitle: "⚙️ プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する",
+        daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
+        resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！🎉",
+        historyBtn: "🕘 過去の結果", historyTitle: "🕘 過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
+        winnerLabel: "の優勝者"
       }
     };
 
@@ -711,6 +756,8 @@
     let allLogsData = {};
     let allNotifications = {};
     let usersPrivacyData = {}; 
+    let allMonthlyResults = {};
+    let monthFinalizeChecked = {};
     let selectedAvatar = "🐶";
     let editSelectedAvatar = "🐶";
     let myUserName = localStorage.getItem("gym_my_name") || "";
@@ -784,6 +831,11 @@
       setT("t-priv-name", t.privName);
       setT("t-priv-time", t.privTime);
       setT("t-priv-ranking", t.privRank);
+
+      setT("t-history-btn", t.historyBtn);
+      setT("t-results-history-title", t.historyTitle);
+      setT("t-result-title", t.resultAnnounceTitle);
+      setT("t-result-close", t.resultAnnounceClose);
       
       const btnAction = document.getElementById("btn-timer-action");
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
@@ -792,6 +844,8 @@
       try { renderTimeline(); } catch(e){}
       try { renderCalendar(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
+      const hModal = document.getElementById("history-modal");
+      if (hModal && hModal.style.display === "flex") { try { renderHistoryList(); } catch(e){} }
       if(myUserName) {
         try { renderMyLogs(); updateStreakAndGoals(); } catch(e){}
       }
@@ -848,7 +902,7 @@
           if(!calendarTargetUser && myUserName) calendarTargetUser = myUserName;
           renderCalendar();
         }
-        if(tabId === 'ranking') renderEnergyRace();
+        if(tabId === 'ranking') { renderEnergyRace(); finalizeMonthIfNeeded(); }
       } catch(e) { console.error(e); }
       
       try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) {}
@@ -880,6 +934,7 @@
         checkMyTimerStatus();
         updateStreakAndGoals();
         initPrivacyToggles();
+        finalizeMonthIfNeeded();
       }
     }
 
@@ -1304,6 +1359,7 @@
       try { renderTimeline(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
       try { updateStreakAndGoals(); } catch(e){}
+      try { finalizeMonthIfNeeded(); } catch(e){}
       
       const calView = document.getElementById('view-calendar');
       if (calView && calView.classList.contains('active')) { try { renderCalendar(); } catch(e){} }
@@ -1331,6 +1387,128 @@
         renderNotifications();
       }
     });
+
+    onValue(ref(db, "monthly_results"), (snapshot) => {
+      allMonthlyResults = snapshot.val() || {};
+      finalizeMonthIfNeeded();
+      const hModal = document.getElementById("history-modal");
+      if (hModal && hModal.style.display === "flex") {
+        renderHistoryList();
+      }
+    });
+
+    // 前月分のランキングが未確定なら、ログから集計してFirebaseに確定保存する
+    // （毎月末で締め切り、以降その月のランキングは変動しない）
+    function finalizeMonthIfNeeded() {
+      if (!myUserName) return;
+      const now = new Date();
+      const prevMonthStr = getMonthStr(getPrevMonthDate(now));
+
+      if (allMonthlyResults[prevMonthStr]) {
+        maybeShowResultModal(prevMonthStr);
+        return;
+      }
+      if (monthFinalizeChecked[prevMonthStr]) return;
+      monthFinalizeChecked[prevMonthStr] = true;
+
+      const totals = {};
+      Object.values(allLogsData).forEach(log => {
+        if (log.month !== prevMonthStr) return;
+        const p = getPrivacy(log.user);
+        const isMe = log.user === myUserName;
+        if (!isMe && !p.inRanking) return;
+        if (!totals[log.user]) totals[log.user] = { totalMin: 0, avatar: log.avatar || "👤", showName: p.showName };
+        totals[log.user].totalMin += log.duration;
+        totals[log.user].avatar = log.avatar || totals[log.user].avatar;
+      });
+
+      const sorted = Object.entries(totals).sort((a, b) => b[1].totalMin - a[1].totalMin);
+      if (sorted.length === 0) return;
+
+      const resultData = {
+        month: prevMonthStr,
+        finalizedAt: Date.now(),
+        ranking: sorted.map(([user, data], idx) => ({
+          user, totalMin: data.totalMin, avatar: data.avatar, showName: data.showName, rank: idx + 1
+        }))
+      };
+
+      set(ref(db, `monthly_results/${prevMonthStr}`), resultData).then(() => {
+        maybeShowResultModal(prevMonthStr);
+      });
+    }
+
+    function maybeShowResultModal(monthStr) {
+      const seenKey = "gym_seen_result_" + monthStr;
+      if (localStorage.getItem(seenKey)) return;
+      localStorage.setItem(seenKey, "1");
+      showResultAnnounceModal(monthStr);
+    }
+
+    function resultToTop3(resultData) {
+      return resultData.ranking.slice(0, 3).map(r => [r.user, { totalMin: r.totalMin, avatar: r.avatar, showName: r.showName }]);
+    }
+
+    window.showResultAnnounceModal = (monthStr) => {
+      const resultData = allMonthlyResults[monthStr];
+      if (!resultData) return;
+      const t = i18n[currentLang];
+      document.getElementById("result-announce-month").innerText = getMonthLabel(monthStr);
+      document.getElementById("result-announce-podium").innerHTML = buildPodiumHtml(resultToTop3(resultData));
+      document.getElementById("result-announce-modal").style.display = "flex";
+    };
+
+    window.closeResultAnnounceModal = () => {
+      playSound('click');
+      document.getElementById("result-announce-modal").style.display = "none";
+    };
+
+    window.openHistoryModal = () => {
+      playSound('click');
+      document.getElementById("history-modal").style.display = "flex";
+      renderHistoryList();
+    };
+
+    window.closeHistoryModal = () => {
+      playSound('click');
+      document.getElementById("history-modal").style.display = "none";
+    };
+
+    function renderHistoryList() {
+      const t = i18n[currentLang];
+      const container = document.getElementById("history-list-container");
+      if (!container) return;
+
+      const months = Object.keys(allMonthlyResults).sort().reverse();
+      if (months.length === 0) {
+        container.innerHTML = `<div class="empty-msg">${t.historyEmpty}</div>`;
+        return;
+      }
+
+      container.innerHTML = months.map(monthStr => {
+        const resultData = allMonthlyResults[monthStr];
+        const rows = resultData.ranking.slice(0, 5).map(r => {
+          const isMe = r.user === myUserName;
+          const dName = (isMe || r.showName) ? r.user : t.anonUser;
+          const medal = r.rank === 1 ? '👑' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : `#${r.rank}`;
+          return `
+            <div class="history-rank-row ${r.rank === 1 ? 'rank-1' : ''}">
+              <div class="h-user"><span>${medal}</span><span>${r.avatar || '👤'}</span><span>${dName}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</span></div>
+              <div class="h-time">${formatTimeFriendly(r.totalMin)}</div>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <div class="history-month-card">
+            <div class="history-month-header">
+              <div class="history-month-label">${getMonthLabel(monthStr)}</div>
+            </div>
+            ${rows}
+          </div>
+        `;
+      }).join("");
+    }
 
     function updateNotificationBadge() {
       if (!myUserName) return;
@@ -1683,6 +1861,66 @@
       selectCalendarDay(selectedDateStr, null, false);
     }
 
+    function buildPodiumHtml(top3) {
+      const t = i18n[currentLang];
+      const leaderMin = top3[0] ? top3[0][1].totalMin : 0;
+      const slotOrder = [1, 0, 2]; // render 2nd, 1st, 3rd left-to-right
+      let podiumHtml = '<div class="podium-wrap">';
+      slotOrder.forEach(i => {
+        if (!top3[i]) { podiumHtml += `<div class="podium-slot podium-empty"></div>`; return; }
+        const [user, data] = top3[i];
+        const rank = i + 1;
+        const isMe = user === myUserName;
+        const dName = (isMe || data.showName) ? user : t.anonUser;
+        const medalEmoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : '🥉';
+        const gap = leaderMin - data.totalMin;
+
+        podiumHtml += `
+          <div class="podium-slot slot-${rank}">
+            ${rank === 1 ? '<div class="p-crown">👑<span class="p-sparkle s1">✨</span><span class="p-sparkle s2">✨</span></div>' : ''}
+            <div class="podium-avatar rank${rank}-avatar${isMe ? ' is-me-avatar' : ''}">${data.avatar}</div>
+            <div class="podium-name">${dName}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
+            <div class="podium-score">${formatTimeFriendly(data.totalMin)}</div>
+            ${rank !== 1 && gap > 0 ? `<div class="podium-gap">-${formatTimeFriendly(gap)}</div>` : ''}
+            <div class="podium-base base-${rank}">${medalEmoji}</div>
+          </div>
+        `;
+      });
+      podiumHtml += '</div>';
+      return podiumHtml;
+    }
+
+    function getMonthStr(d) {
+      return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+    }
+
+    function getPrevMonthDate(d) {
+      return new Date(d.getFullYear(), d.getMonth() - 1, 1);
+    }
+
+    function getMonthLabel(monthStr) {
+      const t = i18n[currentLang];
+      const [y, m] = monthStr.split('-').map(Number);
+      return currentLang === 'es' ? `${t.months[m - 1]} ${y}` : `${y}年${t.months[m - 1]}`;
+    }
+
+    function getDaysLeftInMonth() {
+      const now = new Date();
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      return lastDay - now.getDate();
+    }
+
+    function renderCountdown() {
+      const t = i18n[currentLang];
+      const el = document.getElementById("race-countdown");
+      if (!el) return;
+      const daysLeft = getDaysLeftInMonth();
+      const monthLabel = getMonthLabel(getLocalISOString(new Date()).slice(0, 7));
+      el.innerText = daysLeft <= 0 
+        ? `📅 ${monthLabel} — ${t.closesToday}` 
+        : `📅 ${monthLabel} — ${currentLang === 'es' ? `${daysLeft} ${t.daysLeftLabel}` : `あと${daysLeft}${t.daysLeftLabel}`}`;
+    }
+
     function renderEnergyRace() {
       const t = i18n[currentLang];
       const currentMonth = getLocalISOString(new Date()).slice(0, 7);
@@ -1707,6 +1945,8 @@
       const podiumEl = document.getElementById("race-podium-container");
       const listEl = document.getElementById("race-list-container");
       if(!listEl) return;
+
+      renderCountdown();
       
       if (sorted.length === 0) { 
         if(podiumEl) podiumEl.innerHTML = "";
@@ -1720,32 +1960,7 @@
       const top3 = sorted.slice(0, 3);
       const rest = sorted.slice(3);
 
-      if (podiumEl) {
-        const slotOrder = [1, 0, 2]; // render 2nd, 1st, 3rd left-to-right
-        let podiumHtml = '<div class="podium-wrap">';
-        slotOrder.forEach(i => {
-          if (!top3[i]) { podiumHtml += `<div class="podium-slot podium-empty"></div>`; return; }
-          const [user, data] = top3[i];
-          const rank = i + 1;
-          const isMe = user === myUserName;
-          const dName = (isMe || data.showName) ? user : t.anonUser;
-          const medalEmoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : '🥉';
-          const gap = leaderMin - data.totalMin;
-
-          podiumHtml += `
-            <div class="podium-slot slot-${rank}">
-              ${rank === 1 ? '<div class="p-crown">👑<span class="p-sparkle s1">✨</span><span class="p-sparkle s2">✨</span></div>' : ''}
-              <div class="podium-avatar rank${rank}-avatar${isMe ? ' is-me-avatar' : ''}">${data.avatar}</div>
-              <div class="podium-name">${dName}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
-              <div class="podium-score">${formatTimeFriendly(data.totalMin)}</div>
-              ${rank !== 1 && gap > 0 ? `<div class="podium-gap">-${formatTimeFriendly(gap)}</div>` : ''}
-              <div class="podium-base base-${rank}">${medalEmoji}</div>
-            </div>
-          `;
-        });
-        podiumHtml += '</div>';
-        podiumEl.innerHTML = podiumHtml;
-      }
+      if (podiumEl) podiumEl.innerHTML = buildPodiumHtml(top3);
 
       if (rest.length === 0) {
         listEl.innerHTML = "";
