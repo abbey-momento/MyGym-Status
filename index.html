@@ -164,7 +164,6 @@
     .notif-item:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
 
     .race-card-item { background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; position: relative; overflow: hidden; transition: 0.2s; }
-    .race-card-item.is-top1 { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); background: linear-gradient(135deg, rgba(23,12,46,0.9), rgba(255,215,0,0.08)); }
     .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 15px rgba(45, 212, 191, 0.15); }
     .race-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; position: relative; z-index: 2; }
     .race-user-info { display: flex; align-items: center; gap: 10px; }
@@ -175,7 +174,48 @@
     .race-score-sub { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
     .race-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; position: relative; z-index: 2; }
     .race-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ring-inner)); border-radius: 4px; transition: width 0.6s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px rgba(47, 143, 255,0.5); }
-    .is-top1 .race-bar-fill { background: linear-gradient(90deg, #FFD700, #FF8C00); box-shadow: 0 0 12px rgba(255,215,0,0.6); }
+    .you-tag { font-size: 0.6rem; background: rgba(45, 212, 191,0.2); color: var(--ring-inner); padding: 2px 6px; border-radius: 6px; font-weight: 800; vertical-align: middle; }
+
+    @keyframes crownBounce {
+      0%, 100% { transform: translateY(0) rotate(-6deg); }
+      50% { transform: translateY(-5px) rotate(6deg); }
+    }
+    @keyframes goldPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(255,215,0,0.5), 0 0 0 rgba(255,215,0,0); }
+      50% { box-shadow: 0 0 26px rgba(255,215,0,0.9), 0 0 10px rgba(255,215,0,0.3); }
+    }
+    @keyframes sparkleTwinkle {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    .podium-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding: 6px 0 22px; margin-bottom: 6px; }
+    .podium-slot { flex: 1; max-width: 118px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+    .podium-slot.slot-2 { order: 1; }
+    .podium-slot.slot-1 { order: 2; }
+    .podium-slot.slot-3 { order: 3; }
+    .podium-slot.podium-empty { visibility: hidden; }
+
+    .p-crown { font-size: 1.5rem; margin-bottom: 2px; animation: crownBounce 1.6s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(255,215,0,0.6)); }
+    .p-sparkle { position: absolute; top: -6px; font-size: 0.9rem; animation: sparkleTwinkle 1.4s ease-in-out infinite; }
+    .p-sparkle.s1 { left: -6px; animation-delay: 0.2s; }
+    .p-sparkle.s2 { right: -6px; animation-delay: 0.6s; }
+
+    .podium-avatar { width: 52px; height: 52px; border-radius: 16px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; border: 2px solid var(--card-border); margin-bottom: 6px; position: relative; }
+    .podium-avatar.rank1-avatar { width: 66px; height: 66px; font-size: 2.1rem; border-color: #FFD700; animation: goldPulse 2.2s ease-in-out infinite; }
+    .podium-avatar.rank2-avatar { border-color: #CBD5E1; box-shadow: 0 0 12px rgba(203,213,225,0.35); }
+    .podium-avatar.rank3-avatar { border-color: #CD7F32; box-shadow: 0 0 12px rgba(205,127,50,0.35); }
+    .podium-avatar.is-me-avatar { border-color: var(--ring-inner); }
+
+    .podium-name { font-weight: 800; font-size: 0.82rem; color: #FFF; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
+    .podium-score { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.95rem; color: var(--ring-inner); }
+    .slot-1 .podium-score { color: #FFD700; font-size: 1.15rem; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+    .podium-gap { font-size: 0.65rem; color: var(--red); font-weight: 700; margin-top: 1px; }
+
+    .podium-base { width: 100%; border-radius: 12px 12px 4px 4px; margin-top: 10px; display: flex; align-items: flex-start; justify-content: center; padding-top: 6px; font-weight: 800; font-family: 'Space Grotesk', sans-serif; }
+    .podium-base.base-1 { height: 76px; background: linear-gradient(180deg, rgba(255,215,0,0.25), rgba(255,215,0,0.04)); border: 1px solid rgba(255,215,0,0.5); box-shadow: 0 0 22px rgba(255,215,0,0.22); color: #FFD700; font-size: 1.3rem; }
+    .podium-base.base-2 { height: 54px; background: linear-gradient(180deg, rgba(203,213,225,0.2), rgba(203,213,225,0.04)); border: 1px solid rgba(203,213,225,0.4); color: #CBD5E1; font-size: 1.1rem; }
+    .podium-base.base-3 { height: 40px; background: linear-gradient(180deg, rgba(205,127,50,0.25), rgba(205,127,50,0.04)); border: 1px solid rgba(205,127,50,0.4); color: #CD7F32; font-size: 1rem; }
 
     .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: 0.05em; color: #FFF; }
     .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
@@ -425,6 +465,7 @@
   <div id="view-ranking" class="view">
     <div class="card">
       <h2 class="section-title" id="t-race-title">🏆 Energy Race</h2>
+      <div id="race-podium-container"></div>
       <div id="race-list-container" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
       </div>
@@ -1663,26 +1704,65 @@
       });
 
       const sorted = Object.entries(userTotals).sort((a, b) => b[1].totalMin - a[1].totalMin);
+      const podiumEl = document.getElementById("race-podium-container");
       const listEl = document.getElementById("race-list-container");
       if(!listEl) return;
       
       if (sorted.length === 0) { 
+        if(podiumEl) podiumEl.innerHTML = "";
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`; 
         return; 
       }
 
       const maxMin = sorted[0][1].totalMin || 1;
+      const leaderMin = sorted[0][1].totalMin;
 
-      listEl.innerHTML = sorted.map(([user, data], idx) => {
-        const isTop1 = idx === 0;
+      const top3 = sorted.slice(0, 3);
+      const rest = sorted.slice(3);
+
+      if (podiumEl) {
+        const slotOrder = [1, 0, 2]; // render 2nd, 1st, 3rd left-to-right
+        let podiumHtml = '<div class="podium-wrap">';
+        slotOrder.forEach(i => {
+          if (!top3[i]) { podiumHtml += `<div class="podium-slot podium-empty"></div>`; return; }
+          const [user, data] = top3[i];
+          const rank = i + 1;
+          const isMe = user === myUserName;
+          const dName = (isMe || data.showName) ? user : t.anonUser;
+          const medalEmoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : '🥉';
+          const gap = leaderMin - data.totalMin;
+
+          podiumHtml += `
+            <div class="podium-slot slot-${rank}">
+              ${rank === 1 ? '<div class="p-crown">👑<span class="p-sparkle s1">✨</span><span class="p-sparkle s2">✨</span></div>' : ''}
+              <div class="podium-avatar rank${rank}-avatar${isMe ? ' is-me-avatar' : ''}">${data.avatar}</div>
+              <div class="podium-name">${dName}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
+              <div class="podium-score">${formatTimeFriendly(data.totalMin)}</div>
+              ${rank !== 1 && gap > 0 ? `<div class="podium-gap">-${formatTimeFriendly(gap)}</div>` : ''}
+              <div class="podium-base base-${rank}">${medalEmoji}</div>
+            </div>
+          `;
+        });
+        podiumHtml += '</div>';
+        podiumEl.innerHTML = podiumHtml;
+      }
+
+      if (rest.length === 0) {
+        listEl.innerHTML = "";
+        return;
+      }
+
+      listEl.innerHTML = rest.map(([user, data], idx) => {
+        const rank = idx + 4;
         const isMe = user === myUserName;
         const dName = (isMe || data.showName) ? user : t.anonUser;
-
         const percentage = Math.min(100, Math.max(8, Math.round((data.totalMin / maxMin) * 100)));
-        let rankBadge = idx === 0 ? "👑 1st" : idx === 1 ? "🥈 2nd" : idx === 2 ? "🥉 3rd" : `#${idx+1}`;
-        
+        const gapMin = leaderMin - data.totalMin;
+        const gapText = gapMin > 0 
+          ? (currentLang === 'es' ? `🔥 ${formatTimeFriendly(gapMin)} para el líder` : `🔥 首位まであと${formatTimeFriendly(gapMin)}`) 
+          : (currentLang === 'es' ? 'Total Energy' : 'Total Energy');
+
         let cardClass = "race-card-item";
-        if (isTop1) cardClass += " is-top1";
         if (isMe) cardClass += " is-me";
 
         return `
@@ -1692,14 +1772,14 @@
                 <div class="race-avatar-box">${data.avatar}</div>
                 <div>
                   <div class="race-name">
-                    ${dName} ${isMe ? '<span style="font-size:0.65rem; background:rgba(45, 212, 191,0.2); color:var(--ring-inner); padding:2px 6px; border-radius:6px;">YOU</span>' : ''}
+                    ${dName} ${isMe ? '<span class="you-tag">YOU</span>' : ''}
                   </div>
-                  <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">${rankBadge}</div>
+                  <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">#${rank}</div>
                 </div>
               </div>
               <div class="race-score-wrap">
                 <div class="race-score-main">${formatTimeFriendly(data.totalMin)}</div>
-                <div class="race-score-sub">Total Energy</div>
+                <div class="race-score-sub">${gapText}</div>
               </div>
             </div>
             <div class="race-bar-container">
