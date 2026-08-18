@@ -253,6 +253,23 @@
     .nav-btn.active { color: var(--accent); }
     .nav-btn svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: 0.2s; }
     .nav-btn.active svg { transform: translateY(-3px); filter: drop-shadow(0 0 8px var(--accent)); }
+
+    .hype-row { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 4px; margin-bottom: 4px; -webkit-overflow-scrolling: touch; }
+    .hype-row:empty { margin: 0; padding: 0; }
+    .hype-chip { flex-shrink: 0; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 14px; padding: 6px 8px 6px 10px; display: flex; align-items: center; gap: 8px; }
+    .hype-chip-avatar { font-size: 1.1rem; width: 28px; height: 28px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .hype-chip-name { font-size: 0.78rem; font-weight: 700; color: #FFF; max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hype-btn { background: var(--accent-gradient); border: none; color: #0B0F19; font-weight: 800; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; transition: 0.15s; flex-shrink: 0; }
+    .hype-btn:active { transform: scale(0.88); }
+    .hype-btn.sent { background: rgba(255,255,255,0.08); color: var(--text-sub); }
+
+    .hype-overlay { position: fixed; inset: 0; z-index: 5000; pointer-events: none; overflow: hidden; animation: hypeOverlayFade 3.2s forwards; }
+    @keyframes hypeOverlayFade { 0%, 78% { opacity: 1; } 100% { opacity: 0; } }
+    .hype-message { position: absolute; top: 16%; left: 50%; transform: translateX(-50%); background: rgba(11,15,25,0.9); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 800; color: #FFF; font-size: 0.92rem; box-shadow: 0 0 30px rgba(47,143,255,0.45); animation: hypeMsgPop 0.35s ease-out; white-space: nowrap; max-width: 88vw; overflow: hidden; text-overflow: ellipsis; }
+    @keyframes hypeMsgPop { 0% { transform: translateX(-50%) scale(0.5); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
+    .hype-msg-avatar { font-size: 1.4rem; flex-shrink: 0; }
+    .hype-particle { position: absolute; bottom: -8%; animation-name: hypeFloat; animation-timing-function: ease-in; animation-fill-mode: forwards; }
+    @keyframes hypeFloat { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(-118vh) rotate(25deg); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -388,6 +405,8 @@
       <div class="home-status-title" id="t-home-status-label">Estado Actual</div>
       <div class="home-status-text status-free" id="home-status-text">Libre</div>
     </div>
+
+    <div id="active-hype-list" class="hype-row"></div>
 
     <div class="timer-container">
       <svg class="progress-ring" width="260" height="260">
@@ -623,7 +642,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, remove, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, remove, onValue, onChildAdded, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCwu8QoQvf3WUtAKAlvz8s2nbfNkcsGPEA",
@@ -851,6 +870,7 @@
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
       
       try { updateHomeStatusText(); } catch(e){}
+      try { renderActiveHypeList(); } catch(e){}
       try { renderTimeline(); } catch(e){}
       try { renderCalendar(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
@@ -945,6 +965,7 @@
         updateStreakAndGoals();
         initPrivacyToggles();
         finalizeMonthIfNeeded();
+        setupHypeListener();
       }
     }
 
@@ -971,6 +992,7 @@
       renderMyLogs();
       updateStreakAndGoals();
       initPrivacyToggles();
+      setupHypeListener();
     };
 
     window.openEditModal = () => {
@@ -995,15 +1017,55 @@
       if (!newName) return alert(i18n[currentLang].alertName);
 
       if (newName !== myUserName) {
+        const oldName = myUserName;
+
         // 現在のステータス移行
-        if (activeUsersData[myUserName]) {
-          set(ref(db, `current/${newName}`), { startTime: activeUsersData[myUserName].startTime, avatar: editSelectedAvatar });
-          remove(ref(db, `current/${myUserName}`));
+        if (activeUsersData[oldName]) {
+          set(ref(db, `current/${newName}`), { startTime: activeUsersData[oldName].startTime, avatar: editSelectedAvatar });
+          remove(ref(db, `current/${oldName}`));
         }
         // プライバシー設定移行
-        const p = getPrivacy(myUserName);
+        const p = getPrivacy(oldName);
         set(ref(db, `users/${newName}/privacy`), p);
-        remove(ref(db, `users/${myUserName}/privacy`));
+        remove(ref(db, `users/${oldName}/privacy`));
+
+        // 過去ログ・いいね・コメント・通知に登場する古い名前も新しい名前へ一括移行
+        // （これをやらないと、名前変更前の記録が自分の履歴/連続日数/実績として認識されなくなるため）
+        const updates = {};
+
+        Object.entries(allLogsData).forEach(([key, log]) => {
+          if (log.user === oldName) {
+            updates[`logs/${key}/user`] = newName;
+            updates[`logs/${key}/avatar`] = editSelectedAvatar;
+          }
+          if (log.likes && Object.prototype.hasOwnProperty.call(log.likes, oldName)) {
+            updates[`logs/${key}/likes/${oldName}`] = null;
+            updates[`logs/${key}/likes/${newName}`] = true;
+          }
+          if (log.comments) {
+            Object.entries(log.comments).forEach(([cKey, c]) => {
+              if (c.user === oldName) {
+                updates[`logs/${key}/comments/${cKey}/user`] = newName;
+              }
+            });
+          }
+        });
+
+        Object.entries(allNotifications).forEach(([key, notif]) => {
+          if (notif.targetUser === oldName) {
+            updates[`notifications/${key}/targetUser`] = newName;
+          }
+          if (notif.fromUser === oldName) {
+            updates[`notifications/${key}/fromUser`] = newName;
+            if (notif.text) {
+              updates[`notifications/${key}/text`] = notif.text.split(oldName).join(newName);
+            }
+          }
+        });
+
+        if (Object.keys(updates).length > 0) {
+          update(ref(db), updates);
+        }
       }
 
       if (calendarTargetUser === myUserName) calendarTargetUser = newName;
@@ -1022,6 +1084,7 @@
       renderCalendar();
       renderMyLogs();
       updateStreakAndGoals();
+      setupHypeListener();
     };
 
     window.resetUser = () => {
@@ -1340,6 +1403,103 @@
       }
     }
 
+    function renderActiveHypeList() {
+      const t = i18n[currentLang];
+      const container = document.getElementById("active-hype-list");
+      if (!container) return;
+
+      const others = Object.entries(activeUsersData).filter(([u]) => u !== myUserName);
+      if (others.length === 0) {
+        container.innerHTML = "";
+        return;
+      }
+
+      container.innerHTML = others.map(([u, data]) => {
+        const priv = getPrivacy(u);
+        const dName = (priv.showName) ? u : t.anonUser;
+        const safeUser = u.replace(/'/g, "\\'");
+        return `
+          <div class="hype-chip">
+            <div class="hype-chip-avatar">${data.avatar || '👤'}</div>
+            <div class="hype-chip-name">${dName}</div>
+            <button class="hype-btn" onclick="sendHype('${safeUser}', this)">🔥</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.sendHype = (targetUser, btnEl) => {
+      playSound('click');
+      triggerVibrate(30);
+      push(ref(db, `hype/${targetUser}`), {
+        fromUser: myUserName,
+        avatar: myUserAvatar,
+        timestamp: Date.now()
+      });
+
+      if (btnEl) {
+        const original = btnEl.innerText;
+        btnEl.innerText = '✓';
+        btnEl.classList.add('sent');
+        btnEl.disabled = true;
+        setTimeout(() => {
+          btnEl.innerText = original;
+          btnEl.classList.remove('sent');
+          btnEl.disabled = false;
+        }, 2500);
+      }
+    };
+
+    let hypeUnsub = null;
+    function setupHypeListener() {
+      if (hypeUnsub) { hypeUnsub(); hypeUnsub = null; }
+      if (!myUserName) return;
+      const hypeRef = ref(db, `hype/${myUserName}`);
+      hypeUnsub = onChildAdded(hypeRef, (snapshot) => {
+        const data = snapshot.val();
+        const key = snapshot.key;
+        remove(ref(db, `hype/${myUserName}/${key}`));
+        if (data && data.fromUser && data.fromUser !== myUserName) {
+          triggerHypeAnimation(data.fromUser, data.avatar);
+        }
+      });
+    }
+
+    function triggerHypeAnimation(fromUser, fromAvatar) {
+      const priv = getPrivacy(fromUser);
+      const dName = priv.showName ? fromUser : i18n[currentLang].anonUser;
+      const msgText = currentLang === 'es' 
+        ? `${dName} te está animando!` 
+        : `${dName}が応援してくれてます！`;
+
+      const overlay = document.createElement('div');
+      overlay.className = 'hype-overlay';
+
+      const msg = document.createElement('div');
+      msg.className = 'hype-message';
+      msg.innerHTML = `<span class="hype-msg-avatar">${fromAvatar || '👤'}</span><span>${msgText}</span>`;
+      overlay.appendChild(msg);
+
+      const particles = ['❤️', '🔥', '💪', '✨', '⚡'];
+      const particleCount = 36;
+      for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'hype-particle';
+        p.innerText = particles[Math.floor(Math.random() * particles.length)];
+        p.style.left = (Math.random() * 96) + 'vw';
+        p.style.fontSize = (16 + Math.random() * 26) + 'px';
+        p.style.animationDuration = (1.8 + Math.random() * 1.5) + 's';
+        p.style.animationDelay = (Math.random() * 0.7) + 's';
+        overlay.appendChild(p);
+      }
+
+      document.body.appendChild(overlay);
+      triggerVibrate([40, 30, 40, 30, 90]);
+      playSound('start');
+
+      setTimeout(() => { overlay.remove(); }, 3300);
+    }
+
     onValue(ref(db, "users"), (snapshot) => {
       const data = snapshot.val() || {};
       usersPrivacyData = {};
@@ -1348,6 +1508,7 @@
       });
       // プライバシーが更新されたら再描画
       try { updateHomeStatusText(); } catch(e){}
+      try { renderActiveHypeList(); } catch(e){}
       try { renderTimeline(); } catch(e){}
       try { renderCalendar(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
@@ -1360,6 +1521,7 @@
         if (!activeUsersData[key] || !activeUsersData[key].startTime) delete activeUsersData[key];
       });
       updateHomeStatusText();
+      renderActiveHypeList();
       checkMyTimerStatus();
     });
 
