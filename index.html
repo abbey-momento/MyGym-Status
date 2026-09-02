@@ -221,6 +221,11 @@
     .timeline-time { color: var(--text-sub); font-size: 0.7rem; }
     .timeline-duration { color: var(--ring-inner); font-weight: 800; font-size: 1.1rem; font-family: 'Space Grotesk'; }
     .timeline-memo { font-size: 0.85rem; color: var(--text-sub); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 10px; word-break: break-all; }
+
+    /* 🏆 月間チャンピオン発表カード（アクティビティフィード内） */
+    .champion-announce-card { background: linear-gradient(135deg, rgba(255,196,0,0.1), rgba(255,140,0,0.05)); border: 1px solid rgba(255,196,0,0.35); box-shadow: 0 0 12px rgba(255,196,0,0.1); }
+    .champion-announce-avatar { background: rgba(255,196,0,0.15); border-color: rgba(255,196,0,0.4); }
+    .champion-announce-message { color: #fff; font-weight: 700; background: rgba(255,196,0,0.08); border: 1px solid rgba(255,196,0,0.15); }
     
     .timeline-actions { display: flex; gap: 8px; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
     .action-icon-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; width: 44px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: var(--text-sub); }
@@ -306,6 +311,8 @@
     .history-rank-row.rank-1 .h-user { color: #FFD700; }
 
     .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; letter-spacing: 0.05em; color: #FFF; }
+    .mypage-icon-title { display: flex; align-items: center; gap: 6px; }
+    .mypage-icon-title svg { flex-shrink: 0; }
     .profile-header { display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); }
     .profile-avatar { font-size: 2.5rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid var(--card-border); }
     .profile-name { font-size: 1.4rem; font-weight: 800; }
@@ -500,15 +507,6 @@
     <div style="text-align: center;">
       <button id="btn-timer-action" class="timer-action-btn start" onclick="toggleTimer()">START</button>
     </div>
-
-    <div class="champion-banner" id="champion-banner">
-      <div class="champion-banner-crown">👑</div>
-      <div class="champion-banner-avatar" id="champion-banner-avatar">🏆</div>
-      <div class="champion-banner-text">
-        <div class="champion-banner-label" id="t-champion-label">Campeón Actual</div>
-        <div class="champion-banner-name" id="champion-banner-name">-</div>
-      </div>
-    </div>
   </div>
 
   <!-- ⚡ タイムラインビュー -->
@@ -637,7 +635,10 @@
   <div id="view-mypage" class="view">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-        <h2 class="section-title" style="margin-bottom:0;" id="t-my-title">👤 マイページ</h2>
+        <h2 class="section-title mypage-icon-title" style="margin-bottom:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="t-my-title">マイページ</span>
+        </h2>
         <div class="lang-switcher">
           <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
           <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
@@ -649,7 +650,7 @@
         <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
           <div class="profile-name" id="my-name-display">Name</div>
           <div style="display:flex; gap:8px; align-items:center;">
-            <span id="my-streak-badge" style="font-size:0.75rem; background:rgba(47, 143, 255,0.2); color:var(--accent); padding:2px 8px; border-radius:8px; font-weight:700;">🔥 0 Streak</span>
+            <span id="my-streak-badge" style="font-size:0.75rem; background:rgba(47, 143, 255,0.2); color:var(--accent); padding:2px 8px; border-radius:8px; font-weight:700;">0 Streak</span>
             <button onclick="openEditModal()" style="background:rgba(47, 143, 255,0.15); border:1px solid var(--card-border); color:var(--accent); padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.75rem; cursor:pointer;" id="t-edit-profile-btn">Editar Perfil</button>
           </div>
         </div>
@@ -657,7 +658,10 @@
 
       <!-- 📊 週間レポート -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
-        <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;" id="t-weekly-report-title">📊 週間レポート</h3>
+        <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span id="t-weekly-report-title">週間レポート</span>
+        </h3>
         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
           <div>
             <div style="font-size:0.68rem; color:var(--text-sub); text-transform:uppercase; font-weight:700; margin-bottom:2px;" id="t-this-week-label">今週の合計</div>
@@ -670,7 +674,10 @@
 
       <!-- ⚙️ プライバシー設定 セクション -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
-        <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 16px;" id="t-privacy-title">⚙️ プライバシー・公開設定</h3>
+        <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span id="t-privacy-title">プライバシー・公開設定</span>
+        </h3>
         
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
           <span style="font-size:0.9rem; font-weight:700;" id="t-priv-name">名前を公開する</span>
@@ -688,7 +695,10 @@
       
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--card-border);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-          <h3 style="font-size: 0.85rem; color:var(--text-sub);" id="t-goal-title">🎯 Meta Mensual (sesiones)</h3>
+          <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span id="t-goal-title">今月の目標回数 (回)</span>
+          </h3>
           <span id="goal-progress-text" style="font-size:0.8rem; font-weight:800; color:var(--ring-inner);">0%</span>
         </div>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
@@ -701,7 +711,10 @@
       </div>
 
       <div class="manual-log-box">
-        <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;" id="t-manual-title">➕ Añadir registro manual</h3>
+        <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span id="t-manual-title">過去の記録を手動追加</span>
+        </h3>
         <div style="display:flex; flex-direction:column; gap:10px; width: 100%;">
           <input type="date" id="manualDate" style="padding:12px; border-radius: 12px;" />
           <div class="time-inputs-row">
@@ -719,17 +732,32 @@
         </div>
       </div>
 
-      <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px;" id="t-history-title">📅 Historial Reciente</h3>
+      <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span id="t-history-title">最近の履歴</span>
+      </h3>
       <div id="my-logs-list" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
       </div>
       
       <div style="margin-top: 30px;">
-        <h3 style="font-size: 0.8rem; color:var(--text-sub); margin-bottom: 10px; text-align:center;" id="t-export-title">📤 データのエクスポート</h3>
+        <h3 class="mypage-icon-title" style="font-size: 0.8rem; color:var(--text-sub); margin-bottom: 10px; justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="t-export-title">データのエクスポート</span>
+        </h3>
         <div style="display:flex; gap:8px;">
           <button onclick="exportMyData('json')" class="btn-secondary" style="margin-top:0;">JSON</button>
           <button onclick="exportMyData('csv')" class="btn-secondary" style="margin-top:0;">CSV</button>
         </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3 class="mypage-icon-title" style="font-size: 0.8rem; color:var(--text-sub); margin-bottom: 10px; justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span id="t-import-title">データのインポート</span>
+        </h3>
+        <input type="file" id="importFileInput" accept="application/json" style="display:none" onchange="handleImportFile(event)">
+        <button onclick="triggerImportFile()" class="btn-secondary" style="margin-top:0; width:100%;" id="t-import-btn">JSONファイルを選択</button>
       </div>
 
       <div style="margin-top: 20px; text-align: center;">
@@ -1024,8 +1052,8 @@
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak",
         raceTitle: "Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
-        myTitle: "👤 Mi Perfil", manualTitle: "➕ Añadir registro manual", btnAdd: "Añadir", historyTitle: "📅 Historial Reciente", logout: "Cerrar sesión",
-        goalTitle: "🎯 Meta Mensual (sesiones)", btnSaveGoal: "Guardar",
+        myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
+        goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar",
         memoTitle: "¡Buen trabajo! 💪", memoSub: "Añade una nota o comentario", btnSaveLog: "Guardar Registro ✨", btnSkipMemo: "Terminar sin nota",
         editLogTitle: "Editar Registro", btnSaveEditLog: "Guardar Cambios", btnCancelEditLog: "Cancelar",
         labelFrom: "Desde", labelTo: "Hasta", editLabelFrom: "Desde", editLabelTo: "Hasta",
@@ -1036,15 +1064,17 @@
         months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
         deletedLog: "Este registro fue eliminado",
         anonUser: "Anónimo", anonTime: "🔒",
-        privacyTitle: "⚙️ Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking",
+        privacyTitle: "Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial! 🎉",
         historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
         winnerLabel: "Ganador/a de",
         championLabel: "Campeón Actual", championYouMessage: "🎉 ¡Eres el campeón de este mes! 🎉",
         milestoneTimeTitle: "¡Hito alcanzado!", milestoneCountTitle: "¡Hito alcanzado!", milestoneBestTitle: "¡Récord personal!", milestoneCloseBtn: "¡Genial! ✨",
-        weeklyReportTitle: "📊 Reporte Semanal", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada",
-        exportTitle: "📤 Exportar Datos"
+        weeklyReportTitle: "Reporte Semanal", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada",
+        exportTitle: "Exportar Datos",
+        importTitle: "Importar Datos", importBtn: "Seleccionar archivo JSON", importInvalid: "Archivo JSON inválido",
+        importResult: "{count} registros importados. {skip} duplicados omitidos.", importEmpty: "No se encontraron registros válidos en el archivo."
       },
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
@@ -1053,8 +1083,8 @@
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続",
         raceTitle: "エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
-        myTitle: "👤 マイページ", manualTitle: "➕ 過去の記録を手動追加", btnAdd: "追加", historyTitle: "📅 最近の履歴", logout: "ログアウト (リセット)",
-        goalTitle: "🎯 今月の目標回数 (回)", btnSaveGoal: "保存",
+        myTitle: "マイページ", manualTitle: "過去の記録を手動追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト (リセット)",
+        goalTitle: "今月の目標回数 (回)", btnSaveGoal: "保存",
         memoTitle: "お疲れ様でした！ 💪", memoSub: "メモやコメントを残そう", btnSaveLog: "記録を保存する ✨", btnSkipMemo: "メモなしで完了",
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
@@ -1065,15 +1095,17 @@
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
         deletedLog: "この投稿は削除されました",
         anonUser: "匿名ユーザー", anonTime: "🔒",
-        privacyTitle: "⚙️ プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する",
+        privacyTitle: "プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！🎉",
         historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
         winnerLabel: "の優勝者",
         championLabel: "現チャンピオン", championYouMessage: "🎉 あなたが今月のチャンピオンです！ 🎉",
         milestoneTimeTitle: "マイルストーン達成！", milestoneCountTitle: "マイルストーン達成！", milestoneBestTitle: "自己ベスト更新！", milestoneCloseBtn: "やったー！✨",
-        weeklyReportTitle: "📊 週間レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比",
-        exportTitle: "📤 データのエクスポート"
+        weeklyReportTitle: "週間レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比",
+        exportTitle: "データのエクスポート",
+        importTitle: "データのインポート", importBtn: "JSONファイルを選択", importInvalid: "無効なJSONファイルです",
+        importResult: "{count}件をインポートしました。（重複{skip}件はスキップ）", importEmpty: "ファイル内に有効な記録が見つかりませんでした。"
       }
     };
 
@@ -1156,6 +1188,9 @@
       setT("t-btn-add", t.btnAdd);
       setT("t-history-title", t.historyTitle);
       setT("t-logout", t.logout);
+      setT("t-export-title", t.exportTitle);
+      setT("t-import-title", t.importTitle);
+      setT("t-import-btn", t.importBtn);
       setT("t-comment-send", currentLang === 'es' ? "Enviar" : "送信する");
       
       setT("t-privacy-title", t.privacyTitle);
@@ -1171,7 +1206,6 @@
       setT("t-milestone-close", t.milestoneCloseBtn);
       setT("t-weekly-report-title", t.weeklyReportTitle);
       setT("t-this-week-label", t.thisWeekLabel);
-      setT("t-export-title", t.exportTitle);
       
       const btnAction = document.getElementById("btn-timer-action");
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
@@ -1432,6 +1466,69 @@
       URL.revokeObjectURL(url);
     };
 
+    // 📥 エクスポートしたJSONファイルから自分のログを復元（機種変時などに利用）
+    window.triggerImportFile = () => {
+      playSound('click');
+      const input = document.getElementById("importFileInput");
+      if (input) input.click();
+    };
+
+    window.handleImportFile = (event) => {
+      const t = i18n[currentLang];
+      const file = event.target.files[0];
+      if (!file || !myUserName) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        let entries;
+        try {
+          entries = JSON.parse(e.target.result);
+          if (!Array.isArray(entries)) throw new Error("not an array");
+        } catch (err) {
+          alert(t.importInvalid);
+          event.target.value = "";
+          return;
+        }
+
+        const existingKeys = new Set(
+          Object.values(allLogsData)
+            .filter(l => l.user === myUserName)
+            .map(l => `${l.date}_${l.duration}`)
+        );
+
+        let importCount = 0;
+        let skipCount = 0;
+
+        entries.forEach(entry => {
+          if (!entry || !entry.date || typeof entry.duration_min !== 'number') return;
+          const dupKey = `${entry.date}_${entry.duration_min}`;
+          if (existingKeys.has(dupKey)) { skipCount++; return; }
+          existingKeys.add(dupKey);
+
+          push(ref(db, "logs"), {
+            user: myUserName,
+            avatar: myUserAvatar,
+            startTime: new Date(entry.date).getTime(),
+            duration: entry.duration_min,
+            memo: entry.memo || "",
+            likes: {},
+            comments: {},
+            month: entry.date.slice(0, 7),
+            date: entry.date
+          });
+          importCount++;
+        });
+
+        if (importCount === 0 && skipCount === 0) {
+          alert(t.importEmpty);
+        } else {
+          alert(t.importResult.replace("{count}", importCount).replace("{skip}", skipCount));
+        }
+        event.target.value = "";
+      };
+      reader.readAsText(file);
+    };
+
     window.resetUser = () => {
       playSound('click');
       localStorage.removeItem("gym_my_name");
@@ -1574,7 +1671,10 @@
     function updateStreakAndGoals() {
       const streak = calculateStreakForUser(allLogsData, myUserName);
       const badge = document.getElementById("my-streak-badge");
-      if(badge) badge.innerText = `🔥 ${streak} Streak`;
+      if(badge) {
+        const t = i18n[currentLang];
+        badge.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:2px;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>${streak} ${t.statStreak}`;
+      }
 
       const currentMonth = getLocalISOString(new Date()).slice(0, 7);
       let totalSessions = 0;
@@ -2233,23 +2333,49 @@
       renderTimeline();
     };
 
+    function buildChampionAnnouncements() {
+      const t = i18n[currentLang];
+      return Object.keys(allMonthlyResults).map(monthStr => {
+        const resultData = allMonthlyResults[monthStr];
+        if (!resultData || !resultData.ranking || resultData.ranking.length === 0) return null;
+        const top = resultData.ranking[0];
+        const isMe = top.user === myUserName;
+        const priv = getPrivacy(top.user);
+        const showName = isMe || (top.showName !== undefined ? top.showName : priv.showName);
+        const displayName = showName ? top.user : t.anonUser;
+        const postDate = resultData.finalizedAt ? new Date(resultData.finalizedAt) : new Date(`${monthStr}-01`);
+        const monthLabel = getMonthLabel(monthStr);
+        const message = currentLang === 'es'
+          ? `¡${displayName} fue el campeón/a de ${monthLabel} con ${formatTimeFriendly(top.totalMin)}!`
+          : `${monthLabel}のチャンピオンは${displayName}（合計${formatTimeFriendly(top.totalMin)}）でした！`;
+        return {
+          isAnnouncement: true,
+          key: `champ-${monthStr}`,
+          date: getLocalISOString(postDate),
+          avatar: top.avatar || '🏆',
+          message
+        };
+      }).filter(Boolean);
+    }
+
     function renderTimeline() {
       const t = i18n[currentLang];
       const listEl = document.getElementById("timeline-list-container");
       const loadMoreEl = document.getElementById("load-more-container");
       if(!listEl) return;
       
-      const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key }));
-      if (logsArray.length === 0) {
+      const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key, isAnnouncement: false }));
+      const combinedArray = logsArray.concat(buildChampionAnnouncements());
+      if (combinedArray.length === 0) {
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
         loadMoreEl.style.display = "none";
         return;
       }
 
-      logsArray.sort((a, b) => new Date(b.date) - new Date(a.date));
+      combinedArray.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-      const visibleLogs = logsArray.slice(0, activityDisplayLimit);
-      if (logsArray.length > activityDisplayLimit) {
+      const visibleLogs = combinedArray.slice(0, activityDisplayLimit);
+      if (combinedArray.length > activityDisplayLimit) {
         loadMoreEl.style.display = "block";
       } else {
         loadMoreEl.style.display = "none";
@@ -2260,6 +2386,23 @@
         const dateStr = currentLang === 'es' 
             ? `${d.getDate()}/${d.getMonth()+1} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
             : `${d.getMonth()+1}月${d.getDate()}日 ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+
+        if (log.isAnnouncement) {
+          return `
+            <div class="timeline-card-item champion-announce-card" id="log-${log.key}">
+              <div class="timeline-header">
+                <div class="timeline-user-box">
+                  <div class="timeline-avatar champion-announce-avatar">${log.avatar}</div>
+                  <div>
+                    <div class="timeline-name" style="color:#FFC400;">🏆 ${currentLang === 'es' ? 'Resultado mensual' : '月間チャンピオン発表'}</div>
+                    <div class="timeline-time">${dateStr}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="timeline-memo champion-announce-message">${log.message}</div>
+            </div>
+          `;
+        }
 
         const likes = log.likes || {};
         const isLikedByMe = !!likes[myUserName];
