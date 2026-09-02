@@ -48,6 +48,7 @@
       --ring-inner: #2DD4BF;
       --green: #34D399;
       --red: #F43F5E;
+      --neon-pink: #FF3DBA;
       --text-main: #F8FAFC;
       --text-sub: #8B93A7;
     }
@@ -1799,7 +1800,8 @@
           const pct = Math.round((diff / lastWeekTotal) * 100);
           const arrow = diff >= 0 ? "▲" : "▼";
           compareEl.innerText = `${arrow} ${Math.abs(pct)}% ${t_vsLastWeekLabel()}`;
-          compareEl.style.color = diff >= 0 ? "var(--green)" : "var(--red)";
+          compareEl.style.color = diff >= 0 ? "var(--green)" : "var(--neon-pink)";
+          compareEl.style.textShadow = diff >= 0 ? "none" : "0 0 8px rgba(255,61,186,0.5)";
         }
       }
 
