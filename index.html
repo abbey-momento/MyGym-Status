@@ -101,6 +101,7 @@
     .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; width: 100%; }
     label { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
     input[type="text"], input[type="number"], textarea, input[type="date"], input[type="time"] { width: 100%; max-width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: white; outline: none; font-size: 0.95rem; text-align: center; box-sizing: border-box; }
+    input[type="number"], input[type="date"], input[type="time"] { font-family: 'Space Grotesk', sans-serif; }
     input[type="date"], input[type="time"] { appearance: none; -webkit-appearance: none; }
     input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(47, 143, 255,0.2); }
     
@@ -750,7 +751,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             <span id="t-goal-title">今月の目標回数 (回)</span>
           </h3>
-          <span id="goal-progress-text" style="font-size:0.8rem; font-weight:800; color:var(--ring-inner);">0%</span>
+          <span id="goal-progress-text" style="font-size:0.8rem; font-weight:800; color:var(--ring-inner); font-family:'Space Grotesk', sans-serif;">0%</span>
         </div>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
           <input type="number" id="goalInput" placeholder="Veces" style="flex:1; padding:10px; border-radius: 10px; font-size:0.9rem;" value="15">
