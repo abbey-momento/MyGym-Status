@@ -14,6 +14,7 @@
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
 
   <!-- OGP / Open Graph -->
   <meta property="og:type" content="website">
@@ -164,6 +165,14 @@
     }
     .champion-you-banner { background: linear-gradient(135deg, #FFC400, #FF8C00); color: #0B0F19; font-weight: 800; border-radius: 12px; padding: 10px; text-align: center; margin-top: 10px; font-size: 0.9rem; box-shadow: 0 0 20px rgba(255,196,0,0.5); animation: pulseGlow 1.6s ease-in-out infinite; }
     @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 12px rgba(255,196,0,0.4); } 50% { box-shadow: 0 0 26px rgba(255,196,0,0.75); } }
+
+    /* 📊 週間レポートのバーチャート */
+    .weekly-bar-chart { display:flex; align-items:flex-end; gap:6px; height:70px; }
+    .weekly-bar-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px; }
+    .weekly-bar { width:100%; background: rgba(47, 143, 255, 0.35); border-radius: 4px 4px 0 0; min-height:3px; transition: height 0.3s; }
+    .weekly-bar.is-today { background: var(--accent-gradient); box-shadow: 0 0 8px rgba(47,143,255,0.4); }
+    .weekly-bar-label { font-size:0.6rem; color:var(--text-sub); font-weight:700; }
+    .weekly-bar-label.is-today { color: var(--accent); }
     
     .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 20px; position: relative; }
     .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(47, 143, 255,0.2)); }
@@ -598,6 +607,16 @@
     </div>
   </div>
 
+  <!-- 🏅 マイルストーン祝賀モーダル -->
+  <div id="milestone-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="text-align:center;">
+      <div style="font-size:2.4rem; margin-bottom: 6px;" id="milestone-icon">🏅</div>
+      <h2 id="milestone-title" style="margin-bottom: 6px; font-size: 1.15rem;"></h2>
+      <div id="milestone-message" style="color:var(--text-sub); font-size:0.9rem; margin-bottom: 14px;"></div>
+      <button class="btn-primary" onclick="closeMilestoneModal()" id="t-milestone-close">OK ✨</button>
+    </div>
+  </div>
+
   <!-- 🕘 過去の結果履歴モーダル -->
   <div id="history-modal" class="modal-overlay" style="display:none;">
     <div class="modal-content">
@@ -634,6 +653,19 @@
             <button onclick="openEditModal()" style="background:rgba(47, 143, 255,0.15); border:1px solid var(--card-border); color:var(--accent); padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.75rem; cursor:pointer;" id="t-edit-profile-btn">Editar Perfil</button>
           </div>
         </div>
+      </div>
+
+      <!-- 📊 週間レポート -->
+      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
+        <h3 style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;" id="t-weekly-report-title">📊 週間レポート</h3>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
+          <div>
+            <div style="font-size:0.68rem; color:var(--text-sub); text-transform:uppercase; font-weight:700; margin-bottom:2px;" id="t-this-week-label">今週の合計</div>
+            <div style="font-size:1.5rem; font-weight:800; color:#fff;" id="weekly-total-text">0分</div>
+          </div>
+          <div id="weekly-compare-text" style="font-size:0.85rem; font-weight:800;"></div>
+        </div>
+        <div id="weekly-bar-chart" class="weekly-bar-chart"></div>
       </div>
 
       <!-- ⚙️ プライバシー設定 セクション -->
@@ -692,7 +724,15 @@
         <div class="empty-msg">Sin datos</div>
       </div>
       
-      <div style="margin-top: 30px; text-align: center;">
+      <div style="margin-top: 30px;">
+        <h3 style="font-size: 0.8rem; color:var(--text-sub); margin-bottom: 10px; text-align:center;" id="t-export-title">📤 データのエクスポート</h3>
+        <div style="display:flex; gap:8px;">
+          <button onclick="exportMyData('json')" class="btn-secondary" style="margin-top:0;">JSON</button>
+          <button onclick="exportMyData('csv')" class="btn-secondary" style="margin-top:0;">CSV</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; text-align: center;">
         <button onclick="resetUser()" style="background:transparent; border:none; color:var(--text-sub); font-size:0.8rem; cursor:pointer; text-decoration:underline;" id="t-logout">Cerrar sesión</button>
       </div>
     </div>
@@ -853,6 +893,94 @@
       setTimeout(() => { container.remove(); }, 4500);
     }
 
+    // 🏅 マイルストーン祝賀システム
+    const MILESTONE_HOURS = [10, 25, 50, 100, 200, 500, 1000];
+    const MILESTONE_COUNTS = [10, 25, 50, 100, 250, 500, 1000];
+    let milestoneQueue = [];
+
+    function checkMilestones() {
+      if (!myUserName) return;
+      const myLogs = Object.values(allLogsData).filter(l => l.user === myUserName);
+      if (myLogs.length === 0) return;
+      const totalMin = myLogs.reduce((s, l) => s + (l.duration || 0), 0);
+      const count = myLogs.length;
+      const bestDuration = myLogs.reduce((m, l) => Math.max(m, l.duration || 0), 0);
+
+      checkTimeMilestone(totalMin);
+      checkCountMilestone(count);
+      checkBestDuration(bestDuration);
+    }
+
+    function checkTimeMilestone(totalMin) {
+      const key = `gym_ms_hours_${myUserName}`;
+      const stored = localStorage.getItem(key);
+      const totalHours = totalMin / 60;
+      if (stored === null) { localStorage.setItem(key, String(totalHours)); return; }
+      const storedHours = parseFloat(stored);
+      const crossed = MILESTONE_HOURS.filter(h => h <= totalHours && h > storedHours);
+      localStorage.setItem(key, String(totalHours));
+      if (crossed.length > 0) enqueueMilestone('time', crossed[crossed.length - 1]);
+    }
+
+    function checkCountMilestone(count) {
+      const key = `gym_ms_count_${myUserName}`;
+      const stored = localStorage.getItem(key);
+      if (stored === null) { localStorage.setItem(key, String(count)); return; }
+      const storedCount = parseInt(stored, 10);
+      const crossed = MILESTONE_COUNTS.filter(c => c <= count && c > storedCount);
+      localStorage.setItem(key, String(count));
+      if (crossed.length > 0) enqueueMilestone('count', crossed[crossed.length - 1]);
+    }
+
+    function checkBestDuration(bestDuration) {
+      const key = `gym_ms_best_${myUserName}`;
+      const stored = localStorage.getItem(key);
+      if (stored === null) { localStorage.setItem(key, String(bestDuration)); return; }
+      const storedBest = parseInt(stored, 10);
+      if (bestDuration > storedBest) {
+        localStorage.setItem(key, String(bestDuration));
+        if (storedBest > 0) enqueueMilestone('best', bestDuration);
+      }
+    }
+
+    function enqueueMilestone(type, value) {
+      milestoneQueue.push({ type, value });
+      const modal = document.getElementById("milestone-modal");
+      if (modal && modal.style.display !== "flex") showNextMilestone();
+    }
+
+    function showNextMilestone() {
+      if (milestoneQueue.length === 0) return;
+      const { type, value } = milestoneQueue.shift();
+      const t = i18n[currentLang];
+      let icon, title, message;
+      if (type === 'time') {
+        icon = '⏱️🏅';
+        title = t.milestoneTimeTitle;
+        message = currentLang === 'es' ? `¡Has superado ${value} horas en total!` : `累計利用時間が${value}時間を突破しました！`;
+      } else if (type === 'count') {
+        icon = '🎯🏅';
+        title = t.milestoneCountTitle;
+        message = currentLang === 'es' ? `¡${value} sesiones completadas!` : `通算${value}回の利用を達成しました！`;
+      } else {
+        icon = '🚀';
+        title = t.milestoneBestTitle;
+        message = currentLang === 'es' ? `¡Nuevo récord personal: ${formatTimeFriendly(value)}!` : `自己ベスト更新！ 1回で${formatTimeFriendly(value)}を達成しました！`;
+      }
+      setT("milestone-icon", icon);
+      setT("milestone-title", title);
+      setT("milestone-message", message);
+      document.getElementById("milestone-modal").style.display = "flex";
+      spawnConfetti();
+      playSound('fanfare');
+    }
+
+    window.closeMilestoneModal = () => {
+      playSound('click');
+      document.getElementById("milestone-modal").style.display = "none";
+      setTimeout(showNextMilestone, 350);
+    };
+
     // 🏆 称号保持者（直近で確定した月の1位）を取得
     function getTitleHolder() {
       const months = Object.keys(allMonthlyResults).sort().reverse();
@@ -913,7 +1041,10 @@
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial! 🎉",
         historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
         winnerLabel: "Ganador/a de",
-        championLabel: "Campeón Actual", championYouMessage: "🎉 ¡Eres el campeón de este mes! 🎉"
+        championLabel: "Campeón Actual", championYouMessage: "🎉 ¡Eres el campeón de este mes! 🎉",
+        milestoneTimeTitle: "¡Hito alcanzado!", milestoneCountTitle: "¡Hito alcanzado!", milestoneBestTitle: "¡Récord personal!", milestoneCloseBtn: "¡Genial! ✨",
+        weeklyReportTitle: "📊 Reporte Semanal", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada",
+        exportTitle: "📤 Exportar Datos"
       },
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
@@ -939,7 +1070,10 @@
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！🎉",
         historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
         winnerLabel: "の優勝者",
-        championLabel: "現チャンピオン", championYouMessage: "🎉 あなたが今月のチャンピオンです！ 🎉"
+        championLabel: "現チャンピオン", championYouMessage: "🎉 あなたが今月のチャンピオンです！ 🎉",
+        milestoneTimeTitle: "マイルストーン達成！", milestoneCountTitle: "マイルストーン達成！", milestoneBestTitle: "自己ベスト更新！", milestoneCloseBtn: "やったー！✨",
+        weeklyReportTitle: "📊 週間レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比",
+        exportTitle: "📤 データのエクスポート"
       }
     };
 
@@ -1034,6 +1168,10 @@
       setT("t-result-title", t.resultAnnounceTitle);
       setT("t-result-close", t.resultAnnounceClose);
       setT("t-champion-label", t.championLabel);
+      setT("t-milestone-close", t.milestoneCloseBtn);
+      setT("t-weekly-report-title", t.weeklyReportTitle);
+      setT("t-this-week-label", t.thisWeekLabel);
+      setT("t-export-title", t.exportTitle);
       
       const btnAction = document.getElementById("btn-timer-action");
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
@@ -1257,6 +1395,43 @@
       setupHypeListener();
     };
 
+    // 📤 自分のログをJSON/CSVでエクスポート
+    window.exportMyData = (format) => {
+      playSound('click');
+      if (!myUserName) return;
+
+      const myLogs = Object.entries(allLogsData)
+        .filter(([key, l]) => l.user === myUserName)
+        .map(([key, l]) => ({ date: l.date, duration_min: l.duration, memo: l.memo || "" }))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      let content, mime, ext;
+      if (format === 'csv') {
+        const header = 'date,duration_min,memo\n';
+        const rows = myLogs.map(l => {
+          const memo = (l.memo || '').replace(/"/g, '""');
+          return `${l.date},${l.duration_min},"${memo}"`;
+        }).join('\n');
+        content = header + rows;
+        mime = 'text/csv';
+        ext = 'csv';
+      } else {
+        content = JSON.stringify(myLogs, null, 2);
+        mime = 'application/json';
+        ext = 'json';
+      }
+
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mygym_${myUserName}_${getLocalISOString(new Date()).slice(0, 10)}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
     window.resetUser = () => {
       playSound('click');
       localStorage.removeItem("gym_my_name");
@@ -1415,6 +1590,75 @@
       if(pgText) pgText.innerText = `${percent}% (${totalSessions}/${monthlyGoalCount} ${suffix})`;
       const barFill = document.getElementById("goal-bar-fill");
       if(barFill) barFill.style.width = `${percent}%`;
+
+      try { renderWeeklyReport(); } catch(e){}
+    }
+
+    function getWeekRange(offsetWeeks) {
+      const now = new Date();
+      const day = now.getDay();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + offsetWeeks * 7);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 7);
+      return [start, end];
+    }
+
+    function renderWeeklyReport() {
+      if (!myUserName) return;
+      const totalEl = document.getElementById("weekly-total-text");
+      const compareEl = document.getElementById("weekly-compare-text");
+      const chartEl = document.getElementById("weekly-bar-chart");
+      if (!totalEl || !chartEl) return;
+
+      const [thisStart, thisEnd] = getWeekRange(0);
+      const [lastStart, lastEnd] = getWeekRange(-1);
+      let thisWeekTotal = 0, lastWeekTotal = 0;
+      const dayTotals = [0, 0, 0, 0, 0, 0, 0];
+
+      Object.values(allLogsData).forEach(log => {
+        if (log.user !== myUserName || !log.startTime) return;
+        const d = new Date(log.startTime);
+        if (d >= thisStart && d < thisEnd) {
+          thisWeekTotal += log.duration || 0;
+          dayTotals[d.getDay()] += log.duration || 0;
+        } else if (d >= lastStart && d < lastEnd) {
+          lastWeekTotal += log.duration || 0;
+        }
+      });
+
+      totalEl.innerText = formatTimeFriendly(thisWeekTotal);
+
+      if (compareEl) {
+        if (lastWeekTotal === 0) {
+          compareEl.innerText = thisWeekTotal > 0 ? "🆕" : "";
+          compareEl.style.color = "var(--text-sub)";
+        } else {
+          const diff = thisWeekTotal - lastWeekTotal;
+          const pct = Math.round((diff / lastWeekTotal) * 100);
+          const arrow = diff >= 0 ? "▲" : "▼";
+          compareEl.innerText = `${arrow} ${Math.abs(pct)}% ${t_vsLastWeekLabel()}`;
+          compareEl.style.color = diff >= 0 ? "var(--green)" : "var(--red)";
+        }
+      }
+
+      const maxDay = Math.max(...dayTotals, 1);
+      const dayLabels = currentLang === 'es' ? ['D','L','M','X','J','V','S'] : ['日','月','火','水','木','金','土'];
+      const todayIdx = new Date().getDay();
+      chartEl.innerHTML = dayTotals.map((min, idx) => {
+        const heightPct = Math.max(4, Math.round((min / maxDay) * 100));
+        const isToday = idx === todayIdx;
+        return `
+          <div class="weekly-bar-col">
+            <div class="weekly-bar${isToday ? ' is-today' : ''}" style="height:${heightPct}%;" title="${formatTimeFriendly(min)}"></div>
+            <div class="weekly-bar-label${isToday ? ' is-today' : ''}">${dayLabels[idx]}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function t_vsLastWeekLabel() {
+      return i18n[currentLang].vsLastWeek;
     }
 
     window.saveMonthlyGoal = () => {
@@ -1701,6 +1945,7 @@
       try { renderEnergyRace(); } catch(e){}
       try { updateStreakAndGoals(); } catch(e){}
       try { finalizeMonthIfNeeded(); } catch(e){}
+      try { checkMilestones(); } catch(e){}
       
       const calView = document.getElementById('view-calendar');
       if (calView && calView.classList.contains('active')) { try { renderCalendar(); } catch(e){} }
@@ -2536,6 +2781,12 @@
       switchTab('home');
 
       setTimeout(() => { try { window.scrollTo(0, 0); } catch(e){} }, 50);
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
+        });
+      }
     });
   </script>
 </body>
