@@ -1809,7 +1809,7 @@
 
       if (compareEl) {
         if (lastWeekTotal === 0) {
-          compareEl.innerText = thisWeekTotal > 0 ? "🆕" : "";
+          compareEl.innerText = "";
           compareEl.style.color = "var(--text-sub)";
         } else {
           const diff = thisWeekTotal - lastWeekTotal;
