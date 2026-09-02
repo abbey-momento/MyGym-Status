@@ -124,13 +124,13 @@
     .champion-banner {
       display: none;
       align-items: center;
-      gap: 12px;
-      background: linear-gradient(135deg, rgba(255,196,0,0.15), rgba(255,140,0,0.08));
-      border: 1px solid rgba(255,196,0,0.4);
-      border-radius: 16px;
-      padding: 12px 16px;
-      margin-bottom: 10px;
-      box-shadow: 0 0 16px rgba(255,196,0,0.15);
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(255,196,0,0.12), rgba(255,140,0,0.06));
+      border: 1px solid rgba(255,196,0,0.35);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-top: 16px;
+      box-shadow: 0 0 10px rgba(255,196,0,0.1);
       position: relative;
       overflow: hidden;
     }
@@ -145,11 +145,11 @@
       animation: championShine 3.5s ease-in-out infinite;
     }
     @keyframes championShine { 0% { left: -30%; } 100% { left: 130%; } }
-    .champion-banner-avatar { font-size: 1.8rem; filter: drop-shadow(0 0 6px rgba(255,196,0,0.5)); flex-shrink: 0; }
+    .champion-banner-avatar { font-size: 1.5rem; filter: drop-shadow(0 0 6px rgba(255,196,0,0.5)); flex-shrink: 0; }
     .champion-banner-text { flex: 1; min-width: 0; }
-    .champion-banner-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #FFC400; }
-    .champion-banner-name { font-size: 1rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .champion-banner-crown { font-size: 1.5rem; flex-shrink: 0; }
+    .champion-banner-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #FFC400; }
+    .champion-banner-name { font-size: 0.9rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .champion-banner-crown { font-size: 1.2rem; flex-shrink: 0; }
 
     /* 称号保持者バッジ（ランキング表示内） */
     .title-crown-badge { display: inline-block; margin-left: 3px; filter: drop-shadow(0 0 4px rgba(255,196,0,0.7)); }
@@ -468,14 +468,6 @@
 
   <!-- 🏠 ホームビュー -->
   <div id="view-home" class="view active">
-    <div class="champion-banner" id="champion-banner">
-      <div class="champion-banner-crown">👑</div>
-      <div class="champion-banner-avatar" id="champion-banner-avatar">🏆</div>
-      <div class="champion-banner-text">
-        <div class="champion-banner-label" id="t-champion-label">Campeón Actual</div>
-        <div class="champion-banner-name" id="champion-banner-name">-</div>
-      </div>
-    </div>
     <div class="home-status-box">
       <div class="home-status-title" id="t-home-status-label">Estado Actual</div>
       <div class="home-status-text status-free" id="home-status-text">Libre</div>
@@ -498,6 +490,15 @@
 
     <div style="text-align: center;">
       <button id="btn-timer-action" class="timer-action-btn start" onclick="toggleTimer()">START</button>
+    </div>
+
+    <div class="champion-banner" id="champion-banner">
+      <div class="champion-banner-crown">👑</div>
+      <div class="champion-banner-avatar" id="champion-banner-avatar">🏆</div>
+      <div class="champion-banner-text">
+        <div class="champion-banner-label" id="t-champion-label">Campeón Actual</div>
+        <div class="champion-banner-name" id="champion-banner-name">-</div>
+      </div>
     </div>
   </div>
 
