@@ -119,6 +119,51 @@
     .home-status-title { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
     .home-status-text { font-size: 1rem; font-weight: 700; color: white; }
     .status-free { color: var(--green); text-shadow: 0 0 8px rgba(52,211,153,0.4); }
+
+    /* 🏆 称号バナー（現チャンピオン） */
+    .champion-banner {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(255,196,0,0.15), rgba(255,140,0,0.08));
+      border: 1px solid rgba(255,196,0,0.4);
+      border-radius: 16px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 0 16px rgba(255,196,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .champion-banner.show { display: flex; }
+    .champion-banner::after {
+      content: "";
+      position: absolute;
+      top: -50%; left: -30%;
+      width: 60%; height: 200%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: rotate(20deg);
+      animation: championShine 3.5s ease-in-out infinite;
+    }
+    @keyframes championShine { 0% { left: -30%; } 100% { left: 130%; } }
+    .champion-banner-avatar { font-size: 1.8rem; filter: drop-shadow(0 0 6px rgba(255,196,0,0.5)); flex-shrink: 0; }
+    .champion-banner-text { flex: 1; min-width: 0; }
+    .champion-banner-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #FFC400; }
+    .champion-banner-name { font-size: 1rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .champion-banner-crown { font-size: 1.5rem; flex-shrink: 0; }
+
+    /* 称号保持者バッジ（ランキング表示内） */
+    .title-crown-badge { display: inline-block; margin-left: 3px; filter: drop-shadow(0 0 4px rgba(255,196,0,0.7)); }
+    .race-name.is-title-holder, .podium-name.is-title-holder { color: #FFC400; text-shadow: 0 0 8px rgba(255,196,0,0.4); }
+
+    /* 🎉 紙吹雪 */
+    .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3000; overflow: hidden; }
+    .confetti-piece { position: absolute; top: -10px; border-radius: 2px; animation: confettiFall linear forwards; }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0.9; }
+    }
+    .champion-you-banner { background: linear-gradient(135deg, #FFC400, #FF8C00); color: #0B0F19; font-weight: 800; border-radius: 12px; padding: 10px; text-align: center; margin-top: 10px; font-size: 0.9rem; box-shadow: 0 0 20px rgba(255,196,0,0.5); animation: pulseGlow 1.6s ease-in-out infinite; }
+    @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 12px rgba(255,196,0,0.4); } 50% { box-shadow: 0 0 26px rgba(255,196,0,0.75); } }
     
     .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 20px; position: relative; }
     .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(47, 143, 255,0.2)); }
@@ -423,6 +468,14 @@
 
   <!-- 🏠 ホームビュー -->
   <div id="view-home" class="view active">
+    <div class="champion-banner" id="champion-banner">
+      <div class="champion-banner-crown">👑</div>
+      <div class="champion-banner-avatar" id="champion-banner-avatar">🏆</div>
+      <div class="champion-banner-text">
+        <div class="champion-banner-label" id="t-champion-label">Campeón Actual</div>
+        <div class="champion-banner-name" id="champion-banner-name">-</div>
+      </div>
+    </div>
     <div class="home-status-box">
       <div class="home-status-title" id="t-home-status-label">Estado Actual</div>
       <div class="home-status-text status-free" id="home-status-text">Libre</div>
@@ -539,6 +592,7 @@
       <h2 id="t-result-title" style="margin-bottom: 2px; font-size: 1.15rem;">¡Resultados del mes pasado!</h2>
       <div id="result-announce-month" style="color:var(--text-sub); font-size:0.8rem; margin-bottom: 14px;"></div>
       <div id="result-announce-podium"></div>
+      <div id="result-announce-you-banner"></div>
       <button class="btn-primary" onclick="closeResultAnnounceModal()" style="margin-top: 14px;" id="t-result-close">¡Genial! 🎉</button>
     </div>
   </div>
@@ -754,8 +808,78 @@
             g.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.4);
             o.start(now + delay); o.stop(now + delay + 0.4);
           });
+        } else if (type === 'fanfare') {
+          // 月間チャンピオン発表用の華やかなファンファーレ（5音）
+          osc.disconnect();
+          [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((freq, i) => {
+            const delay = i * 0.12;
+            const dur = i === 4 ? 0.7 : 0.3;
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, now + delay);
+            g.gain.setValueAtTime(0.0001, now + delay);
+            g.gain.linearRampToValueAtTime(0.15, now + delay + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
+            o.start(now + delay); o.stop(now + delay + dur);
+          });
         }
       } catch (e) {}
+    }
+
+    // 🎉 紙吹雪エフェクトを画面に降らせる
+    function spawnConfetti() {
+      const colors = ['#FFC400', '#FF8C00', '#2F8FFF', '#34D399', '#F43F5E', '#7CC4FF'];
+      const container = document.createElement('div');
+      container.className = 'confetti-container';
+      document.body.appendChild(container);
+      const pieceCount = 60;
+      for (let i = 0; i < pieceCount; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        const size = 6 + Math.random() * 6;
+        piece.style.width = `${size}px`;
+        piece.style.height = `${size * 0.4}px`;
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        const duration = 2.2 + Math.random() * 1.6;
+        const delay = Math.random() * 0.5;
+        piece.style.animationDuration = `${duration}s`;
+        piece.style.animationDelay = `${delay}s`;
+        container.appendChild(piece);
+      }
+      setTimeout(() => { container.remove(); }, 4500);
+    }
+
+    // 🏆 称号保持者（直近で確定した月の1位）を取得
+    function getTitleHolder() {
+      const months = Object.keys(allMonthlyResults).sort().reverse();
+      if (months.length === 0) return null;
+      const latest = allMonthlyResults[months[0]];
+      if (!latest || !latest.ranking || latest.ranking.length === 0) return null;
+      const top = latest.ranking[0];
+      return { user: top.user, avatar: top.avatar, showName: top.showName, monthStr: months[0] };
+    }
+
+    // 🏆 ホーム画面の称号バナーを更新
+    function updateChampionBanner() {
+      const banner = document.getElementById("champion-banner");
+      if (!banner) return;
+      const holder = getTitleHolder();
+      if (!holder) { banner.classList.remove("show"); return; }
+
+      const isMe = holder.user === myUserName;
+      const priv = getPrivacy(holder.user);
+      const showName = isMe || (holder.showName !== undefined ? holder.showName : priv.showName);
+      const t = i18n[currentLang];
+      const displayName = showName ? holder.user : t.anonUser;
+
+      const nameEl = document.getElementById("champion-banner-name");
+      const avatarEl = document.getElementById("champion-banner-avatar");
+      if (nameEl) nameEl.innerHTML = `${displayName}${isMe ? ' <span class="you-tag">YOU</span>' : ''}`;
+      if (avatarEl) avatarEl.innerText = holder.avatar || "🏆";
+      banner.classList.add("show");
     }
 
     function setT(id, text) {
@@ -787,7 +911,8 @@
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial! 🎉",
         historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
-        winnerLabel: "Ganador/a de"
+        winnerLabel: "Ganador/a de",
+        championLabel: "Campeón Actual", championYouMessage: "🎉 ¡Eres el campeón de este mes! 🎉"
       },
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる 🚀",
@@ -812,7 +937,8 @@
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！🎉",
         historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
-        winnerLabel: "の優勝者"
+        winnerLabel: "の優勝者",
+        championLabel: "現チャンピオン", championYouMessage: "🎉 あなたが今月のチャンピオンです！ 🎉"
       }
     };
 
@@ -906,6 +1032,7 @@
       setT("t-results-history-title", t.resultsHistoryTitle);
       setT("t-result-title", t.resultAnnounceTitle);
       setT("t-result-close", t.resultAnnounceClose);
+      setT("t-champion-label", t.championLabel);
       
       const btnAction = document.getElementById("btn-timer-action");
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
@@ -915,6 +1042,7 @@
       try { renderTimeline(); } catch(e){}
       try { renderCalendar(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
+      try { updateChampionBanner(); } catch(e){}
       const hModal = document.getElementById("history-modal");
       if (hModal && hModal.style.display === "flex") { try { renderHistoryList(); } catch(e){} }
       if(myUserName) {
@@ -1603,6 +1731,8 @@
     onValue(ref(db, "monthly_results"), (snapshot) => {
       allMonthlyResults = snapshot.val() || {};
       finalizeMonthIfNeeded();
+      try { updateChampionBanner(); } catch(e){}
+      try { renderEnergyRace(); } catch(e){}
       const hModal = document.getElementById("history-modal");
       if (hModal && hModal.style.display === "flex") {
         renderHistoryList();
@@ -1667,7 +1797,19 @@
       const t = i18n[currentLang];
       document.getElementById("result-announce-month").innerText = getMonthLabel(monthStr);
       document.getElementById("result-announce-podium").innerHTML = buildPodiumHtml(resultToTop3(resultData));
+
+      const isChampion = resultData.ranking.length > 0 && resultData.ranking[0].user === myUserName;
+      const youBannerEl = document.getElementById("result-announce-you-banner");
+      if (youBannerEl) {
+        youBannerEl.innerHTML = isChampion ? `<div class="champion-you-banner">${t.championYouMessage}</div>` : "";
+      }
+
       document.getElementById("result-announce-modal").style.display = "flex";
+      spawnConfetti();
+      playSound(isChampion ? 'fanfare' : 'hype');
+      if (isChampion) {
+        setTimeout(spawnConfetti, 700);
+      }
     };
 
     window.closeResultAnnounceModal = () => {
@@ -2078,6 +2220,7 @@
       const leaderMin = top3[0] ? top3[0][1].totalMin : 0;
       const slotOrder = [1, 0, 2]; // render 2nd, 1st, 3rd left-to-right
       let podiumHtml = '<div class="podium-wrap">';
+      const titleHolder = getTitleHolder();
       slotOrder.forEach(i => {
         if (!top3[i]) { podiumHtml += `<div class="podium-slot podium-empty"></div>`; return; }
         const [user, data] = top3[i];
@@ -2086,12 +2229,13 @@
         const dName = (isMe || data.showName) ? user : t.anonUser;
         const medalEmoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : '🥉';
         const gap = leaderMin - data.totalMin;
+        const isTitleHolder = titleHolder && titleHolder.user === user;
 
         podiumHtml += `
           <div class="podium-slot slot-${rank}">
             ${rank === 1 ? '<div class="p-crown">👑<span class="p-sparkle s1">✨</span><span class="p-sparkle s2">✨</span></div>' : ''}
             <div class="podium-avatar rank${rank}-avatar${isMe ? ' is-me-avatar' : ''}">${data.avatar}</div>
-            <div class="podium-name">${dName}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
+            <div class="podium-name${isTitleHolder ? ' is-title-holder' : ''}">${dName}${isTitleHolder ? ' <span class="title-crown-badge">👑</span>' : ''}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
             <div class="podium-score">${formatTimeFriendly(data.totalMin)}</div>
             ${rank !== 1 && gap > 0 ? `<div class="podium-gap">-${formatTimeFriendly(gap)}</div>` : ''}
             <div class="podium-base base-${rank}">${medalEmoji}</div>
@@ -2182,6 +2326,7 @@
         return;
       }
 
+      const titleHolderRest = getTitleHolder();
       listEl.innerHTML = rest.map(([user, data], idx) => {
         const rank = idx + 4;
         const isMe = user === myUserName;
@@ -2194,6 +2339,7 @@
 
         let cardClass = "race-card-item";
         if (isMe) cardClass += " is-me";
+        const isTitleHolder = titleHolderRest && titleHolderRest.user === user;
 
         return `
           <div class="${cardClass}">
@@ -2201,8 +2347,8 @@
               <div class="race-user-info">
                 <div class="race-avatar-box">${data.avatar}</div>
                 <div>
-                  <div class="race-name">
-                    ${dName} ${isMe ? '<span class="you-tag">YOU</span>' : ''}
+                  <div class="race-name${isTitleHolder ? ' is-title-holder' : ''}">
+                    ${dName}${isTitleHolder ? ' <span class="title-crown-badge">👑</span>' : ''} ${isMe ? '<span class="you-tag">YOU</span>' : ''}
                   </div>
                   <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">#${rank}</div>
                 </div>
