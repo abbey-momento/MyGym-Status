@@ -245,7 +245,7 @@
     /* 🏆 月間チャンピオン発表カード（アクティビティフィード内） */
     .champion-announce-card { background: linear-gradient(135deg, rgba(255,196,0,0.1), rgba(255,140,0,0.05)); border: 1px solid rgba(255,196,0,0.35); box-shadow: 0 0 12px rgba(255,196,0,0.1); }
     .champion-announce-avatar { background: rgba(255,196,0,0.15); border-color: rgba(255,196,0,0.4); }
-    .champion-announce-message { color: #fff; font-weight: 700; background: rgba(255,196,0,0.08); border: 1px solid rgba(255,196,0,0.15); font-family: 'LINE Seed JP', sans-serif; }
+    .champion-announce-message { color: #fff; font-weight: 400; background: rgba(255,196,0,0.08); border: 1px solid rgba(255,196,0,0.15); font-family: 'LINE Seed JP', sans-serif; }
     
     .timeline-actions { display: flex; gap: 8px; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
     .action-icon-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; width: 44px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: var(--text-sub); }
@@ -2302,6 +2302,12 @@
       finalizeMonthIfNeeded();
       try { updateChampionBanner(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
+      const timelineView = document.getElementById('view-timeline');
+      if (timelineView && timelineView.classList.contains('active')) { try { renderTimeline(); } catch(e){} }
+      if (activeCommentLogKey && activeCommentLogKey.startsWith('champ-')) {
+        const cModal = document.getElementById("comment-modal");
+        if (cModal && cModal.style.display === "flex") { try { renderModalComments(); } catch(e){} }
+      }
       const hModal = document.getElementById("history-modal");
       if (hModal && hModal.style.display === "flex") {
         renderHistoryList();
