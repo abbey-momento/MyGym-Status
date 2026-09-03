@@ -716,9 +716,10 @@
           </div>
           <div id="goal-progress-text" style="font-size:1.1rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">0%</div>
         </div>
-        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-bottom:16px;">
+        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-bottom:8px;">
           <div id="goal-bar-fill" style="width:0%; height:100%; background:var(--ring-inner); transition:0.4s;"></div>
         </div>
+        <div id="goal-pace-text" style="font-size:0.75rem; color:var(--text-sub); font-weight:700; margin-bottom:16px; font-family:'LINE Seed JP', sans-serif;"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <span style="font-size:0.75rem; color:var(--text-sub); font-weight:700;" id="t-goal-slider-label">目標回数を設定</span>
           <span id="goal-slider-value" style="font-size:0.9rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">15</span>
@@ -1169,6 +1170,9 @@
         raceTitle: "Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
         goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar", goalCurrentLabel: "Sesiones este mes", goalSliderLabel: "Ajustar meta",
+        paceAchieved: "🎉 ¡Meta ya cumplida este mes!",
+        pacePerDay: "Necesitas entrenar {count} veces al día para llegar a la meta",
+        paceInterval: "Quedan {daysLeft} días para {remaining} sesiones — entrena cada {interval} día(s) para lograrlo",
         memoTitle: "¡Buen trabajo!", btnSaveLog: "Guardar Registro", btnSkipMemo: "Terminar sin nota",
         editLogTitle: "Editar Registro", btnSaveEditLog: "Guardar Cambios", btnCancelEditLog: "Cancelar",
         labelFrom: "Desde", labelTo: "Hasta", editLabelFrom: "Desde", editLabelTo: "Hasta",
@@ -1202,6 +1206,9 @@
         raceTitle: "エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト (リセット)",
         goalTitle: "今月の目標回数 (回)", btnSaveGoal: "保存", goalCurrentLabel: "今月の実施回数", goalSliderLabel: "目標回数を設定",
+        paceAchieved: "🎉 今月の目標はもう達成しています！",
+        pacePerDay: "目標達成には1日に{count}回以上のペースが必要です",
+        paceInterval: "残り{daysLeft}日で{remaining}回。{interval}日に1回のペースで行けば達成できます",
         memoTitle: "お疲れ様でした！", btnSaveLog: "記録を保存する", btnSkipMemo: "メモなしで完了",
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
@@ -1832,7 +1839,46 @@
       const barFill = document.getElementById("goal-bar-fill");
       if(barFill) barFill.style.width = `${percent}%`;
 
+      renderGoalPaceMessage(totalSessions);
+
       try { renderWeeklyReport(); } catch(e){}
+    }
+
+    // 🧮 目標達成に必要なペースを計算して表示する
+    function renderGoalPaceMessage(totalSessions) {
+      const el = document.getElementById("goal-pace-text");
+      if (!el) return;
+      const t = i18n[currentLang];
+      const remaining = monthlyGoalCount - totalSessions;
+
+      if (remaining <= 0) {
+        el.innerText = t.paceAchieved;
+        el.style.color = "var(--green)";
+        return;
+      }
+
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const daysRemaining = daysInMonth - now.getDate() + 1; // 今日を含める
+
+      if (daysRemaining <= 0) {
+        el.innerText = "";
+        return;
+      }
+
+      if (remaining > daysRemaining) {
+        const perDay = Math.ceil(remaining / daysRemaining);
+        el.innerText = t.pacePerDay.replace("{count}", perDay);
+        el.style.color = "var(--neon-pink)";
+        return;
+      }
+
+      const intervalDays = Math.max(1, Math.round(daysRemaining / remaining));
+      el.innerText = t.paceInterval
+        .replace("{daysLeft}", daysRemaining)
+        .replace("{remaining}", remaining)
+        .replace("{interval}", intervalDays);
+      el.style.color = "var(--text-sub)";
     }
 
     function getWeekRange(offsetWeeks) {
