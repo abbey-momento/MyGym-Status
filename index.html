@@ -228,7 +228,7 @@
 
     .cal-detail-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .cal-detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
-    .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; }
+    .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; font-family: 'LINE Seed JP', sans-serif; }
     
     .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: 0.2s; }
     .cal-user-log-item:hover { border-color: var(--accent); background: rgba(47, 143, 255,0.05); }
@@ -245,7 +245,7 @@
     /* 🏆 月間チャンピオン発表カード（アクティビティフィード内） */
     .champion-announce-card { background: linear-gradient(135deg, rgba(255,196,0,0.1), rgba(255,140,0,0.05)); border: 1px solid rgba(255,196,0,0.35); box-shadow: 0 0 12px rgba(255,196,0,0.1); }
     .champion-announce-avatar { background: rgba(255,196,0,0.15); border-color: rgba(255,196,0,0.4); }
-    .champion-announce-message { color: #fff; font-weight: 700; background: rgba(255,196,0,0.08); border: 1px solid rgba(255,196,0,0.15); }
+    .champion-announce-message { color: #fff; font-weight: 700; background: rgba(255,196,0,0.08); border: 1px solid rgba(255,196,0,0.15); font-family: 'LINE Seed JP', sans-serif; }
     
     .timeline-actions { display: flex; gap: 8px; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
     .action-icon-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; width: 44px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: var(--text-sub); }
@@ -323,7 +323,7 @@
 
     .history-month-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px 14px; }
     .history-month-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .history-month-label { font-weight: 800; color: #FFF; font-size: 0.95rem; }
+    .history-month-label { font-weight: 800; color: #FFF; font-size: 0.95rem; font-family: 'LINE Seed JP', sans-serif; }
     .history-rank-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 0.82rem; color: var(--text-sub); border-top: 1px dashed rgba(255,255,255,0.06); }
     .history-rank-row:first-of-type { border-top: none; }
     .history-rank-row .h-user { display: flex; align-items: center; gap: 6px; color: #FFF; font-weight: 700; }
@@ -622,7 +622,7 @@
           <span id="t-history-btn">Historial</span>
         </button>
       </div>
-      <div id="race-countdown" style="font-size:0.75rem; color:var(--text-sub); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:5px;"></div>
+      <div id="race-countdown" style="font-size:0.75rem; color:var(--text-sub); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:5px; font-family:'LINE Seed JP', sans-serif;"></div>
       <div id="race-podium-container"></div>
       <div id="race-list-container" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
@@ -635,7 +635,7 @@
     <div class="modal-content" style="text-align:center;">
       <div style="font-size:2.2rem; margin-bottom: 4px;">🎉</div>
       <h2 id="t-result-title" style="margin-bottom: 2px; font-size: 1.15rem;">¡Resultados del mes pasado!</h2>
-      <div id="result-announce-month" style="color:var(--text-sub); font-size:0.8rem; margin-bottom: 14px;"></div>
+      <div id="result-announce-month" style="color:var(--text-sub); font-size:0.8rem; margin-bottom: 14px; font-family:'LINE Seed JP', sans-serif;"></div>
       <div id="result-announce-podium"></div>
       <div id="result-announce-you-banner"></div>
       <button class="btn-primary" onclick="closeResultAnnounceModal()" style="margin-top: 14px;" id="t-result-close">¡Genial! 🎉</button>
