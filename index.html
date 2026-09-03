@@ -375,6 +375,7 @@
     .active-users-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
     .active-users-list:empty { margin-top: 0; }
     .active-user-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 8px 12px; }
+    .active-user-row.is-previewing { border-color: var(--ring-inner); box-shadow: 0 0 10px rgba(45, 212, 191, 0.25); background: rgba(45, 212, 191, 0.08); }
     .active-user-avatar { font-size: 1.3rem; flex-shrink: 0; }
     .active-user-info { flex: 1; min-width: 0; }
     .active-user-name { font-weight: 700; color: #fff; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -386,7 +387,7 @@
     .hype-avatar-btn { position: relative; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer; transition: 0.15s; padding: 0; }
     .hype-avatar-btn:active { transform: scale(0.88); }
     .hype-avatar-btn.sent { opacity: 0.45; }
-    .hype-fire-badge { position: absolute; bottom: -5px; right: -5px; background: var(--accent-gradient); border-radius: 50%; width: 19px; height: 19px; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; box-shadow: 0 0 6px rgba(47,143,255,0.55); border: 2px solid var(--bg); }
+    .hype-fire-badge { display: inline-flex; align-items: center; justify-content: center; }
 
     .hype-overlay { position: fixed; inset: 0; z-index: 5000; pointer-events: none; overflow: hidden; animation: hypeOverlayFade 3.2s forwards; }
     @keyframes hypeOverlayFade { 0%, 78% { opacity: 1; } 100% { opacity: 0; } }
@@ -558,7 +559,7 @@
       
       <div class="timer-display">
         <div class="time-main" id="time-text">00:00</div>
-        <div class="time-sub">MM:SS</div>
+        <div class="time-sub" id="time-sub-label">MM:SS</div>
       </div>
     </div>
 
@@ -1747,16 +1748,18 @@
         amIRunning = true;
         btnAction.innerText = t.btnStop;
         btnAction.className = "timer-action-btn stop";
-        if (!timerAnimationId) updateTimerUI(myData.startTime);
+        if (!previewUser && !timerAnimationId) updateTimerUI(myData.startTime);
       } else {
         amIRunning = false;
         btnAction.innerText = t.btnStart;
         btnAction.className = "timer-action-btn start";
-        cancelAnimationFrame(timerAnimationId);
-        timerAnimationId = null;
-        document.getElementById("time-text").innerText = "00:00";
-        document.getElementById("ring-outer").style.strokeDashoffset = CIRCUMFERENCE_OUTER;
-        document.getElementById("ring-inner").style.strokeDashoffset = CIRCUMFERENCE_INNER;
+        if (!previewUser) {
+          cancelAnimationFrame(timerAnimationId);
+          timerAnimationId = null;
+          document.getElementById("time-text").innerText = "00:00";
+          document.getElementById("ring-outer").style.strokeDashoffset = CIRCUMFERENCE_OUTER;
+          document.getElementById("ring-inner").style.strokeDashoffset = CIRCUMFERENCE_INNER;
+        }
       }
     }
 
@@ -2243,29 +2246,37 @@
 
     let expandedStopwatchUsers = new Set();
 
+    let previewUser = null;
+
     window.toggleUserStopwatch = (username) => {
       playSound('click');
-      if (expandedStopwatchUsers.has(username)) {
-        expandedStopwatchUsers.delete(username);
+      if (previewUser === username) {
+        previewUser = null;
+        exitStopwatchPreview();
       } else {
-        expandedStopwatchUsers.add(username);
+        previewUser = username;
+        enterStopwatchPreview(username);
       }
       renderActiveUsersDetail();
     };
 
-    function tickExpandedStopwatches() {
-      expandedStopwatchUsers.forEach(u => {
-        const data = activeUsersData[u];
-        const safeId = u.replace(/[^a-zA-Z0-9]/g, '');
-        const el = document.getElementById(`stopwatch-${safeId}`);
-        if (!data || !el) return;
-        const elapsedSec = Math.max(0, Math.floor((Date.now() - data.startTime) / 1000));
-        const mm = Math.floor(elapsedSec / 60).toString().padStart(2, '0');
-        const ss = (elapsedSec % 60).toString().padStart(2, '0');
-        el.innerText = `${mm}:${ss}`;
-      });
+    function enterStopwatchPreview(username) {
+      const data = activeUsersData[username];
+      if (!data) return;
+      if (timerAnimationId) cancelAnimationFrame(timerAnimationId);
+      timerAnimationId = null;
+      const subEl = document.getElementById("time-sub-label");
+      if (subEl) subEl.innerText = username;
+      updateTimerUI(data.startTime);
     }
-    setInterval(tickExpandedStopwatches, 1000);
+
+    function exitStopwatchPreview() {
+      if (timerAnimationId) cancelAnimationFrame(timerAnimationId);
+      timerAnimationId = null;
+      const subEl = document.getElementById("time-sub-label");
+      if (subEl) subEl.innerText = "MM:SS";
+      checkMyTimerStatus();
+    }
 
     function renderActiveUsersDetail() {
       const t = i18n[currentLang];
@@ -2274,14 +2285,17 @@
 
       // 自分の分は自分のストップウォッチで見えているので、ここには他の人だけ表示する
       const others = Object.entries(activeUsersData).filter(([u]) => u !== myUserName);
+
+      // プレビュー中の相手がいなくなったら、メインのストップウォッチ表示を元に戻す
+      if (previewUser && !activeUsersData[previewUser]) {
+        previewUser = null;
+        exitStopwatchPreview();
+      }
+
       if (others.length === 0) {
         container.innerHTML = "";
         return;
       }
-
-      // すでに終了した人は展開状態を残さない
-      const activeUserSet = new Set(others.map(([u]) => u));
-      expandedStopwatchUsers.forEach(u => { if (!activeUserSet.has(u)) expandedStopwatchUsers.delete(u); });
 
       container.innerHTML = others.map(([u, data]) => {
         const priv = getPrivacy(u);
@@ -2289,19 +2303,7 @@
         const safeUser = u.replace(/'/g, "\\'");
         const safeId = u.replace(/[^a-zA-Z0-9]/g, '');
         const gradId = `flameGradRow_${safeId}`;
-        const isExpanded = expandedStopwatchUsers.has(u);
-
-        let timeDisplay;
-        if (!priv.showTime) {
-          timeDisplay = `<div class="active-user-elapsed">${t.anonTime}</div>`;
-        } else if (isExpanded) {
-          const elapsedSec = Math.max(0, Math.floor((Date.now() - data.startTime) / 1000));
-          const mm = Math.floor(elapsedSec / 60).toString().padStart(2, '0');
-          const ss = (elapsedSec % 60).toString().padStart(2, '0');
-          timeDisplay = `<div class="active-user-elapsed" id="stopwatch-${safeId}" style="font-family:'Space Grotesk', sans-serif;">${mm}:${ss}</div>`;
-        } else {
-          timeDisplay = `<div class="active-user-hint">${t.tapToSeeTime}</div>`;
-        }
+        const isPreviewing = previewUser === u;
 
         const nameClickAttr = priv.showTime ? ` onclick="toggleUserStopwatch('${safeUser}')" style="cursor:pointer;"` : '';
 
@@ -2311,11 +2313,10 @@
           </button>`;
 
         return `
-          <div class="active-user-row">
+          <div class="active-user-row${isPreviewing ? ' is-previewing' : ''}">
             <span class="active-user-avatar">${data.avatar || '👤'}</span>
             <div class="active-user-info"${nameClickAttr}>
               <div class="active-user-name">${dName}</div>
-              ${timeDisplay}
             </div>
             ${cheerBtn}
           </div>
