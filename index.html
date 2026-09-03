@@ -53,9 +53,10 @@
       --text-sub: #8B93A7;
     }
     
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Zen Kaku Gothic New', sans-serif; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     
     body {
+      font-family: 'Zen Kaku Gothic New', sans-serif;
       background-color: var(--bg);
       background-image: 
         linear-gradient(rgba(47, 143, 255, 0.05) 1px, transparent 1px),
@@ -856,7 +857,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, remove, onValue, onChildAdded, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, remove, onValue, onChildAdded, push, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -995,6 +996,20 @@
     const MILESTONE_HOURS = [10, 25, 50, 100, 200, 500, 1000];
     const MILESTONE_COUNTS = [10, 25, 50, 100, 250, 500, 1000];
     let milestoneQueue = [];
+    let milestoneUnsub = null;
+    let myMilestoneProgress = { hours: null, count: null, best: null };
+
+    // 端末ではなくFirebaseに保存することで、複数端末で使っても達成記録がズレないようにする
+    function setupMilestoneListener() {
+      if (milestoneUnsub) { milestoneUnsub(); milestoneUnsub = null; }
+      myMilestoneProgress = { hours: null, count: null, best: null };
+      if (!myUserName) return;
+      const mRef = ref(db, `users/${myUserName}/milestoneProgress`);
+      milestoneUnsub = onValue(mRef, (snapshot) => {
+        myMilestoneProgress = { hours: null, count: null, best: null, ...(snapshot.val() || {}) };
+        try { checkMilestones(); } catch (e) {}
+      });
+    }
 
     function checkMilestones() {
       if (!myUserName) return;
@@ -1010,33 +1025,44 @@
     }
 
     function checkTimeMilestone(totalMin) {
-      const key = `gym_ms_hours_${myUserName}`;
-      const stored = localStorage.getItem(key);
       const totalHours = totalMin / 60;
-      if (stored === null) { localStorage.setItem(key, String(totalHours)); return; }
-      const storedHours = parseFloat(stored);
+      const storedHours = myMilestoneProgress.hours;
+      if (storedHours === null || storedHours === undefined) {
+        myMilestoneProgress.hours = totalHours;
+        update(ref(db, `users/${myUserName}/milestoneProgress`), { hours: totalHours });
+        return;
+      }
+      if (totalHours === storedHours) return;
       const crossed = MILESTONE_HOURS.filter(h => h <= totalHours && h > storedHours);
-      localStorage.setItem(key, String(totalHours));
+      myMilestoneProgress.hours = totalHours;
+      update(ref(db, `users/${myUserName}/milestoneProgress`), { hours: totalHours });
       if (crossed.length > 0) enqueueMilestone('time', crossed[crossed.length - 1]);
     }
 
     function checkCountMilestone(count) {
-      const key = `gym_ms_count_${myUserName}`;
-      const stored = localStorage.getItem(key);
-      if (stored === null) { localStorage.setItem(key, String(count)); return; }
-      const storedCount = parseInt(stored, 10);
+      const storedCount = myMilestoneProgress.count;
+      if (storedCount === null || storedCount === undefined) {
+        myMilestoneProgress.count = count;
+        update(ref(db, `users/${myUserName}/milestoneProgress`), { count });
+        return;
+      }
+      if (count === storedCount) return;
       const crossed = MILESTONE_COUNTS.filter(c => c <= count && c > storedCount);
-      localStorage.setItem(key, String(count));
+      myMilestoneProgress.count = count;
+      update(ref(db, `users/${myUserName}/milestoneProgress`), { count });
       if (crossed.length > 0) enqueueMilestone('count', crossed[crossed.length - 1]);
     }
 
     function checkBestDuration(bestDuration) {
-      const key = `gym_ms_best_${myUserName}`;
-      const stored = localStorage.getItem(key);
-      if (stored === null) { localStorage.setItem(key, String(bestDuration)); return; }
-      const storedBest = parseInt(stored, 10);
+      const storedBest = myMilestoneProgress.best;
+      if (storedBest === null || storedBest === undefined) {
+        myMilestoneProgress.best = bestDuration;
+        update(ref(db, `users/${myUserName}/milestoneProgress`), { best: bestDuration });
+        return;
+      }
       if (bestDuration > storedBest) {
-        localStorage.setItem(key, String(bestDuration));
+        myMilestoneProgress.best = bestDuration;
+        update(ref(db, `users/${myUserName}/milestoneProgress`), { best: bestDuration });
         if (storedBest > 0) enqueueMilestone('best', bestDuration);
       }
     }
@@ -1129,6 +1155,7 @@
         labelFrom: "Desde", labelTo: "Hasta", editLabelFrom: "Desde", editLabelTo: "Hasta",
         unitMin: "min", unitHour: "h", btnDelete: "Borrar", btnEditLog: "Editar",
         alertName: "Por favor escribe tu nombre", alertAlready: "¡Ya estás entrenando!",
+        nameExistsConfirm: "Ya existe un usuario llamado \"{name}\". Si es tu registro, pulsa Aceptar para continuar. Si no, pulsa Cancelar y elige otro nombre.",
         alertManual: "Ingresa una fecha, hora de inicio y fin válidas", alertTimeOrder: "La hora de fin debe ser posterior a la de inicio", confirmDelete: "¿Borrar este registro?",
         promptStopAlert: "⚠️ Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:",
         months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
@@ -1161,6 +1188,7 @@
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
         unitMin: "分", unitHour: "時間", btnDelete: "削除", btnEditLog: "編集",
         alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
+        nameExistsConfirm: "「{name}」という名前はすでに使われています。あなた自身の記録で間違いなければOKを押して続けてください。違う場合はキャンセルして別の名前にしてください。",
         alertManual: "日付と正しい開始・終了時間を入力してください", alertTimeOrder: "終了時間は開始時間より後にしてください", confirmDelete: "この記録を削除しますか？",
         promptStopAlert: "⚠️ {min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
@@ -1386,15 +1414,24 @@
         initPrivacyToggles();
         finalizeMonthIfNeeded();
         setupHypeListener();
+        setupMilestoneListener();
       }
     }
 
-    window.registerUser = () => {
+    window.registerUser = async () => {
       playSound('start');
       triggerVibrate([30, 50, 30]);
       const name = document.getElementById("regNameInput").value.trim();
       if (!name) return alert(i18n[currentLang].alertName);
-      
+
+      try {
+        const snap = await get(ref(db, `users/${name}/privacy`));
+        if (snap.exists()) {
+          const ok = confirm(i18n[currentLang].nameExistsConfirm.replace("{name}", name));
+          if (!ok) return;
+        }
+      } catch (e) {}
+
       myUserName = name;
       myUserAvatar = selectedAvatar;
       calendarTargetUser = name;
@@ -1413,6 +1450,7 @@
       updateStreakAndGoals();
       initPrivacyToggles();
       setupHypeListener();
+      setupMilestoneListener();
     };
 
     window.openEditModal = () => {
@@ -1571,7 +1609,7 @@
         const existingKeys = new Set(
           Object.values(allLogsData)
             .filter(l => l.user === myUserName)
-            .map(l => `${l.date}_${l.duration}`)
+            .map(l => `${l.date}_${l.duration}_${l.memo || ""}`)
         );
 
         let importCount = 0;
@@ -1579,7 +1617,7 @@
 
         entries.forEach(entry => {
           if (!entry || !entry.date || typeof entry.duration_min !== 'number') return;
-          const dupKey = `${entry.date}_${entry.duration_min}`;
+          const dupKey = `${entry.date}_${entry.duration_min}_${entry.memo || ""}`;
           if (existingKeys.has(dupKey)) { skipCount++; return; }
           existingKeys.add(dupKey);
 
