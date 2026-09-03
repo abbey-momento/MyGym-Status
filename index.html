@@ -104,6 +104,16 @@
     label { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
     input[type="text"], input[type="number"], textarea, input[type="date"], input[type="time"] { width: 100%; max-width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: white; outline: none; font-size: 0.95rem; text-align: center; box-sizing: border-box; }
     input[type="number"], input[type="date"], input[type="time"] { font-family: 'LINE Seed JP', sans-serif; }
+
+    input[type="range"]#goalInput {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.08);
+      accent-color: var(--ring-inner);
+      cursor: pointer;
+      margin: 4px 0;
+    }
     input[type="date"], input[type="time"] { appearance: none; -webkit-appearance: none; }
     input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(47, 143, 255,0.2); }
     
@@ -706,13 +716,14 @@
           </div>
           <div id="goal-progress-text" style="font-size:1.1rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">0%</div>
         </div>
-        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-bottom:14px;">
+        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-bottom:16px;">
           <div id="goal-bar-fill" style="width:0%; height:100%; background:var(--ring-inner); transition:0.4s;"></div>
         </div>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <input type="number" id="goalInput" placeholder="Veces" style="flex:1; padding:10px; border-radius: 10px; font-size:0.9rem;" value="15">
-          <button onclick="saveMonthlyGoal()" id="t-btn-save-goal" style="background:rgba(45, 212, 191,0.15); border:1px solid var(--card-border); border-radius:10px; color:var(--ring-inner); padding:10px 14px; font-weight:700; cursor:pointer; font-size:0.85rem;">Guardar</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-size:0.75rem; color:var(--text-sub); font-weight:700;" id="t-goal-slider-label">目標回数を設定</span>
+          <span id="goal-slider-value" style="font-size:0.9rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">15</span>
         </div>
+        <input type="range" id="goalInput" min="1" max="31" step="1" value="15" oninput="updateGoalSliderLabel(this.value)" onchange="saveMonthlyGoal()">
       </div>
 
       <!-- 📊 週間レポート -->
@@ -1157,7 +1168,7 @@
         statDays: "Días", statTime: "Total", statStreak: "Streak",
         raceTitle: "Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
-        goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar", goalCurrentLabel: "Sesiones este mes",
+        goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar", goalCurrentLabel: "Sesiones este mes", goalSliderLabel: "Ajustar meta",
         memoTitle: "¡Buen trabajo!", btnSaveLog: "Guardar Registro", btnSkipMemo: "Terminar sin nota",
         editLogTitle: "Editar Registro", btnSaveEditLog: "Guardar Cambios", btnCancelEditLog: "Cancelar",
         labelFrom: "Desde", labelTo: "Hasta", editLabelFrom: "Desde", editLabelTo: "Hasta",
@@ -1190,7 +1201,7 @@
         statDays: "日数", statTime: "合計", statStreak: "連続",
         raceTitle: "エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト (リセット)",
-        goalTitle: "今月の目標回数 (回)", btnSaveGoal: "保存", goalCurrentLabel: "今月の実施回数",
+        goalTitle: "今月の目標回数 (回)", btnSaveGoal: "保存", goalCurrentLabel: "今月の実施回数", goalSliderLabel: "目標回数を設定",
         memoTitle: "お疲れ様でした！", btnSaveLog: "記録を保存する", btnSkipMemo: "メモなしで完了",
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
@@ -1284,6 +1295,7 @@
       setT("t-manual-title", t.manualTitle);
       setT("t-goal-title", t.goalTitle);
       setT("t-goal-current-label", t.goalCurrentLabel);
+      setT("t-goal-slider-label", t.goalSliderLabel);
       setT("t-btn-save-goal", t.btnSaveGoal);
       setT("t-memo-title", t.memoTitle);
       setT("t-btn-save-log", t.btnSaveLog);
@@ -1419,6 +1431,7 @@
         document.getElementById("my-name-display").innerText = myUserName;
         document.getElementById("my-avatar-display").innerText = myUserAvatar;
         document.getElementById("goalInput").value = monthlyGoalCount;
+        updateGoalSliderLabel(monthlyGoalCount);
         if(!calendarTargetUser) calendarTargetUser = myUserName;
         checkMyTimerStatus();
         updateStreakAndGoals();
@@ -1965,6 +1978,11 @@
       gridEl.innerHTML = gridHtml;
     }
 
+    window.updateGoalSliderLabel = (val) => {
+      const label = document.getElementById("goal-slider-value");
+      if (label) label.innerText = val;
+    };
+
     window.saveMonthlyGoal = () => {
       playSound('click');
       const val = parseInt(document.getElementById("goalInput").value, 10);
@@ -1972,7 +1990,6 @@
         monthlyGoalCount = val;
         localStorage.setItem("gym_monthly_goal_count", val);
         updateStreakAndGoals();
-        alert(currentLang === 'es' ? "¡Meta guardada exitosamente!" : "目標回数を保存しました！");
       }
     };
 
