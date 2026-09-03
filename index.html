@@ -581,6 +581,11 @@
           <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
+      <div style="text-align:center; margin-top:-4px; margin-bottom:10px;">
+        <button id="cal-today-btn" onclick="goToToday()" style="display:none; background:rgba(47,143,255,0.15); border:1px solid var(--card-border); color:var(--accent); padding:5px 14px; border-radius:20px; font-size:0.75rem; font-weight:700; cursor:pointer;">
+          <span id="t-cal-today-btn">Hoy</span>
+        </button>
+      </div>
 
       <div class="stats-row">
         <div class="stat-box">
@@ -736,7 +741,7 @@
         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
           <div>
             <div style="font-size:0.68rem; color:var(--text-sub); text-transform:uppercase; font-weight:700; margin-bottom:2px;" id="t-this-week-label">今週の合計</div>
-            <div style="font-size:1.5rem; font-weight:800; color:#fff;" id="weekly-total-text">0分</div>
+            <div style="font-size:1.5rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif;" id="weekly-total-text">0分</div>
           </div>
           <div id="weekly-compare-text" style="font-size:0.85rem; font-weight:800;"></div>
         </div>
@@ -1174,7 +1179,7 @@
         editTitle: "Editar Perfil", editName: "Tu nombre", editAvatar: "Avatar", btnSave: "Guardar", btnCancel: "Cancelar", editBtn: "Editar Perfil",
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
-        statDays: "Días", statTime: "Total", statStreak: "Streak",
+        statDays: "Días", statTime: "Total", statStreak: "Streak", calTodayBtn: "Hoy",
         raceTitle: "Energy Race", timelineTitle: "Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
         goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar", goalCurrentLabel: "Sesiones este mes", goalSliderLabel: "Ajustar meta",
@@ -1210,7 +1215,7 @@
         editTitle: "プロフィール編集", editName: "あなたの名前", editAvatar: "アバター", btnSave: "保存する", btnCancel: "キャンセル", editBtn: "プロフィール編集",
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
-        statDays: "日数", statTime: "合計", statStreak: "連続",
+        statDays: "日数", statTime: "合計", statStreak: "連続", calTodayBtn: "今日",
         raceTitle: "エネルギーレース", timelineTitle: "アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト (リセット)",
         goalTitle: "今月の目標回数", btnSaveGoal: "保存", goalCurrentLabel: "今月の実施回数", goalSliderLabel: "目標回数を設定",
@@ -1300,6 +1305,7 @@
       setT("t-edit-profile-btn", t.editBtn);
       setT("t-home-status-label", t.homeStatusLabel);
       setT("t-stat-days", t.statDays);
+      setT("t-cal-today-btn", t.calTodayBtn);
       setT("t-stat-time", t.statTime);
       setT("t-stat-streak", t.statStreak);
       setT("t-race-title", t.raceTitle);
@@ -1933,7 +1939,7 @@
           const diff = thisWeekTotal - lastWeekTotal;
           const pct = Math.round((diff / lastWeekTotal) * 100);
           const arrow = diff >= 0 ? "▲" : "▼";
-          compareEl.innerText = `${arrow} ${Math.abs(pct)}% ${t_vsLastWeekLabel()}`;
+          compareEl.innerHTML = `${arrow} <span style="font-family:'LINE Seed JP', sans-serif;">${Math.abs(pct)}</span>% ${t_vsLastWeekLabel()}`;
           compareEl.style.color = diff >= 0 ? "var(--green)" : "var(--neon-pink)";
           compareEl.style.textShadow = diff >= 0 ? "none" : "0 0 8px rgba(255,61,186,0.5)";
         }
@@ -2825,6 +2831,13 @@
       renderCalendar();
     };
 
+    window.goToToday = () => {
+      playSound('click');
+      calendarDate = new Date();
+      selectedDateStr = getLocalISOString(new Date()).slice(0, 10);
+      renderCalendar();
+    };
+
     window.switchCalendarUser = (username) => {
       playSound('click');
       calendarTargetUser = username;
@@ -2905,6 +2918,13 @@
       const monthNames = t.months;
       const titleEl = document.getElementById("cal-month-title");
       if(titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
+
+      const todayBtn = document.getElementById("cal-today-btn");
+      if (todayBtn) {
+        const now = new Date();
+        const isCurrentMonth = (year === now.getFullYear() && month === now.getMonth());
+        todayBtn.style.display = isCurrentMonth ? "none" : "inline-block";
+      }
 
       const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
       let targetMonthMin = 0;
