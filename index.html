@@ -693,6 +693,28 @@
         </div>
       </div>
 
+      <!-- 🎯 今月の目標 -->
+      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
+        <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <span id="t-goal-title">今月の目標回数 (回)</span>
+        </h3>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px;">
+          <div>
+            <div style="font-size:0.68rem; color:var(--text-sub); text-transform:uppercase; font-weight:700; margin-bottom:2px;" id="t-goal-current-label">今月の実施回数</div>
+            <div style="font-size:1.5rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif;" id="goal-current-count">0<span style="font-size:0.9rem; color:var(--text-sub); font-weight:700;"> / 15</span></div>
+          </div>
+          <div id="goal-progress-text" style="font-size:1.1rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">0%</div>
+        </div>
+        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-bottom:14px;">
+          <div id="goal-bar-fill" style="width:0%; height:100%; background:var(--ring-inner); transition:0.4s;"></div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="number" id="goalInput" placeholder="Veces" style="flex:1; padding:10px; border-radius: 10px; font-size:0.9rem;" value="15">
+          <button onclick="saveMonthlyGoal()" id="t-btn-save-goal" style="background:rgba(45, 212, 191,0.15); border:1px solid var(--card-border); border-radius:10px; color:var(--ring-inner); padding:10px 14px; font-weight:700; cursor:pointer; font-size:0.85rem;">Guardar</button>
+        </div>
+      </div>
+
       <!-- 📊 週間レポート -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
         <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;">
@@ -764,23 +786,6 @@
         </div>
       </div>
       
-      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--card-border);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-          <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub);">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            <span id="t-goal-title">今月の目標回数 (回)</span>
-          </h3>
-          <span id="goal-progress-text" style="font-size:0.8rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">0%</span>
-        </div>
-        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-          <input type="number" id="goalInput" placeholder="Veces" style="flex:1; padding:10px; border-radius: 10px; font-size:0.9rem;" value="15">
-          <button onclick="saveMonthlyGoal()" id="t-btn-save-goal" style="background:rgba(45, 212, 191,0.15); border:1px solid var(--card-border); border-radius:10px; color:var(--ring-inner); padding:10px 14px; font-weight:700; cursor:pointer; font-size:0.85rem;">Guardar</button>
-        </div>
-        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
-          <div id="goal-bar-fill" style="width:0%; height:100%; background:var(--ring-inner); transition:0.4s;"></div>
-        </div>
-      </div>
-
       <div class="manual-log-box">
         <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 12px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1152,7 +1157,7 @@
         statDays: "Días", statTime: "Total", statStreak: "Streak",
         raceTitle: "Energy Race", timelineTitle: "⚡ Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
-        goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar",
+        goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar", goalCurrentLabel: "Sesiones este mes",
         memoTitle: "¡Buen trabajo!", btnSaveLog: "Guardar Registro", btnSkipMemo: "Terminar sin nota",
         editLogTitle: "Editar Registro", btnSaveEditLog: "Guardar Cambios", btnCancelEditLog: "Cancelar",
         labelFrom: "Desde", labelTo: "Hasta", editLabelFrom: "Desde", editLabelTo: "Hasta",
@@ -1185,7 +1190,7 @@
         statDays: "日数", statTime: "合計", statStreak: "連続",
         raceTitle: "エネルギーレース", timelineTitle: "⚡ アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト (リセット)",
-        goalTitle: "今月の目標回数 (回)", btnSaveGoal: "保存",
+        goalTitle: "今月の目標回数 (回)", btnSaveGoal: "保存", goalCurrentLabel: "今月の実施回数",
         memoTitle: "お疲れ様でした！", btnSaveLog: "記録を保存する", btnSkipMemo: "メモなしで完了",
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
@@ -1278,6 +1283,7 @@
       setT("t-my-title", t.myTitle);
       setT("t-manual-title", t.manualTitle);
       setT("t-goal-title", t.goalTitle);
+      setT("t-goal-current-label", t.goalCurrentLabel);
       setT("t-btn-save-goal", t.btnSaveGoal);
       setT("t-memo-title", t.memoTitle);
       setT("t-btn-save-log", t.btnSaveLog);
@@ -1806,9 +1812,10 @@
       });
 
       let percent = monthlyGoalCount > 0 ? Math.min(100, Math.round((totalSessions / monthlyGoalCount) * 100)) : 0;
-      let suffix = currentLang === 'es' ? 'veces' : '回';
+      const countEl = document.getElementById("goal-current-count");
+      if(countEl) countEl.innerHTML = `${totalSessions}<span style="font-size:0.9rem; color:var(--text-sub); font-weight:700;"> / ${monthlyGoalCount}</span>`;
       const pgText = document.getElementById("goal-progress-text");
-      if(pgText) pgText.innerText = `${percent}% (${totalSessions}/${monthlyGoalCount} ${suffix})`;
+      if(pgText) pgText.innerText = `${percent}%`;
       const barFill = document.getElementById("goal-bar-fill");
       if(barFill) barFill.style.width = `${percent}%`;
 
