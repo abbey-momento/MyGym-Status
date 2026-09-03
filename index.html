@@ -1964,25 +1964,50 @@
       }
     };
 
+    // 💬 いいね・コメントの対象を「通常のログ」と「チャンピオン発表」の両方に対応させるヘルパー
+    function getInteractionItem(key) {
+      if (key.startsWith('champ-')) {
+        return allMonthlyResults[key.slice(6)] || null;
+      }
+      return allLogsData[key] || null;
+    }
+
+    function getInteractionPath(key, field) {
+      if (key.startsWith('champ-')) {
+        return `monthly_results/${key.slice(6)}/${field}`;
+      }
+      return `logs/${key}/${field}`;
+    }
+
+    function getInteractionTargetUser(key) {
+      if (key.startsWith('champ-')) {
+        const result = allMonthlyResults[key.slice(6)];
+        return (result && result.ranking && result.ranking[0]) ? result.ranking[0].user : null;
+      }
+      const item = allLogsData[key];
+      return item ? item.user : null;
+    }
+
     window.toggleLike = (logKey) => {
       playSound('click');
-      const logItem = allLogsData[logKey];
-      if(!logItem) return;
+      const item = getInteractionItem(logKey);
+      if(!item) return;
+      const targetUser = getInteractionTargetUser(logKey);
 
-      let likes = logItem.likes || {};
+      let likes = item.likes || {};
       
       if (likes[myUserName]) {
         delete likes[myUserName];
         Object.entries(allNotifications).forEach(([k, val]) => {
-          if(val.targetUser === logItem.user && val.fromUser === myUserName && val.logKey === logKey && val.type === "like") {
+          if(val.targetUser === targetUser && val.fromUser === myUserName && val.logKey === logKey && val.type === "like") {
             remove(ref(db, `notifications/${k}`));
           }
         });
       } else {
         likes[myUserName] = true;
-        if (logItem.user !== myUserName) {
+        if (targetUser && targetUser !== myUserName) {
           push(ref(db, "notifications"), {
-            targetUser: logItem.user,
+            targetUser: targetUser,
             fromUser: myUserName,
             type: "like",
             text: `${myUserName} ${NOTIF_MESSAGES[currentLang].like}`,
@@ -1992,7 +2017,7 @@
           });
         }
       }
-      set(ref(db, `logs/${logKey}/likes`), likes);
+      set(ref(db, getInteractionPath(logKey, 'likes')), likes);
     };
 
     window.openCommentModal = (logKey) => {
@@ -2011,12 +2036,12 @@
 
     function renderModalComments() {
       const container = document.getElementById("modal-comment-list");
-      if (!activeCommentLogKey || !allLogsData[activeCommentLogKey]) {
+      const item = activeCommentLogKey ? getInteractionItem(activeCommentLogKey) : null;
+      if (!activeCommentLogKey || !item) {
         container.innerHTML = `<div class="empty-msg">Sin comentarios</div>`;
         return;
       }
-      const logItem = allLogsData[activeCommentLogKey];
-      const comments = logItem.comments || {};
+      const comments = item.comments || {};
       const entries = Object.entries(comments);
 
       if (entries.length === 0) {
@@ -2046,18 +2071,19 @@
       const text = inputEl.value.trim();
       if (!text || !activeCommentLogKey) return;
 
-      const logItem = allLogsData[activeCommentLogKey];
-      if(!logItem) return;
+      const item = getInteractionItem(activeCommentLogKey);
+      if(!item) return;
+      const targetUser = getInteractionTargetUser(activeCommentLogKey);
 
-      const newCommentRef = push(ref(db, `logs/${activeCommentLogKey}/comments`), {
+      const newCommentRef = push(ref(db, getInteractionPath(activeCommentLogKey, 'comments')), {
         user: myUserName,
         text: text,
         timestamp: Date.now()
       });
 
-      if (logItem.user !== myUserName) {
+      if (targetUser && targetUser !== myUserName) {
         push(ref(db, "notifications"), {
-          targetUser: logItem.user,
+          targetUser: targetUser,
           fromUser: myUserName,
           type: "comment",
           text: `${myUserName} ${NOTIF_MESSAGES[currentLang].comment}: "${text}"`,
@@ -2074,7 +2100,7 @@
 
     window.deleteComment = (logKey, commentKey) => {
       playSound('click');
-      remove(ref(db, `logs/${logKey}/comments/${commentKey}`)).then(() => {
+      remove(ref(db, `${getInteractionPath(logKey, 'comments')}/${commentKey}`)).then(() => {
         renderModalComments();
       });
 
@@ -2453,7 +2479,7 @@
             setTimeout(() => el.classList.remove('highlight-log'), 2000);
           }, 100);
         } else {
-          const logsArray = Object.entries(allLogsData).map(([k, l]) => ({ ...l, key: k })).sort((a, b) => new Date(b.date) - new Date(a.date));
+          const logsArray = buildCombinedTimelineArray();
           const index = logsArray.findIndex(l => l.key === logKey);
           if (index !== -1) {
             if (activityDisplayLimit <= index) {
@@ -2471,7 +2497,7 @@
       const container = document.getElementById("notification-list-container");
       
       const userNotifs = Object.entries(allNotifications)
-        .filter(([key, notif]) => notif.targetUser === myUserName && allLogsData[notif.logKey])
+        .filter(([key, notif]) => notif.targetUser === myUserName && getInteractionItem(notif.logKey))
         .sort((a, b) => b[1].timestamp - a[1].timestamp);
 
       if (userNotifs.length === 0) {
@@ -2482,15 +2508,31 @@
       container.innerHTML = userNotifs.map(([key, notif]) => {
         const d = new Date(notif.timestamp);
         const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-        
-        const logItem = allLogsData[notif.logKey];
-        const ld = new Date(logItem.startTime);
-        const logDateStr = currentLang === 'es' ? `${ld.getDate()}/${ld.getMonth()+1}` : `${ld.getMonth()+1}/${ld.getDate()}`;
-        const memoText = logItem.memo ? ` - ${logItem.memo.slice(0, 15)}${logItem.memo.length > 15 ? '...' : ''}` : '';
-        
-        const isLogMine = logItem.user === myUserName;
-        const logPriv = getPrivacy(logItem.user);
-        const logDuration = (isLogMine || logPriv.showTime) ? `${logItem.duration} ${i18n[currentLang].unitMin}` : i18n[currentLang].anonTime;
+
+        const isAnnouncementRef = notif.logKey.startsWith('champ-');
+        let logPreview;
+
+        if (isAnnouncementRef) {
+          const monthLabel = getMonthLabel(notif.logKey.slice(6));
+          logPreview = `
+            <div style="font-size:0.75rem; color:#FFC400; margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(255,196,0,0.2);">
+              🏆 ${monthLabel}
+            </div>`;
+        } else {
+          const logItem = allLogsData[notif.logKey];
+          const ld = new Date(logItem.startTime);
+          const logDateStr = currentLang === 'es' ? `${ld.getDate()}/${ld.getMonth()+1}` : `${ld.getMonth()+1}/${ld.getDate()}`;
+          const memoText = logItem.memo ? ` - ${logItem.memo.slice(0, 15)}${logItem.memo.length > 15 ? '...' : ''}` : '';
+
+          const isLogMine = logItem.user === myUserName;
+          const logPriv = getPrivacy(logItem.user);
+          const logDuration = (isLogMine || logPriv.showTime) ? `${logItem.duration} ${i18n[currentLang].unitMin}` : i18n[currentLang].anonTime;
+
+          logPreview = `
+            <div style="font-size:0.75rem; color:var(--ring-inner); margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(45, 212, 191,0.2);">
+              📝 ${logDateStr} (${logDuration})${memoText}
+            </div>`;
+        }
 
         // 送信者のプライバシー確認
         const fromPriv = getPrivacy(notif.fromUser);
@@ -2500,10 +2542,6 @@
         // テキスト内の古い名前を新しい表示名に置換
         const replacedText = notif.text.replace(notif.fromUser, dFromName);
 
-        const logPreview = `
-          <div style="font-size:0.75rem; color:var(--ring-inner); margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(45, 212, 191,0.2);">
-            📝 ${logDateStr} (${logDuration})${memoText}
-          </div>`;
         const clickAttr = `onclick="goToLog('${notif.logKey}', '${key}')" style="cursor:pointer;"`;
 
         return `
@@ -2525,6 +2563,13 @@
       renderTimeline();
     };
 
+    function buildCombinedTimelineArray() {
+      const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key, isAnnouncement: false }));
+      const combinedArray = logsArray.concat(buildChampionAnnouncements());
+      combinedArray.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return combinedArray;
+    }
+
     function buildChampionAnnouncements() {
       const t = i18n[currentLang];
       return Object.keys(allMonthlyResults).map(monthStr => {
@@ -2545,7 +2590,9 @@
           key: `champ-${monthStr}`,
           date: getLocalISOString(postDate),
           avatar: top.avatar || '🏆',
-          message
+          message,
+          likes: resultData.likes || {},
+          comments: resultData.comments || {}
         };
       }).filter(Boolean);
     }
@@ -2556,15 +2603,12 @@
       const loadMoreEl = document.getElementById("load-more-container");
       if(!listEl) return;
       
-      const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key, isAnnouncement: false }));
-      const combinedArray = logsArray.concat(buildChampionAnnouncements());
+      const combinedArray = buildCombinedTimelineArray();
       if (combinedArray.length === 0) {
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
         loadMoreEl.style.display = "none";
         return;
       }
-
-      combinedArray.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       const visibleLogs = combinedArray.slice(0, activityDisplayLimit);
       if (combinedArray.length > activityDisplayLimit) {
@@ -2580,6 +2624,17 @@
             : `${d.getMonth()+1}月${d.getDate()}日 ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
 
         if (log.isAnnouncement) {
+          const likes = log.likes || {};
+          const isLikedByMe = !!likes[myUserName];
+          const likeCount = Object.keys(likes).length;
+          let likeNamesArr = [];
+          Object.keys(likes).forEach(lu => {
+             const p = getPrivacy(lu);
+             likeNamesArr.push((lu === myUserName || p.showName) ? lu : t.anonUser);
+          });
+          const likeNames = likeNamesArr.join(", ");
+          const commentsCount = log.comments ? Object.keys(log.comments).length : 0;
+
           return `
             <div class="timeline-card-item champion-announce-card" id="log-${log.key}">
               <div class="timeline-header">
@@ -2592,6 +2647,18 @@
                 </div>
               </div>
               <div class="timeline-memo champion-announce-message">${log.message}</div>
+
+              <div class="timeline-actions">
+                <button class="action-icon-btn ${isLikedByMe ? 'liked' : ''}" onclick="toggleLike('${log.key}')" title="${likeNames}">
+                  <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                  ${likeCount > 0 ? `<span style="font-size:0.75rem; font-weight:700; margin-left:4px;">${likeCount}</span>` : ''}
+                </button>
+
+                <button class="action-icon-btn" onclick="openCommentModal('${log.key}')">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  ${commentsCount > 0 ? `<span style="font-size:0.75rem; font-weight:700; margin-left:4px;">${commentsCount}</span>` : ''}
+                </button>
+              </div>
             </div>
           `;
         }
