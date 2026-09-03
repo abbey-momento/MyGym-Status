@@ -221,7 +221,7 @@
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 20px; }
     .cal-weekday { text-align: center; font-size: 0.75rem; color: var(--text-sub); font-weight: 700; padding-bottom: 4px; }
-    .cal-day { aspect-ratio: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: 0.2s; position: relative; }
+    .cal-day { aspect-ratio: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: 0.2s; position: relative; font-family: 'LINE Seed JP', sans-serif; }
     .cal-day.empty { background: transparent; border: none; cursor: default; }
     .cal-day.has-activity { background: linear-gradient(135deg, rgba(47, 143, 255,0.25), rgba(45, 212, 191,0.25)); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(47, 143, 255,0.3); }
     .cal-day.selected { border: 2px solid #FFF; transform: scale(1.05); }
@@ -339,7 +339,7 @@
     
     .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .list-item:last-child { border-bottom: none; }
-    .list-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; }
+    .list-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; font-family: 'LINE Seed JP', sans-serif; }
     .list-title { font-weight: 700; color: #FFF; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
     
     .btn-action-svg { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: var(--text-sub); width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; margin-left: 6px; }
@@ -2972,7 +2972,7 @@
           <div class="list-item">
             <div>
               <div class="list-date">${dateStr}</div>
-              <div class="list-title" style="color:white;">${log.duration} ${t.unitMin} ${log.memo ? `<span style="font-size:0.75rem; color:var(--text-sub); font-weight:normal;">(${log.memo})</span>` : ''}</div>
+              <div class="list-title" style="color:white;"><span style="font-family:'LINE Seed JP', sans-serif;">${log.duration} ${t.unitMin}</span> ${log.memo ? `<span style="font-size:0.75rem; color:var(--text-sub); font-weight:normal;">(${log.memo})</span>` : ''}</div>
             </div>
             <div style="display:flex; align-items:center;">
               <button class="btn-action-svg" onclick="openEditLogModal('${key}')" title="Editar">
