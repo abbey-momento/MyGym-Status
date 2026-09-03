@@ -371,6 +371,17 @@
 
     .hype-row-inline { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
     .hype-row-inline:empty { margin: 0; }
+
+    .active-users-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .active-users-list:empty { margin-top: 0; }
+    .active-user-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 8px 12px; }
+    .active-user-avatar { font-size: 1.3rem; flex-shrink: 0; }
+    .active-user-info { flex: 1; min-width: 0; }
+    .active-user-name { font-weight: 700; color: #fff; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .active-user-elapsed { font-size: 0.75rem; color: var(--ring-inner); font-weight: 700; font-family: 'LINE Seed JP', sans-serif; }
+    .active-user-cheer-btn { background: rgba(47,143,255,0.12); border: 1px solid var(--card-border); border-radius: 10px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.2s; }
+    .active-user-cheer-btn:hover { border-color: var(--accent); }
+    .active-user-cheer-btn.sent { opacity: 0.5; cursor: default; }
     .hype-avatar-btn { position: relative; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer; transition: 0.15s; padding: 0; }
     .hype-avatar-btn:active { transform: scale(0.88); }
     .hype-avatar-btn.sent { opacity: 0.45; }
@@ -442,9 +453,8 @@
       <div class="form-group">
         <textarea id="trainingMemoInput" rows="3" placeholder="Ej: ¡Hoy hice pierna con todo!"></textarea>
       </div>
-      <button class="btn-primary mypage-icon-title" style="justify-content:center;" onclick="submitTrainingLog(false)">
+      <button class="btn-primary" onclick="submitTrainingLog(false)">
         <span id="t-btn-save-log">Guardar Registro</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFC400"><path d="M12 2 L14 9 L21 12 L14 15 L12 22 L10 15 L3 12 L10 9 Z"/></svg>
       </button>
       <button class="btn-secondary" onclick="submitTrainingLog(true)" id="t-btn-skip-memo">Terminar sin nota</button>
     </div>
@@ -534,7 +544,7 @@
     <div class="home-status-box">
       <div class="home-status-title" id="t-home-status-label">Estado Actual</div>
       <div class="home-status-text status-free" id="home-status-text">Libre</div>
-      <div id="active-hype-list" class="hype-row-inline"></div>
+      <div id="active-users-detail" class="active-users-list"></div>
     </div>
 
     <div class="timer-container">
@@ -1360,7 +1370,7 @@
       if(btnAction) btnAction.innerText = amIRunning ? t.btnStop : t.btnStart;
       
       try { updateHomeStatusText(); } catch(e){}
-      try { renderActiveHypeList(); } catch(e){}
+      try { renderActiveUsersDetail(); } catch(e){}
       try { renderTimeline(); } catch(e){}
       try { renderCalendar(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
@@ -1834,7 +1844,7 @@
       const badge = document.getElementById("my-streak-badge");
       if(badge) {
         const t = i18n[currentLang];
-        badge.innerHTML = `<svg width="8" height="11" viewBox="0 0 384 512" style="filter: drop-shadow(0 0 3px #22D3EE);vertical-align:-4px; margin-right:2px;"><defs><linearGradient id="flameGradBadge" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#flameGradBadge)" d="M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-11.5-14.02-17.35-22.14-9.24C48.02 218.12 0 285.76 0 344c0 97.94 78.05 177.44 175.5 179.94 100.68 2.58 184.5-78.66 184.5-178.94 0-54.49-20.62-100.75-38.9-131.09-24.28-40.4-51.36-59.61-51.36-59.61s.86 12.25 5.32 15.24"/></svg>${streak} ${t.statStreak}`;
+        badge.innerHTML = `<svg width="8" height="11" viewBox="0 0 224 512" style="filter: drop-shadow(0 0 3px #22D3EE);vertical-align:-4px; margin-right:2px;"><defs><linearGradient id="flameGradBadge" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#flameGradBadge)" d="M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-11.5-14.02-17.35-22.14-9.24C48.02 218.12 0 285.76 0 344c0 97.94 78.05 177.44 175.5 179.94 100.68 2.58 184.5-78.66 184.5-178.94 0-54.49-20.62-100.75-38.9-131.09-24.28-40.4-51.36-59.61-51.36-59.61s.86 12.25 5.32 15.24"/></svg>${streak} ${t.statStreak}`;
       }
 
       const currentMonth = getLocalISOString(new Date()).slice(0, 7);
@@ -2230,26 +2240,42 @@
       }
     }
 
-    function renderActiveHypeList() {
+    function renderActiveUsersDetail() {
       const t = i18n[currentLang];
-      const container = document.getElementById("active-hype-list");
+      const container = document.getElementById("active-users-detail");
       if (!container) return;
 
-      const others = Object.entries(activeUsersData).filter(([u]) => u !== myUserName);
-      if (others.length === 0) {
+      const entries = Object.entries(activeUsersData);
+      if (entries.length === 0) {
         container.innerHTML = "";
         return;
       }
 
-      container.innerHTML = others.map(([u, data]) => {
+      container.innerHTML = entries.map(([u, data]) => {
         const priv = getPrivacy(u);
-        const dName = (priv.showName) ? u : t.anonUser;
+        const isMe = u === myUserName;
+        const dName = (isMe || priv.showName) ? u : t.anonUser;
+        const elapsedMin = Math.max(0, Math.floor((Date.now() - data.startTime) / 60000));
+        const elapsedText = (isMe || priv.showTime)
+          ? (currentLang === 'es' ? `${elapsedMin} min` : `${elapsedMin}分経過`)
+          : t.anonTime;
         const safeUser = u.replace(/'/g, "\\'");
+        const gradId = `flameGradRow_${u.replace(/[^a-zA-Z0-9]/g, '')}`;
+
+        const cheerBtn = isMe ? '' : `
+          <button class="active-user-cheer-btn" onclick="sendHype('${safeUser}', this)" title="${currentLang === 'es' ? 'Enviar ánimo' : 'エールを送る'}">
+            <span class="hype-fire-badge"><svg width="12" height="16" viewBox="0 0 224 512" style="filter: drop-shadow(0 0 3px #22D3EE);"><defs><linearGradient id="${gradId}" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#${gradId})" d="M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-11.5-14.02-17.35-22.14-9.24C48.02 218.12 0 285.76 0 344c0 97.94 78.05 177.44 175.5 179.94 100.68 2.58 184.5-78.66 184.5-178.94 0-54.49-20.62-100.75-38.9-131.09-24.28-40.4-51.36-59.61-51.36-59.61s.86 12.25 5.32 15.24"/></svg></span>
+          </button>`;
+
         return `
-          <button class="hype-avatar-btn" onclick="sendHype('${safeUser}', this)" title="${dName}">
-            <span>${data.avatar || '👤'}</span>
-            <span class="hype-fire-badge"><svg width="7" height="9" viewBox="0 0 384 512" style="filter: drop-shadow(0 0 3px #22D3EE);"><defs><linearGradient id="flameGradHype" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#flameGradHype)" d="M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-11.5-14.02-17.35-22.14-9.24C48.02 218.12 0 285.76 0 344c0 97.94 78.05 177.44 175.5 179.94 100.68 2.58 184.5-78.66 184.5-178.94 0-54.49-20.62-100.75-38.9-131.09-24.28-40.4-51.36-59.61-51.36-59.61s.86 12.25 5.32 15.24"/></svg></span>
-          </button>
+          <div class="active-user-row">
+            <span class="active-user-avatar">${data.avatar || '👤'}</span>
+            <div class="active-user-info">
+              <div class="active-user-name">${dName}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
+              <div class="active-user-elapsed">${elapsedText}</div>
+            </div>
+            ${cheerBtn}
+          </div>
         `;
       }).join("");
     }
@@ -2335,7 +2361,7 @@
       });
       // プライバシーが更新されたら再描画
       try { updateHomeStatusText(); } catch(e){}
-      try { renderActiveHypeList(); } catch(e){}
+      try { renderActiveUsersDetail(); } catch(e){}
       try { renderTimeline(); } catch(e){}
       try { renderCalendar(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
@@ -2348,7 +2374,7 @@
         if (!activeUsersData[key] || !activeUsersData[key].startTime) delete activeUsersData[key];
       });
       updateHomeStatusText();
-      renderActiveHypeList();
+      renderActiveUsersDetail();
       checkMyTimerStatus();
     });
 
@@ -2952,7 +2978,7 @@
       if(tVal) tVal.innerText = (isTgtMe || tgtPriv.showTime) ? formatTimeFriendly(targetMonthMin) : t.anonTime;
       
       const sVal = document.getElementById("stat-streak-val");
-      if(sVal) sVal.innerHTML = `${targetStreak}<svg width="10" height="14" viewBox="0 0 384 512" style="filter: drop-shadow(0 0 3px #22D3EE);vertical-align:-6px; margin-left:2px;"><defs><linearGradient id="flameGradCal" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#flameGradCal)" d="M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-11.5-14.02-17.35-22.14-9.24C48.02 218.12 0 285.76 0 344c0 97.94 78.05 177.44 175.5 179.94 100.68 2.58 184.5-78.66 184.5-178.94 0-54.49-20.62-100.75-38.9-131.09-24.28-40.4-51.36-59.61-51.36-59.61s.86 12.25 5.32 15.24"/></svg>`;
+      if(sVal) sVal.innerHTML = `${targetStreak}<svg width="10" height="14" viewBox="0 0 224 512" style="filter: drop-shadow(0 0 3px #22D3EE);vertical-align:-6px; margin-left:2px;"><defs><linearGradient id="flameGradCal" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#flameGradCal)" d="M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-11.5-14.02-17.35-22.14-9.24C48.02 218.12 0 285.76 0 344c0 97.94 78.05 177.44 175.5 179.94 100.68 2.58 184.5-78.66 184.5-178.94 0-54.49-20.62-100.75-38.9-131.09-24.28-40.4-51.36-59.61-51.36-59.61s.86 12.25 5.32 15.24"/></svg>`;
 
       const container = document.getElementById("calendar-days-container");
       if(!container) return;
@@ -3311,6 +3337,8 @@
       switchLang(currentLang);
       checkAuth();
       switchTab('home');
+
+      setInterval(() => { try { renderActiveUsersDetail(); } catch(e){} }, 30000);
 
       setTimeout(() => { try { window.scrollTo(0, 0); } catch(e){} }, 50);
 
