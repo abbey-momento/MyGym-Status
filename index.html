@@ -238,7 +238,7 @@
     .timeline-user-box { display: flex; align-items: center; gap: 8px; }
     .timeline-avatar { font-size: 1.3rem; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); }
     .timeline-name { color: #FFF; font-weight: 800; font-size: 0.95rem; }
-    .timeline-time { color: var(--text-sub); font-size: 0.7rem; }
+    .timeline-time { color: var(--text-sub); font-size: 0.7rem; font-family: 'LINE Seed JP', sans-serif; }
     .timeline-duration { color: var(--ring-inner); font-weight: 800; font-size: 1.1rem; font-family: 'Space Grotesk'; }
     .timeline-memo { font-size: 0.85rem; color: var(--text-sub); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 10px; word-break: break-all; }
 
@@ -2712,7 +2712,7 @@
                     <span style="font-size:1.2rem;">${log.avatar || '👤'}</span>
                     <span style="color:#FFF; font-weight:800;">${dName}</span>
                   </div>
-                  <span style="color:var(--ring-inner); font-weight:800;">${dTime}</span>
+                  <span style="color:var(--ring-inner); font-weight:800; font-family:'LINE Seed JP', sans-serif;">${dTime}</span>
                 </div>
                 ${log.memo ? `<div style="font-size:0.85rem; color:var(--text-sub); background:rgba(0,0,0,0.2); padding:6px 8px; border-radius:8px;">💬 ${log.memo}</div>` : ''}
               </div>
