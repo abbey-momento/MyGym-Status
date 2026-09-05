@@ -210,7 +210,7 @@
     .ring-progress-outer { fill: none; stroke: var(--ring-outer); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     .ring-progress-inner { fill: none; stroke: var(--ring-inner); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     
-    .timer-display { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
+    .timer-display { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .time-main { font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; color: #FFF; text-shadow: 0 0 15px rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
     .time-sub { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
 
@@ -372,19 +372,16 @@
     .hype-row-inline { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
     .hype-row-inline:empty { margin: 0; }
 
-    .active-users-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .active-users-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
     .active-users-list:empty { margin-top: 0; }
-    .active-user-row { display: flex; align-items: center; gap: 12px; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); border-radius: 0; }
-    .active-user-row:last-child { border-bottom: none; }
-    .active-user-row.is-previewing { background: rgba(45, 212, 191, 0.08); border-radius: 10px; box-shadow: 0 0 10px rgba(45, 212, 191, 0.2) inset; }
-    .active-user-avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(47,143,255,0.1); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
-    .active-user-info { flex: 1; min-width: 0; }
-    .active-user-name { font-weight: 700; color: #fff; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .active-user-status { font-size: 0.72rem; color: var(--ring-inner); font-weight: 700; display: flex; align-items: center; gap: 5px; margin-top: 1px; }
-    .active-user-status .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ring-inner); flex-shrink: 0; animation: activeUserPulse 1.4s infinite; }
-    @keyframes activeUserPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-    .active-user-cheer-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.2s; }
-    .active-user-cheer-btn:hover { border-color: var(--accent); }
+    .active-user-row { display: inline-flex; align-items: center; gap: 6px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 999px; padding: 5px 12px 5px 5px; }
+    .active-user-row.is-previewing { border-color: var(--ring-inner); background: rgba(45, 212, 191, 0.1); box-shadow: 0 0 8px rgba(45, 212, 191, 0.25); }
+    .active-user-avatar { width: 26px; height: 26px; border-radius: 50%; background: rgba(47,143,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
+    .active-user-info { display: flex; align-items: center; }
+    .active-user-name { font-weight: 700; color: #fff; font-size: 0.78rem; white-space: nowrap; }
+    .active-user-status { display: none; }
+    .active-user-cheer-btn { background: transparent; border: none; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.2s; padding: 0; }
+    .active-user-cheer-btn:hover { transform: scale(1.15); }
     .active-user-cheer-btn.sent { opacity: 0.5; cursor: default; }
     .hype-avatar-btn { position: relative; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer; transition: 0.15s; padding: 0; }
     .hype-avatar-btn:active { transform: scale(0.88); }
@@ -1806,7 +1803,18 @@
       const mins = Math.floor(elapsedSec / 60);
       const secs = (elapsedSec % 60).toString().padStart(2, '0');
       const timeText = document.getElementById("time-text");
-      if(timeText) timeText.innerText = `${mins.toString().padStart(2,'0')}:${secs}`;
+      const timeSub = previewUser ? null : document.getElementById("time-sub-label");
+
+      if (mins >= 100) {
+        // 長時間になったら「時間:分」表記に切り替えて、桁があふれないようにする
+        const hrs = Math.floor(mins / 60);
+        const remMins = (mins % 60).toString().padStart(2, '0');
+        if (timeText) timeText.innerText = `${hrs}:${remMins}`;
+        if (timeSub) timeSub.innerText = "H:MM";
+      } else {
+        if (timeText) timeText.innerText = `${mins.toString().padStart(2,'0')}:${secs}`;
+        if (timeSub) timeSub.innerText = "MM:SS";
+      }
 
       const outerProgress = (elapsedSec % SECONDS_1HR) / SECONDS_1HR;
       const innerProgress = (elapsedSec % SECONDS_10MIN) / SECONDS_10MIN;
@@ -2411,7 +2419,7 @@
 
         const cheerBtn = `
           <button class="active-user-cheer-btn" onclick="sendHype('${safeUser}', this)" title="${currentLang === 'es' ? 'Enviar ánimo' : 'エールを送る'}">
-            <span class="hype-fire-badge"><svg width="12" height="16" viewBox="0 0 24 24" style="filter: drop-shadow(0 0 3px #22D3EE); transform: scaleY(1.3); transform-origin: center;"><defs><linearGradient id="${gradId}" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#${gradId})" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.545 3.75 3.75 0 0 1 3.255 3.717Z"/></svg></span>
+            <span class="hype-fire-badge"><svg width="9" height="12" viewBox="0 0 24 24" style="filter: drop-shadow(0 0 3px #22D3EE); transform: scaleY(1.3); transform-origin: center;"><defs><linearGradient id="${gradId}" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#${gradId})" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.545 3.75 3.75 0 0 1 3.255 3.717Z"/></svg></span>
           </button>`;
 
         return `
