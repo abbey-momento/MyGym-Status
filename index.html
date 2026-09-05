@@ -374,14 +374,16 @@
 
     .active-users-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
     .active-users-list:empty { margin-top: 0; }
-    .active-user-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 8px 12px; }
-    .active-user-row.is-previewing { border-color: var(--ring-inner); box-shadow: 0 0 10px rgba(45, 212, 191, 0.25); background: rgba(45, 212, 191, 0.08); }
-    .active-user-avatar { font-size: 1.3rem; flex-shrink: 0; }
+    .active-user-row { display: flex; align-items: center; gap: 12px; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); border-radius: 0; }
+    .active-user-row:last-child { border-bottom: none; }
+    .active-user-row.is-previewing { background: rgba(45, 212, 191, 0.08); border-radius: 10px; box-shadow: 0 0 10px rgba(45, 212, 191, 0.2) inset; }
+    .active-user-avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(47,143,255,0.1); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
     .active-user-info { flex: 1; min-width: 0; }
-    .active-user-name { font-weight: 700; color: #fff; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .active-user-elapsed { font-size: 0.75rem; color: var(--ring-inner); font-weight: 700; font-family: 'LINE Seed JP', sans-serif; }
-    .active-user-hint { font-size: 0.75rem; color: var(--text-sub); font-weight: 600; }
-    .active-user-cheer-btn { background: rgba(47,143,255,0.12); border: 1px solid var(--card-border); border-radius: 10px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.2s; }
+    .active-user-name { font-weight: 700; color: #fff; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .active-user-status { font-size: 0.72rem; color: var(--ring-inner); font-weight: 700; display: flex; align-items: center; gap: 5px; margin-top: 1px; }
+    .active-user-status .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ring-inner); flex-shrink: 0; animation: activeUserPulse 1.4s infinite; }
+    @keyframes activeUserPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .active-user-cheer-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.2s; }
     .active-user-cheer-btn:hover { border-color: var(--accent); }
     .active-user-cheer-btn.sent { opacity: 0.5; cursor: default; }
     .hype-avatar-btn { position: relative; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer; transition: 0.15s; padding: 0; }
@@ -871,6 +873,9 @@
       <div style="margin-top: 20px; text-align: center;">
         <button onclick="resetUser()" style="background:transparent; border:none; color:var(--text-sub); font-size:0.8rem; cursor:pointer; text-decoration:underline;" id="t-logout">Cerrar sesión</button>
       </div>
+      <div style="margin-top: 10px; text-align: center;">
+        <button onclick="deleteAccount()" style="background:transparent; border:none; color:var(--red); font-size:0.75rem; cursor:pointer; text-decoration:underline; opacity:0.8;" id="t-delete-account">Eliminar cuenta</button>
+      </div>
     </div>
   </div>
 
@@ -1189,11 +1194,16 @@
       es: {
         modalTitle: "Bienvenido", modalName: "Tu nombre", modalAvatar: "Avatar", btnRegister: "Comenzar",
         editTitle: "Editar Perfil", editName: "Tu nombre", editAvatar: "Avatar", btnSave: "Guardar", btnCancel: "Cancelar", editBtn: "Editar Perfil",
-        homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando",
+        homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando", activeStatusLabel: "Entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak", calTodayBtn: "Hoy",
         raceTitle: "Energy Race", timelineTitle: "Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
+        deleteAccountBtn: "Eliminar cuenta",
+        confirmDeleteAccount: "¿Seguro que quieres eliminar la cuenta \"{name}\"? Se borrarán todos tus registros, ajustes y notificaciones de Firebase. Esto no se puede deshacer.",
+        confirmDeleteAccountFinal: "Última confirmación: esta acción es permanente. ¿Eliminar de verdad?",
+        accountDeleted: "La cuenta se ha eliminado.",
+        deleteAccountError: "Hubo un error al eliminar la cuenta. Inténtalo de nuevo.",
         goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar", goalCurrentLabel: "Sesiones este mes", goalSliderLabel: "Ajustar meta",
         paceAchieved: "¡Meta ya cumplida este mes!",
         pacePerDay: "Necesitas entrenar {count} veces al día para llegar a la meta",
@@ -1206,6 +1216,7 @@
         nameExistsConfirm: "Ya existe un usuario llamado \"{name}\". Si es tu registro, pulsa Aceptar para continuar. Si no, pulsa Cancelar y elige otro nombre.",
         alertManual: "Ingresa una fecha, hora de inicio y fin válidas", alertTimeOrder: "La hora de fin debe ser posterior a la de inicio", confirmDelete: "¿Borrar este registro?",
         promptStopAlert: "Han pasado {min} min.\nSi olvidaste detenerlo, ingresa los minutos reales:",
+        forgottenTimerCheck: "Tu cronómetro lleva {min} minutos corriendo. ¿Sigues entrenando ahora mismo?\n\nAceptar = sigo entrenando\nCancelar = me olvidé de detenerlo (podrás corregir el tiempo)",
         months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
         deletedLog: "Este registro fue eliminado",
         anonUser: "Anónimo", anonTime: "Privado", tapToSeeTime: "Toca para ver el tiempo",
@@ -1225,11 +1236,16 @@
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる",
         editTitle: "プロフィール編集", editName: "あなたの名前", editAvatar: "アバター", btnSave: "保存する", btnCancel: "キャンセル", editBtn: "プロフィール編集",
-        homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中",
+        homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中", activeStatusLabel: "トレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続", calTodayBtn: "今日",
         raceTitle: "エネルギーレース", timelineTitle: "アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト (リセット)",
+        deleteAccountBtn: "アカウントを削除",
+        confirmDeleteAccount: "「{name}」のアカウントを削除しますか？記録・設定・通知など、Firebase上のデータがすべて消えます。この操作は元に戻せません。",
+        confirmDeleteAccountFinal: "最終確認です。この操作は取り消せません。本当に削除しますか？",
+        accountDeleted: "アカウントを削除しました。",
+        deleteAccountError: "削除中にエラーが発生しました。もう一度お試しください。",
         goalTitle: "今月の目標回数", btnSaveGoal: "保存", goalCurrentLabel: "今月の実施回数", goalSliderLabel: "目標回数を設定",
         paceAchieved: "今月の目標はもう達成しています！",
         pacePerDay: "目標達成には1日に{count}回以上のペースが必要です",
@@ -1242,6 +1258,7 @@
         nameExistsConfirm: "「{name}」という名前はすでに使われています。あなた自身の記録で間違いなければOKを押して続けてください。違う場合はキャンセルして別の名前にしてください。",
         alertManual: "日付と正しい開始・終了時間を入力してください", alertTimeOrder: "終了時間は開始時間より後にしてください", confirmDelete: "この記録を削除しますか？",
         promptStopAlert: "{min}分経過しています。\n押し忘れた場合は実際の利用時間（分）を入力してください。",
+        forgottenTimerCheck: "ストップウォッチが{min}分間動いたままです。今もトレーニング中ですか？\n\nOK＝まだ続けている\nキャンセル＝押し忘れていた（時間を修正できます）",
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
         deletedLog: "この投稿は削除されました",
         anonUser: "匿名ユーザー", anonTime: "非公開", tapToSeeTime: "タップで経過時間を見る",
@@ -1343,6 +1360,7 @@
       setT("t-btn-add", t.btnAdd);
       setT("t-history-title", t.historyTitle);
       setT("t-logout", t.logout);
+      setT("t-delete-account", t.deleteAccountBtn);
       setT("t-export-title", t.exportTitle);
       setT("t-import-title", t.importTitle);
       setT("t-import-btn", t.importBtn);
@@ -1709,6 +1727,72 @@
       location.reload();
     };
 
+    // 🗑️ アカウント削除：自分のデータをFirebaseから実際に消す（ログアウトは端末側の情報を消すだけ）
+    window.deleteAccount = async () => {
+      const t = i18n[currentLang];
+      if (!myUserName) return;
+      const name = myUserName;
+
+      if (!confirm(t.confirmDeleteAccount.replace("{name}", name))) return;
+      if (!confirm(t.confirmDeleteAccountFinal)) return;
+
+      playSound('click');
+
+      try {
+        await remove(ref(db, `current/${name}`));
+        await remove(ref(db, `users/${name}`));
+        await remove(ref(db, `hype/${name}`));
+
+        const logEntries = Object.entries(allLogsData);
+
+        // 自分のログをすべて削除
+        for (const [key, log] of logEntries) {
+          if (log.user === name) {
+            await remove(ref(db, `logs/${key}`));
+          }
+        }
+
+        // 他の人の投稿に残した自分のいいね・コメントを削除
+        for (const [key, log] of logEntries) {
+          if (log.user === name) continue;
+          if (log.likes && log.likes[name]) {
+            await remove(ref(db, `logs/${key}/likes/${name}`));
+          }
+          if (log.comments) {
+            for (const [cKey, c] of Object.entries(log.comments)) {
+              if (c.user === name) await remove(ref(db, `logs/${key}/comments/${cKey}`));
+            }
+          }
+        }
+
+        // 月間チャンピオン発表への自分のいいね・コメントを削除
+        for (const [monthStr, result] of Object.entries(allMonthlyResults)) {
+          if (result.likes && result.likes[name]) {
+            await remove(ref(db, `monthly_results/${monthStr}/likes/${name}`));
+          }
+          if (result.comments) {
+            for (const [cKey, c] of Object.entries(result.comments)) {
+              if (c.user === name) await remove(ref(db, `monthly_results/${monthStr}/comments/${cKey}`));
+            }
+          }
+        }
+
+        // 自分に関する通知をすべて削除
+        for (const [key, notif] of Object.entries(allNotifications)) {
+          if (notif.targetUser === name || notif.fromUser === name) {
+            await remove(ref(db, `notifications/${key}`));
+          }
+        }
+
+        alert(t.accountDeleted);
+        localStorage.removeItem("gym_my_name");
+        localStorage.removeItem("gym_my_avatar");
+        location.reload();
+      } catch (e) {
+        alert(t.deleteAccountError);
+      }
+    };
+
     function formatTimeFriendly(totalMinutes) {
       const t = i18n[currentLang];
       if (totalMinutes < 60) return `${totalMinutes} ${t.unitMin}`;
@@ -1760,6 +1844,24 @@
           document.getElementById("ring-outer").style.strokeDashoffset = CIRCUMFERENCE_OUTER;
           document.getElementById("ring-inner").style.strokeDashoffset = CIRCUMFERENCE_INNER;
         }
+      }
+    }
+
+    // ⏰ 押し忘れタイマー検知：アプリを開いた瞬間に長時間経過に気づけるようにする（1回のセッションにつき1回だけ）
+    let forgottenTimerChecked = false;
+    function checkForgottenTimer() {
+      if (forgottenTimerChecked || !myUserName) return;
+      const myData = activeUsersData[myUserName];
+      if (!myData || !myData.startTime) return;
+
+      const elapsedMin = Math.round((Date.now() - myData.startTime) / 60000);
+      if (elapsedMin < 180) return;
+
+      forgottenTimerChecked = true;
+      const t = i18n[currentLang];
+      const stillGoing = confirm(t.forgottenTimerCheck.replace("{min}", elapsedMin));
+      if (!stillGoing) {
+        window.toggleTimer();
       }
     }
 
@@ -2317,6 +2419,7 @@
             <span class="active-user-avatar">${data.avatar || '👤'}</span>
             <div class="active-user-info"${nameClickAttr}>
               <div class="active-user-name">${dName}</div>
+              <div class="active-user-status"><span class="pulse-dot"></span>${t.activeStatusLabel}</div>
             </div>
             ${cheerBtn}
           </div>
@@ -2420,6 +2523,7 @@
       updateHomeStatusText();
       renderActiveUsersDetail();
       checkMyTimerStatus();
+      try { checkForgottenTimer(); } catch(e){}
     });
 
     onValue(ref(db, "logs"), (snapshot) => {
