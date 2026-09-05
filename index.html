@@ -127,6 +127,7 @@
     .fontsize-toggle-group button[data-scale="small"] { font-size: 0.7rem; }
     .fontsize-toggle-group button[data-scale="normal"] { font-size: 0.85rem; }
     .fontsize-toggle-group button[data-scale="large"] { font-size: 1rem; }
+    .fontsize-toggle-group button[data-scale="xlarge"] { font-size: 1.15rem; }
     .fontsize-toggle-group button.active { background: var(--accent-gradient); color: #0B0F19; }
 
     .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 150px; overflow-y: auto; padding-right: 4px; }
@@ -212,6 +213,11 @@
     .weekly-bar-label.is-today { color: var(--accent); }
     
     .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 20px; position: relative; }
+
+    .location-toggle-group { position: absolute; top: 6px; right: 6px; z-index: 5; display: flex; gap: 3px; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 999px; padding: 3px; }
+    .location-toggle-group button { background: transparent; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.75rem; cursor: pointer; border-radius: 999px; padding: 5px 12px; font-family: inherit; transition: 0.2s; }
+    .location-toggle-group button.active { background: var(--accent-gradient); color: #0B0F19; }
+    .location-toggle-group button:disabled { cursor: default; opacity: 0.5; }
     .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(47, 143, 255,0.2)); }
     .ring-track { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 14; }
     .ring-progress-outer { fill: none; stroke: var(--ring-outer); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
@@ -556,6 +562,11 @@
     </div>
 
     <div class="timer-container">
+      <div class="location-toggle-group" id="location-toggle-group">
+        <button onclick="setLocation('home')" data-loc="home" id="t-loc-home">家</button>
+        <button onclick="setLocation('other')" data-loc="other" id="t-loc-other">外</button>
+      </div>
+
       <svg class="progress-ring" width="280" height="280">
         <circle class="ring-track" cx="140" cy="140" r="118" />
         <circle class="ring-progress-outer" id="ring-outer" cx="140" cy="140" r="118" stroke-dasharray="741.42" stroke-dashoffset="741.42" />
@@ -826,6 +837,7 @@
             <button onclick="setFontScale('small')" data-scale="small">A</button>
             <button onclick="setFontScale('normal')" data-scale="normal">A</button>
             <button onclick="setFontScale('large')" data-scale="large">A</button>
+            <button onclick="setFontScale('xlarge')" data-scale="xlarge">A</button>
           </div>
         </div>
       </div>
@@ -1234,6 +1246,7 @@
         deletedLog: "Este registro fue eliminado",
         anonUser: "Anónimo", anonTime: "Privado", tapToSeeTime: "Toca para ver el tiempo",
         privacyTitle: "Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking", privFontsize: "Tamaño de texto",
+        locHome: "Casa", locOther: "Fuera",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
         historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
@@ -1276,6 +1289,7 @@
         deletedLog: "この投稿は削除されました",
         anonUser: "匿名ユーザー", anonTime: "非公開", tapToSeeTime: "タップで経過時間を見る",
         privacyTitle: "プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する", privFontsize: "文字サイズ",
+        locHome: "家", locOther: "外",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
         historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
@@ -1306,6 +1320,7 @@
     let editSelectedAvatar = "🐶";
     let myUserName = localStorage.getItem("gym_my_name") || "";
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
+    let selectedLocation = localStorage.getItem("gym_location") || "home";
     let monthlyGoalCount = parseInt(localStorage.getItem("gym_monthly_goal_count") || "15", 10);
     let amIRunning = false;
     let pendingTimerStartTime = null;
@@ -1390,6 +1405,8 @@
       setT("t-priv-time", t.privTime);
       setT("t-priv-ranking", t.privRank);
       setT("t-priv-fontsize", t.privFontsize);
+      setT("t-loc-home", t.locHome);
+      setT("t-loc-other", t.locOther);
 
       setT("t-history-btn", t.historyBtn);
       setT("t-results-history-title", t.resultsHistoryTitle);
@@ -1435,7 +1452,7 @@
     };
 
     // 🔠 文字サイズ設定（この端末だけの見た目の好み。ブラウザに保存）
-    const FONT_SCALES = { small: "87.5%", normal: "100%", large: "115%" };
+    const FONT_SCALES = { small: "87.5%", normal: "100%", large: "115%", xlarge: "130%" };
     window.setFontScale = (scale) => {
       playSound('click');
       if (!FONT_SCALES[scale]) scale = 'normal';
@@ -1824,6 +1841,25 @@
       }
     };
 
+    // 🏠 家/外 切り替え：外のジムで使った時は「今家のジムを使用中」判定から除外するため
+    window.setLocation = (loc) => {
+      if (amIRunning) return; // トレーニング中は変更不可（開始時の場所が記録に使われる）
+      playSound('click');
+      selectedLocation = loc;
+      localStorage.setItem("gym_location", loc);
+      updateLocationToggleUI();
+    };
+
+    function updateLocationToggleUI(overrideLoc) {
+      const group = document.getElementById("location-toggle-group");
+      if (!group) return;
+      const displayLoc = overrideLoc || selectedLocation;
+      group.querySelectorAll("button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.loc === displayLoc);
+        btn.disabled = amIRunning;
+      });
+    }
+
     function formatTimeFriendly(totalMinutes) {
       const t = i18n[currentLang];
       if (totalMinutes < 60) return `${totalMinutes} ${t.unitMin}`;
@@ -1875,6 +1911,7 @@
         btnAction.innerText = t.btnStop;
         btnAction.className = "timer-action-btn stop";
         if (!previewUser && !timerAnimationId) updateTimerUI(myData.startTime);
+        updateLocationToggleUI(myData.location || 'home');
       } else {
         amIRunning = false;
         btnAction.innerText = t.btnStart;
@@ -1886,6 +1923,7 @@
           document.getElementById("ring-outer").style.strokeDashoffset = CIRCUMFERENCE_OUTER;
           document.getElementById("ring-inner").style.strokeDashoffset = CIRCUMFERENCE_INNER;
         }
+        updateLocationToggleUI();
       }
     }
 
@@ -1930,7 +1968,7 @@
       } else {
         playSound('start');
         triggerVibrate(60);
-        set(ref(db, `current/${myUserName}`), { startTime: Date.now(), avatar: myUserAvatar });
+        set(ref(db, `current/${myUserName}`), { startTime: Date.now(), avatar: myUserAvatar, location: selectedLocation });
       }
     };
 
@@ -1943,6 +1981,7 @@
 
       const now = new Date();
       const localISO = getLocalISOString(now);
+      const sessionLocation = (activeUsersData[myUserName] && activeUsersData[myUserName].location) || 'home';
 
       push(ref(db, "logs"), {
         user: myUserName,
@@ -1953,7 +1992,8 @@
         likes: {},
         comments: {},
         month: localISO.slice(0, 7),
-        date: localISO
+        date: localISO,
+        location: sessionLocation
       });
 
       remove(ref(db, `current/${myUserName}`));
@@ -2369,7 +2409,7 @@
       const statusEl = document.getElementById("home-status-text");
       if(!statusEl) return;
 
-      const users = Object.keys(activeUsersData);
+      const users = Object.keys(activeUsersData).filter(u => (activeUsersData[u].location || 'home') === 'home');
       
       if (users.length === 0) {
         statusEl.innerText = t.statusFree;
@@ -2424,7 +2464,8 @@
       if (!container) return;
 
       // 自分の分は自分のストップウォッチで見えているので、ここには他の人だけ表示する
-      const others = Object.entries(activeUsersData).filter(([u]) => u !== myUserName);
+      // 「外」でトレーニング中の人は、家のジムを使っていないのでここには出さない
+      const others = Object.entries(activeUsersData).filter(([u, d]) => u !== myUserName && (d.location || 'home') === 'home');
 
       // プレビュー中の相手がいなくなったら、メインのストップウォッチ表示を元に戻す
       if (previewUser && !activeUsersData[previewUser]) {
@@ -3524,6 +3565,7 @@
       checkAuth();
       switchTab('home');
       initFontScale();
+      updateLocationToggleUI();
 
       setInterval(() => { try { renderActiveUsersDetail(); } catch(e){} }, 30000);
 
