@@ -217,9 +217,9 @@
     .ring-progress-outer { fill: none; stroke: var(--ring-outer); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     .ring-progress-inner { fill: none; stroke: var(--ring-inner); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     
-    .timer-display { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .timer-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
     .time-main { font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; color: #FFF; text-shadow: 0 0 15px rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
-    .time-sub { font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
+    .time-sub { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 4px; white-space: nowrap; font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
 
     .timer-action-btn { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid var(--card-border); padding: 14px 40px; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(52,211,153,0.2); margin-top: 10px; transition: 0.2s; }
     .timer-action-btn.start { background: rgba(52,211,153,0.15); color: var(--green); border-color: rgba(52,211,153,0.4); }
@@ -379,15 +379,15 @@
     .hype-row-inline { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
     .hype-row-inline:empty { margin: 0; }
 
-    .active-users-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .active-users-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
     .active-users-list:empty { margin-top: 0; }
-    .active-user-row { display: inline-flex; align-items: center; gap: 6px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 999px; padding: 5px 12px 5px 5px; }
+    .active-user-row { display: inline-flex; align-items: center; gap: 8px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 999px; padding: 7px 16px 7px 7px; }
     .active-user-row.is-previewing { border-color: var(--ring-inner); background: rgba(45, 212, 191, 0.1); box-shadow: 0 0 8px rgba(45, 212, 191, 0.25); }
-    .active-user-avatar { width: 26px; height: 26px; border-radius: 50%; background: rgba(47,143,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
+    .active-user-avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(47,143,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; }
     .active-user-info { display: flex; align-items: center; }
-    .active-user-name { font-weight: 700; color: #fff; font-size: 0.78rem; white-space: nowrap; }
+    .active-user-name { font-weight: 700; color: #fff; font-size: 0.85rem; white-space: nowrap; }
     .active-user-status { display: none; }
-    .active-user-cheer-btn { background: transparent; border: none; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.2s; padding: 0; }
+    .active-user-cheer-btn { background: transparent; border: none; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.2s; padding: 0; }
     .active-user-cheer-btn:hover { transform: scale(1.15); }
     .active-user-cheer-btn.sent { opacity: 0.5; cursor: default; }
     .hype-avatar-btn { position: relative; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer; transition: 0.15s; padding: 0; }
