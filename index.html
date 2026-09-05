@@ -217,7 +217,7 @@
     .ring-progress-outer { fill: none; stroke: var(--ring-outer); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     .ring-progress-inner { fill: none; stroke: var(--ring-inner); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
     
-    .timer-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
+    .timer-display { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
     .time-main { font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; line-height: 1; color: #FFF; text-shadow: 0 0 15px rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
     .time-sub { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 4px; white-space: nowrap; font-size: 0.8rem; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; }
 
@@ -556,11 +556,11 @@
     </div>
 
     <div class="timer-container">
-      <svg class="progress-ring" width="260" height="260">
-        <circle class="ring-track" cx="130" cy="130" r="110" />
-        <circle class="ring-progress-outer" id="ring-outer" cx="130" cy="130" r="110" stroke-dasharray="691.15" stroke-dashoffset="691.15" />
-        <circle class="ring-track" cx="130" cy="130" r="86" />
-        <circle class="ring-progress-inner" id="ring-inner" cx="130" cy="130" r="86" stroke-dasharray="540.35" stroke-dashoffset="540.35" />
+      <svg class="progress-ring" width="280" height="280">
+        <circle class="ring-track" cx="140" cy="140" r="118" />
+        <circle class="ring-progress-outer" id="ring-outer" cx="140" cy="140" r="118" stroke-dasharray="741.42" stroke-dashoffset="741.42" />
+        <circle class="ring-track" cx="140" cy="140" r="94" />
+        <circle class="ring-progress-inner" id="ring-inner" cx="140" cy="140" r="94" stroke-dasharray="590.62" stroke-dashoffset="590.62" />
       </svg>
       
       <div class="timer-display">
@@ -1319,8 +1319,8 @@
     let activeCommentLogKey = null;
     
     let timerAnimationId;
-    const CIRCUMFERENCE_OUTER = 691.15;
-    const CIRCUMFERENCE_INNER = 540.35;
+    const CIRCUMFERENCE_OUTER = 741.42;
+    const CIRCUMFERENCE_INNER = 590.62;
     const SECONDS_1HR = 3600;
     const SECONDS_10MIN = 600;
 
@@ -1837,7 +1837,7 @@
       const mins = Math.floor(elapsedSec / 60);
       const secs = (elapsedSec % 60).toString().padStart(2, '0');
       const timeText = document.getElementById("time-text");
-      const timeSub = previewUser ? null : document.getElementById("time-sub-label");
+      const timeSub = document.getElementById("time-sub-label");
 
       if (mins >= 100) {
         // 長時間になったら「時間:分」表記に切り替えて、桁があふれないようにする
@@ -2409,16 +2409,12 @@
       if (!data) return;
       if (timerAnimationId) cancelAnimationFrame(timerAnimationId);
       timerAnimationId = null;
-      const subEl = document.getElementById("time-sub-label");
-      if (subEl) subEl.innerText = username;
       updateTimerUI(data.startTime);
     }
 
     function exitStopwatchPreview() {
       if (timerAnimationId) cancelAnimationFrame(timerAnimationId);
       timerAnimationId = null;
-      const subEl = document.getElementById("time-sub-label");
-      if (subEl) subEl.innerText = "MM:SS";
       checkMyTimerStatus();
     }
 
