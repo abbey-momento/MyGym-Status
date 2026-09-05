@@ -122,6 +122,13 @@
     .toggle-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
     .toggle-switch:checked::after { transform: translateX(20px); }
 
+    .fontsize-toggle-group { display: flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 3px; }
+    .fontsize-toggle-group button { background: transparent; border: none; color: var(--text-sub); font-weight: 800; cursor: pointer; border-radius: 8px; padding: 5px 10px; font-family: inherit; }
+    .fontsize-toggle-group button[data-scale="small"] { font-size: 0.7rem; }
+    .fontsize-toggle-group button[data-scale="normal"] { font-size: 0.85rem; }
+    .fontsize-toggle-group button[data-scale="large"] { font-size: 1rem; }
+    .fontsize-toggle-group button.active { background: var(--accent-gradient); color: #0B0F19; }
+
     .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 150px; overflow-y: auto; padding-right: 4px; }
     .avatar-option { font-size: 1.4rem; text-align: center; padding: 6px; background: rgba(0,0,0,0.3); border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .avatar-option.selected { border-color: var(--accent); background: rgba(47, 143, 255,0.2); transform: scale(1.05); }
@@ -812,6 +819,15 @@
           <span style="font-size:0.9rem; font-weight:700;" id="t-priv-ranking">ランキングに参加する</span>
           <input type="checkbox" class="toggle-switch" id="priv-inRanking" onchange="updatePrivacySetting('inRanking', this.checked)">
         </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-fontsize">文字サイズ</span>
+          <div class="fontsize-toggle-group" id="fontsize-toggle-group">
+            <button onclick="setFontScale('small')" data-scale="small">A</button>
+            <button onclick="setFontScale('normal')" data-scale="normal">A</button>
+            <button onclick="setFontScale('large')" data-scale="large">A</button>
+          </div>
+        </div>
       </div>
       
       <div class="manual-log-box">
@@ -1217,7 +1233,7 @@
         months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
         deletedLog: "Este registro fue eliminado",
         anonUser: "Anónimo", anonTime: "Privado", tapToSeeTime: "Toca para ver el tiempo",
-        privacyTitle: "Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking",
+        privacyTitle: "Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking", privFontsize: "Tamaño de texto",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
         historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
@@ -1259,7 +1275,7 @@
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
         deletedLog: "この投稿は削除されました",
         anonUser: "匿名ユーザー", anonTime: "非公開", tapToSeeTime: "タップで経過時間を見る",
-        privacyTitle: "プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する",
+        privacyTitle: "プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する", privFontsize: "文字サイズ",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
         historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
@@ -1373,6 +1389,7 @@
       setT("t-priv-name", t.privName);
       setT("t-priv-time", t.privTime);
       setT("t-priv-ranking", t.privRank);
+      setT("t-priv-fontsize", t.privFontsize);
 
       setT("t-history-btn", t.historyBtn);
       setT("t-results-history-title", t.resultsHistoryTitle);
@@ -1416,6 +1433,23 @@
       currentPriv[key] = value;
       update(ref(db, `users/${myUserName}/privacy`), currentPriv);
     };
+
+    // 🔠 文字サイズ設定（この端末だけの見た目の好み。ブラウザに保存）
+    const FONT_SCALES = { small: "87.5%", normal: "100%", large: "115%" };
+    window.setFontScale = (scale) => {
+      playSound('click');
+      if (!FONT_SCALES[scale]) scale = 'normal';
+      document.documentElement.style.fontSize = FONT_SCALES[scale];
+      localStorage.setItem("gym_font_scale", scale);
+      document.querySelectorAll("#fontsize-toggle-group button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.scale === scale);
+      });
+    };
+
+    function initFontScale() {
+      const saved = localStorage.getItem("gym_font_scale") || "normal";
+      setFontScale(saved);
+    }
 
     function initPrivacyToggles() {
       if (!myUserName) return;
@@ -3493,6 +3527,7 @@
       switchLang(currentLang);
       checkAuth();
       switchTab('home');
+      initFontScale();
 
       setInterval(() => { try { renderActiveUsersDetail(); } catch(e){} }, 30000);
 
