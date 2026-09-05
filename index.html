@@ -841,6 +841,15 @@
             <button onclick="setFontScale('xlarge')" data-scale="xlarge">A</button>
           </div>
         </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-sound">効果音</span>
+          <input type="checkbox" class="toggle-switch" id="pref-sound" onchange="setSoundEnabled(this.checked)">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-vibrate">バイブレーション</span>
+          <input type="checkbox" class="toggle-switch" id="pref-vibrate" onchange="setVibrateEnabled(this.checked)">
+        </div>
       </div>
       
       <div class="manual-log-box">
@@ -964,13 +973,18 @@
       return audioCtx;
     }
 
+    let soundEnabled = localStorage.getItem("gym_sound_enabled") !== "false";
+    let vibrateEnabled = localStorage.getItem("gym_vibrate_enabled") !== "false";
+
     function triggerVibrate(pattern = 40) {
+      if (!vibrateEnabled) return;
       if ("vibrate" in navigator) {
         try { navigator.vibrate(pattern); } catch(e) {}
       }
     }
 
     function playSound(type) {
+      if (!soundEnabled) return;
       try {
         const ctx = getAudioContext();
         if (ctx.state === 'suspended') ctx.resume();
@@ -1247,6 +1261,7 @@
         deletedLog: "Este registro fue eliminado",
         anonUser: "Anónimo", anonTime: "Privado", tapToSeeTime: "Toca para ver el tiempo",
         privacyTitle: "Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking", privFontsize: "Tamaño de texto",
+        privSound: "Sonido", privVibrate: "Vibración",
         locHome: "Casa", locOther: "Fuera",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
@@ -1290,6 +1305,7 @@
         deletedLog: "この投稿は削除されました",
         anonUser: "匿名ユーザー", anonTime: "非公開", tapToSeeTime: "タップで経過時間を見る",
         privacyTitle: "プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する", privFontsize: "文字サイズ",
+        privSound: "効果音", privVibrate: "バイブレーション",
         locHome: "家", locOther: "外",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
@@ -1406,6 +1422,8 @@
       setT("t-priv-time", t.privTime);
       setT("t-priv-ranking", t.privRank);
       setT("t-priv-fontsize", t.privFontsize);
+      setT("t-priv-sound", t.privSound);
+      setT("t-priv-vibrate", t.privVibrate);
       setT("t-loc-home", t.locHome);
       setT("t-loc-other", t.locOther);
 
@@ -1469,12 +1487,34 @@
       setFontScale(saved);
     }
 
+    // 🔔 効果音・バイブレーションのON/OFF（この端末だけの好み。ブラウザに保存）
+    window.setSoundEnabled = (enabled) => {
+      soundEnabled = enabled;
+      localStorage.setItem("gym_sound_enabled", enabled ? "true" : "false");
+      if (enabled) playSound('click');
+    };
+
+    window.setVibrateEnabled = (enabled) => {
+      playSound('click');
+      vibrateEnabled = enabled;
+      localStorage.setItem("gym_vibrate_enabled", enabled ? "true" : "false");
+      if (enabled) triggerVibrate(30);
+    };
+
+    function initSoundVibratePrefs() {
+      const soundToggle = document.getElementById("pref-sound");
+      const vibrateToggle = document.getElementById("pref-vibrate");
+      if (soundToggle) soundToggle.checked = soundEnabled;
+      if (vibrateToggle) vibrateToggle.checked = vibrateEnabled;
+    }
+
     function initPrivacyToggles() {
       if (!myUserName) return;
       const p = getPrivacy(myUserName);
       document.getElementById("priv-showName").checked = p.showName;
       document.getElementById("priv-showTime").checked = p.showTime;
       document.getElementById("priv-inRanking").checked = p.inRanking;
+      initSoundVibratePrefs();
     }
 
     window.switchTab = (tabId) => {
