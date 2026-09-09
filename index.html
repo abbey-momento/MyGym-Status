@@ -2293,9 +2293,14 @@
       }
 
       // 横に長いグリッドなので、デフォルトで一番新しい週（今月）が見える位置までスクロールしておく
+      // タイミング問題を避けるため、即時・アニメーションフレーム後・少し遅延後の3回試す
       const scrollContainer = document.querySelector(".heatmap-scroll");
       if (scrollContainer) {
-        requestAnimationFrame(() => { scrollContainer.scrollLeft = scrollContainer.scrollWidth; });
+        const scrollToEnd = () => { scrollContainer.scrollLeft = scrollContainer.scrollWidth; };
+        scrollToEnd();
+        requestAnimationFrame(scrollToEnd);
+        setTimeout(scrollToEnd, 100);
+        setTimeout(scrollToEnd, 400);
       }
     }
 
