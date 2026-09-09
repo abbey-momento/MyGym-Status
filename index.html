@@ -2249,33 +2249,45 @@
 
       let monthsHtml = "";
       let lastMonth = -1;
-      weeks.forEach((week) => {
-        const firstDay = week[0];
-        const m = firstDay.getMonth();
-        if (m !== lastMonth) {
-          monthsHtml += `<div class="heatmap-month-label" style="width:13px;">${monthLabels[m]}</div>`;
-          lastMonth = m;
-        } else {
-          monthsHtml += `<div class="heatmap-month-label" style="width:13px;"></div>`;
-        }
-      });
+      try {
+        weeks.forEach((week) => {
+          const firstDay = week[0];
+          const m = firstDay.getMonth();
+          if (m !== lastMonth) {
+            monthsHtml += `<div class="heatmap-month-label" style="width:13px;">${monthLabels[m]}</div>`;
+            lastMonth = m;
+          } else {
+            monthsHtml += `<div class="heatmap-month-label" style="width:13px;"></div>`;
+          }
+        });
+      } catch (e) {
+        console.error("heatmap months render error:", e);
+        monthsEl.innerHTML = "";
+        gridEl.innerHTML = "";
+        return;
+      }
       monthsEl.innerHTML = monthsHtml;
 
-      const gridHtml = weeks.map(week => {
-        const cellsHtml = week.map(day => {
-          if (day > today) return `<div class="heatmap-cell" style="visibility:hidden;"></div>`;
-          const dateKey = getLocalISOString(day).slice(0, 10);
-          const min = dailyTotals[dateKey] || 0;
-          const level = heatmapLevelFor(min);
-          const dateLabel = currentLang === 'es'
-            ? `${day.getDate()}/${day.getMonth()+1}`
-            : `${day.getMonth()+1}月${day.getDate()}日`;
-          const title = min > 0 ? `${dateLabel}: ${formatTimeFriendly(min)}` : dateLabel;
-          return `<div class="heatmap-cell${level > 0 ? ' level-' + level : ''}" title="${title}"></div>`;
+      try {
+        const gridHtml = weeks.map(week => {
+          const cellsHtml = week.map(day => {
+            if (day > today) return `<div class="heatmap-cell" style="visibility:hidden;"></div>`;
+            const dateKey = getLocalISOString(day).slice(0, 10);
+            const min = dailyTotals[dateKey] || 0;
+            const level = heatmapLevelFor(min);
+            const dateLabel = currentLang === 'es'
+              ? `${day.getDate()}/${day.getMonth()+1}`
+              : `${day.getMonth()+1}月${day.getDate()}日`;
+            const title = min > 0 ? `${dateLabel}: ${formatTimeFriendly(min)}` : dateLabel;
+            return `<div class="heatmap-cell${level > 0 ? ' level-' + level : ''}" title="${title}"></div>`;
+          }).join("");
+          return `<div class="heatmap-week">${cellsHtml}</div>`;
         }).join("");
-        return `<div class="heatmap-week">${cellsHtml}</div>`;
-      }).join("");
-      gridEl.innerHTML = gridHtml;
+        gridEl.innerHTML = gridHtml;
+      } catch (e) {
+        console.error("heatmap grid render error:", e);
+        gridEl.innerHTML = "";
+      }
     }
 
     let lastGoalSliderValue = null;
