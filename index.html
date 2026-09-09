@@ -35,7 +35,7 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;700&family=LINE+Seed+JP:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;700&family=LINE+Seed+JP:wght@400;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -365,16 +365,50 @@
     
     .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-    .log-card-item { display: flex; align-items: center; gap: 14px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px; margin-bottom: 10px; }
-    .log-card-badge { width: 58px; height: 58px; border-radius: 14px; flex-shrink: 0; background: linear-gradient(135deg, rgba(47,143,255,0.22), rgba(45,212,191,0.14)); border: 1px solid var(--card-border); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .log-card-num { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 800; line-height: 1; color: #fff; }
-    .log-card-unit { font-size: 0.6rem; color: var(--text-sub); font-family: 'LINE Seed JP', sans-serif; margin-top: 2px; }
-    .log-card-mid { flex: 1; min-width: 0; }
+    .log-card-item {
+      display: flex; align-items: center; gap: 14px;
+      background: #06080f;
+      border: 1px solid rgba(255,0,200,0.35);
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(0,229,255,0.08) inset, 0 0 14px rgba(255,0,200,0.08);
+    }
+    .log-card-item::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, rgba(0,229,255,0.05) 0px, rgba(0,229,255,0.05) 1px, transparent 1px, transparent 3px);
+      pointer-events: none;
+    }
+    .log-card-item::after {
+      content: ""; position: absolute; top: 0; left: 0; width: 8px; height: 8px;
+      border-top: 2px solid #00E5FF; border-left: 2px solid #00E5FF;
+    }
+    .log-card-badge {
+      width: 58px; height: 58px; border-radius: 3px; flex-shrink: 0;
+      background: #0A0014;
+      border: 1px solid #FF00C8;
+      box-shadow: 0 0 8px rgba(255,0,200,0.5), inset 0 0 10px rgba(0,229,255,0.15);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative; z-index: 1;
+    }
+    .log-card-num {
+      font-family: 'Press Start 2P', monospace; font-size: 1rem; line-height: 1; color: #00E5FF;
+      text-shadow: 0 0 6px #00E5FF, 2px 0 #FF00C8;
+    }
+    .log-card-unit { font-size: 0.55rem; color: #FF00C8; font-family: 'VT323', monospace; margin-top: 5px; letter-spacing: 1px; text-transform: uppercase; }
+    .log-card-mid { flex: 1; min-width: 0; position: relative; z-index: 1; }
     .log-card-top-row { display: flex; align-items: center; gap: 6px; }
-    .log-card-date { font-weight: 800; color: #fff; font-size: 0.9rem; font-family: 'LINE Seed JP', sans-serif; }
-    .log-card-time { font-size: 0.78rem; color: var(--ring-inner); font-weight: 700; font-family: 'LINE Seed JP', sans-serif; margin-top: 2px; }
-    .log-card-memo { font-size: 0.75rem; color: var(--text-sub); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .log-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .log-card-date { font-weight: 700; color: #00E5FF; font-size: 1rem; font-family: 'VT323', monospace; letter-spacing: 1px; }
+    .log-card-date::before { content: "> "; color: #FF00C8; }
+    .log-card-time { font-size: 0.85rem; color: #FFD400; font-weight: 400; font-family: 'VT323', monospace; margin-top: 1px; letter-spacing: 0.5px; }
+    .log-card-memo { font-size: 0.78rem; color: #7DF9FF; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'VT323', monospace; opacity: 0.75; }
+    .log-card-actions { display: flex; gap: 6px; flex-shrink: 0; position: relative; z-index: 1; }
+    .log-card-actions .btn-action-svg { background: #0A0014; border: 1px solid rgba(0,229,255,0.4); border-radius: 3px; color: #00E5FF; }
+    .log-card-actions .btn-action-svg.delete { border-color: rgba(255,0,200,0.4); color: #FF00C8; }
+    .log-card-item .loc-tag { background: rgba(255,212,0,0.12); color: #FFD400; border: 1px solid rgba(255,212,0,0.4); font-family: 'VT323', monospace; font-size: 0.7rem; }
     .list-item:last-child { border-bottom: none; }
     .list-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; font-family: 'LINE Seed JP', sans-serif; }
     .list-title { font-weight: 700; color: #FFF; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
