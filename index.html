@@ -200,17 +200,17 @@
     .heatmap-scroll::-webkit-scrollbar-thumb { background: rgba(47,143,255,0.4); border-radius: 3px; }
     .heatmap-scroll::-webkit-scrollbar-thumb:hover { background: rgba(47,143,255,0.6); }
     .heatmap-outer { display: flex; gap: 6px; }
-    .heatmap-daylabels { display: flex; flex-direction: column; gap: 3px; padding-top: 16px; flex-shrink: 0; }
-    .heatmap-day-label { height: 10px; font-size: 0.6rem; line-height: 10px; color: var(--text-sub); }
-    .heatmap-months { display: flex; gap: 3px; height: 14px; margin-bottom: 2px; }
-    .heatmap-month-label { font-size: 0.65rem; color: var(--text-sub); flex-shrink: 0; white-space: nowrap; overflow: visible; }
-    .heatmap-grid { display: flex; gap: 3px; }
-    .heatmap-week { display: flex; flex-direction: column; gap: 3px; }
-    .heatmap-cell { width: 10px; height: 10px; border-radius: 2px; background: rgba(255,255,255,0.06); flex-shrink: 0; }
+    .heatmap-daylabels { display: flex; flex-direction: column; gap: 1px; padding-top: 11px; flex-shrink: 0; }
+    .heatmap-day-label { height: 4px; font-size: 0.45rem; line-height: 4px; color: var(--text-sub); }
+    .heatmap-months { display: flex; gap: 1px; height: 10px; margin-bottom: 1px; }
+    .heatmap-month-label { font-size: 0.5rem; color: var(--text-sub); flex-shrink: 0; white-space: nowrap; overflow: visible; }
+    .heatmap-grid { display: flex; gap: 1px; }
+    .heatmap-week { display: flex; flex-direction: column; gap: 1px; }
+    .heatmap-cell { width: 4px; height: 4px; border-radius: 1px; background: rgba(255,255,255,0.06); flex-shrink: 0; }
     .heatmap-cell.level-1 { background: rgba(52,211,153,0.3); }
     .heatmap-cell.level-2 { background: rgba(52,211,153,0.55); }
     .heatmap-cell.level-3 { background: rgba(52,211,153,0.78); }
-    .heatmap-cell.level-4 { background: var(--green); box-shadow: 0 0 4px rgba(52,211,153,0.5); }
+    .heatmap-cell.level-4 { background: var(--green); box-shadow: 0 0 3px rgba(52,211,153,0.5); }
     .heatmap-legend { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--text-sub); margin-top: 8px; justify-content: flex-end; }
     .weekly-bar-label { font-size:0.6rem; color:var(--text-sub); font-weight:700; }
     .weekly-bar-label.is-today { color: var(--accent); }
@@ -2228,6 +2228,7 @@
         dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + (log.duration || 0);
       });
 
+      // マス目を小さくして横スクロールなしで1年分が収まるようにした
       const TOTAL_WEEKS = 53;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -2252,56 +2253,33 @@
 
       let monthsHtml = "";
       let lastMonth = -1;
-      try {
-        weeks.forEach((week) => {
-          const firstDay = week[0];
-          const m = firstDay.getMonth();
-          if (m !== lastMonth) {
-            monthsHtml += `<div class="heatmap-month-label" style="width:13px;">${monthLabels[m]}</div>`;
-            lastMonth = m;
-          } else {
-            monthsHtml += `<div class="heatmap-month-label" style="width:13px;"></div>`;
-          }
-        });
-      } catch (e) {
-        console.error("heatmap months render error:", e);
-        monthsEl.innerHTML = "";
-        gridEl.innerHTML = "";
-        return;
-      }
+      weeks.forEach((week) => {
+        const firstDay = week[0];
+        const m = firstDay.getMonth();
+        if (m !== lastMonth) {
+          monthsHtml += `<div class="heatmap-month-label" style="width:5px;">${monthLabels[m]}</div>`;
+          lastMonth = m;
+        } else {
+          monthsHtml += `<div class="heatmap-month-label" style="width:5px;"></div>`;
+        }
+      });
       monthsEl.innerHTML = monthsHtml;
 
-      try {
-        const gridHtml = weeks.map(week => {
-          const cellsHtml = week.map(day => {
-            if (day > today) return `<div class="heatmap-cell" style="visibility:hidden;"></div>`;
-            const dateKey = getLocalISOString(day).slice(0, 10);
-            const min = dailyTotals[dateKey] || 0;
-            const level = heatmapLevelFor(min);
-            const dateLabel = currentLang === 'es'
-              ? `${day.getDate()}/${day.getMonth()+1}`
-              : `${day.getMonth()+1}月${day.getDate()}日`;
-            const title = min > 0 ? `${dateLabel}: ${formatTimeFriendly(min)}` : dateLabel;
-            return `<div class="heatmap-cell${level > 0 ? ' level-' + level : ''}" title="${title}"></div>`;
-          }).join("");
-          return `<div class="heatmap-week">${cellsHtml}</div>`;
+      const gridHtml = weeks.map(week => {
+        const cellsHtml = week.map(day => {
+          if (day > today) return `<div class="heatmap-cell" style="visibility:hidden;"></div>`;
+          const dateKey = getLocalISOString(day).slice(0, 10);
+          const min = dailyTotals[dateKey] || 0;
+          const level = heatmapLevelFor(min);
+          const dateLabel = currentLang === 'es'
+            ? `${day.getDate()}/${day.getMonth()+1}`
+            : `${day.getMonth()+1}月${day.getDate()}日`;
+          const title = min > 0 ? `${dateLabel}: ${formatTimeFriendly(min)}` : dateLabel;
+          return `<div class="heatmap-cell${level > 0 ? ' level-' + level : ''}" title="${title}"></div>`;
         }).join("");
-        gridEl.innerHTML = gridHtml;
-      } catch (e) {
-        console.error("heatmap grid render error:", e);
-        gridEl.innerHTML = "";
-      }
-
-      // 横に長いグリッドなので、デフォルトで一番新しい週（今月）が見える位置までスクロールしておく
-      // タイミング問題を避けるため、即時・アニメーションフレーム後・少し遅延後の3回試す
-      const scrollContainer = document.querySelector(".heatmap-scroll");
-      if (scrollContainer) {
-        const scrollToEnd = () => { scrollContainer.scrollLeft = scrollContainer.scrollWidth; };
-        scrollToEnd();
-        requestAnimationFrame(scrollToEnd);
-        setTimeout(scrollToEnd, 100);
-        setTimeout(scrollToEnd, 400);
-      }
+        return `<div class="heatmap-week">${cellsHtml}</div>`;
+      }).join("");
+      gridEl.innerHTML = gridHtml;
     }
 
     let lastGoalSliderValue = null;
