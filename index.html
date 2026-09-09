@@ -199,19 +199,18 @@
     .heatmap-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 3px; }
     .heatmap-scroll::-webkit-scrollbar-thumb { background: rgba(47,143,255,0.4); border-radius: 3px; }
     .heatmap-scroll::-webkit-scrollbar-thumb:hover { background: rgba(47,143,255,0.6); }
-    .heatmap-outer { display: flex; gap: 6px; }
-    .heatmap-daylabels { display: flex; flex-direction: column; gap: 3px; padding-top: 16px; flex-shrink: 0; }
-    .heatmap-day-label { height: 10px; font-size: 0.6rem; line-height: 10px; color: var(--text-sub); }
-    .heatmap-months { display: flex; gap: 3px; height: 14px; margin-bottom: 2px; flex-shrink: 0; }
-    .heatmap-month-label { font-size: 0.65rem; color: var(--text-sub); flex-shrink: 0; white-space: nowrap; overflow: visible; }
-    .heatmap-grid { display: flex; gap: 3px; flex-shrink: 0; }
-    .heatmap-week { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
-    .heatmap-cell { width: 10px; height: 10px; border-radius: 2px; background: rgba(255,255,255,0.06); flex-shrink: 0; }
-    .heatmap-cell.level-1 { background: rgba(52,211,153,0.3); }
-    .heatmap-cell.level-2 { background: rgba(52,211,153,0.55); }
-    .heatmap-cell.level-3 { background: rgba(52,211,153,0.78); }
-    .heatmap-cell.level-4 { background: var(--green); box-shadow: 0 0 4px rgba(52,211,153,0.5); }
-    .heatmap-legend { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--text-sub); margin-top: 8px; justify-content: flex-end; }
+    .heatmap-cal-outer { display: flex; gap: 6px; }
+    .heatmap-cal-daylabels { display: grid; grid-template-rows: 14px repeat(7, 12px); gap: 3px; flex-shrink: 0; }
+    .heatmap-cal-daylabel { font-size: 0.6rem; color: var(--text-sub); display: flex; align-items: center; height: 12px; }
+    .heatmap-cal-grid { display: grid; grid-template-rows: 14px repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 3px; }
+    .heatmap-cal-month-label { font-size: 0.62rem; color: var(--text-sub); white-space: nowrap; grid-row: 1; align-self: end; }
+    .heatmap-day-cell { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.06); }
+    .heatmap-day-cell.level-1 { background: rgba(52,211,153,0.3); }
+    .heatmap-day-cell.level-2 { background: rgba(52,211,153,0.55); }
+    .heatmap-day-cell.level-3 { background: rgba(52,211,153,0.78); }
+    .heatmap-day-cell.level-4 { background: var(--green); box-shadow: 0 0 4px rgba(52,211,153,0.5); }
+    .heatmap-day-cell.is-today { box-shadow: 0 0 0 1.5px var(--accent); }
+    .heatmap-legend { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--text-sub); margin-top: 12px; justify-content: flex-end; }
     .weekly-bar-label { font-size:0.6rem; color:var(--text-sub); font-weight:700; }
     .weekly-bar-label.is-today { color: var(--accent); }
     
@@ -787,30 +786,19 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           <span id="t-heatmap-title">アクティビティ履歴</span>
         </h3>
-        <div class="heatmap-scroll">
-          <div class="heatmap-outer">
-            <div class="heatmap-daylabels">
-              <div class="heatmap-day-label"></div>
-              <div class="heatmap-day-label" id="t-hm-mon">Mon</div>
-              <div class="heatmap-day-label"></div>
-              <div class="heatmap-day-label" id="t-hm-wed">Wed</div>
-              <div class="heatmap-day-label"></div>
-              <div class="heatmap-day-label" id="t-hm-fri">Fri</div>
-              <div class="heatmap-day-label"></div>
-            </div>
-            <div>
-              <div class="heatmap-months" id="heatmap-months"></div>
-              <div class="heatmap-grid" id="heatmap-grid"></div>
-            </div>
+        <div class="heatmap-cal-outer">
+          <div class="heatmap-cal-daylabels" id="heatmap-cal-daylabels"></div>
+          <div class="heatmap-scroll">
+            <div class="heatmap-cal-grid" id="heatmap-cal-grid"></div>
           </div>
         </div>
         <div class="heatmap-legend">
           <span id="t-hm-less">Less</span>
-          <span class="heatmap-cell"></span>
-          <span class="heatmap-cell level-1"></span>
-          <span class="heatmap-cell level-2"></span>
-          <span class="heatmap-cell level-3"></span>
-          <span class="heatmap-cell level-4"></span>
+          <span class="heatmap-day-cell" style="width:11px; height:11px; border-radius:3px;"></span>
+          <span class="heatmap-day-cell level-1" style="width:11px; height:11px; border-radius:3px;"></span>
+          <span class="heatmap-day-cell level-2" style="width:11px; height:11px; border-radius:3px;"></span>
+          <span class="heatmap-day-cell level-3" style="width:11px; height:11px; border-radius:3px;"></span>
+          <span class="heatmap-day-cell level-4" style="width:11px; height:11px; border-radius:3px;"></span>
           <span id="t-hm-more">More</span>
         </div>
       </div>
@@ -1415,9 +1403,6 @@
       setT("t-heatmap-title", t.heatmapTitle);
       setT("t-hm-less", t.hmLess);
       setT("t-hm-more", t.hmMore);
-      setT("t-hm-mon", t.hmMon);
-      setT("t-hm-wed", t.hmWed);
-      setT("t-hm-fri", t.hmFri);
       setT("t-comment-send", currentLang === 'es' ? "Enviar" : "送信する");
       
       setT("t-privacy-title", t.privacyTitle);
@@ -2217,9 +2202,9 @@
 
     function renderContributionHeatmap() {
       if (!myUserName) return;
-      const gridEl = document.getElementById("heatmap-grid");
-      const monthsEl = document.getElementById("heatmap-months");
-      if (!gridEl || !monthsEl) return;
+      const gridEl = document.getElementById("heatmap-cal-grid");
+      const dayLabelsEl = document.getElementById("heatmap-cal-daylabels");
+      if (!gridEl || !dayLabelsEl) return;
 
       const dailyTotals = {};
       Object.values(allLogsData).forEach(log => {
@@ -2228,10 +2213,11 @@
         dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + (log.duration || 0);
       });
 
-      // 直近3ヶ月分だけを、見やすい大きさで確実に表示する
-      const TOTAL_WEEKS = 12;
+      // 直近26週（半年）分。日曜始まりの週ごとに1列
+      const TOTAL_WEEKS = 26;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const todayKey = getLocalISOString(today).slice(0, 10);
       const startDate = new Date(today);
       startDate.setDate(startDate.getDate() - (TOTAL_WEEKS * 7 - 1));
       startDate.setDate(startDate.getDate() - startDate.getDay()); // 日曜日始まりに揃える
@@ -2247,39 +2233,46 @@
         weeks.push(week);
       }
 
+      const dayLabels = currentLang === 'es'
+        ? ['D', 'L', 'M', 'M', 'J', 'V', 'S']
+        : ['日', '月', '火', '水', '木', '金', '土'];
+      dayLabelsEl.innerHTML = `<div></div>` + dayLabels.map(l => `<div class="heatmap-cal-daylabel">${l}</div>`).join("");
+
       const monthLabels = currentLang === 'es'
         ? ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
         : ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
-      let monthsHtml = "";
+      // 全セルを1つのCSS Grid（grid-auto-flow: column）に流し込む。
+      // ラベル行と日付マスが同じグリッドの子要素になるので、列がズレることは構造上あり得ない。
+      let html = "";
       let lastMonth = -1;
       weeks.forEach((week) => {
-        const firstDay = week[0];
-        const m = firstDay.getMonth();
+        const m = week[0].getMonth();
         if (m !== lastMonth) {
-          monthsHtml += `<div class="heatmap-month-label" style="width:13px;">${monthLabels[m]}</div>`;
+          html += `<div class="heatmap-cal-month-label">${monthLabels[m]}</div>`;
           lastMonth = m;
         } else {
-          monthsHtml += `<div class="heatmap-month-label" style="width:13px;"></div>`;
+          html += `<div></div>`;
         }
-      });
-      monthsEl.innerHTML = monthsHtml;
 
-      const gridHtml = weeks.map(week => {
-        const cellsHtml = week.map(day => {
-          if (day > today) return `<div class="heatmap-cell" style="visibility:hidden;"></div>`;
+        week.forEach(day => {
+          if (day > today) {
+            html += `<div class="heatmap-day-cell" style="visibility:hidden;"></div>`;
+            return;
+          }
           const dateKey = getLocalISOString(day).slice(0, 10);
           const min = dailyTotals[dateKey] || 0;
           const level = heatmapLevelFor(min);
+          const isToday = dateKey === todayKey;
           const dateLabel = currentLang === 'es'
             ? `${day.getDate()}/${day.getMonth()+1}`
             : `${day.getMonth()+1}月${day.getDate()}日`;
           const title = min > 0 ? `${dateLabel}: ${formatTimeFriendly(min)}` : dateLabel;
-          return `<div class="heatmap-cell${level > 0 ? ' level-' + level : ''}" title="${title}"></div>`;
-        }).join("");
-        return `<div class="heatmap-week">${cellsHtml}</div>`;
-      }).join("");
-      gridEl.innerHTML = gridHtml;
+          html += `<div class="heatmap-day-cell${level > 0 ? ' level-' + level : ''}${isToday ? ' is-today' : ''}" title="${title}"></div>`;
+        });
+      });
+
+      gridEl.innerHTML = html;
     }
 
     let lastGoalSliderValue = null;
