@@ -919,6 +919,12 @@
             </div>
           </div>
           <input type="text" id="manualMemo" placeholder="Nota opcional" style="padding:10px; border-radius: 10px; font-size:0.9rem;">
+          <div style="display:flex; justify-content:center;">
+            <div class="location-toggle-group" id="manual-location-toggle-group">
+              <button type="button" onclick="setManualLocation('home')" data-loc="home" id="t-manual-loc-home">家</button>
+              <button type="button" onclick="setManualLocation('other')" data-loc="other" id="t-manual-loc-other">外</button>
+            </div>
+          </div>
           <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:#0B0F19; padding:14px; font-weight:800; cursor:pointer; margin-top:4px;">Añadir</button>
         </div>
       </div>
@@ -1290,6 +1296,8 @@
         accountDeleted: "La cuenta se ha eliminado.",
         deleteAccountError: "Hubo un error al eliminar la cuenta. Inténtalo de nuevo.",
         goalTitle: "Meta Mensual (sesiones)", btnSaveGoal: "Guardar", goalCurrentLabel: "Sesiones este mes", goalSliderLabel: "Ajustar meta",
+        goalTitle_week: "Meta Semanal (sesiones)", goalTitle_month: "Meta Mensual (sesiones)", goalTitle_year: "Meta Anual (sesiones)",
+        goalCurrentLabel_week: "Sesiones esta semana", goalCurrentLabel_month: "Sesiones este mes", goalCurrentLabel_year: "Sesiones este año",
         paceAchieved: "¡Meta ya cumplida este mes!",
         pacePerDay: "Necesitas entrenar {count} veces al día para llegar a la meta",
         paceInterval: "Quedan {daysLeft} días para {remaining} sesiones — entrena cada {interval} día(s) para lograrlo",
@@ -1337,6 +1345,8 @@
         accountDeleted: "アカウントを削除しました。",
         deleteAccountError: "削除中にエラーが発生しました。もう一度お試しください。",
         goalTitle: "今月の目標回数", btnSaveGoal: "保存", goalCurrentLabel: "今月の実施回数", goalSliderLabel: "目標回数を設定",
+        goalTitle_week: "今週の目標回数", goalTitle_month: "今月の目標回数", goalTitle_year: "今年の目標回数",
+        goalCurrentLabel_week: "今週の実施回数", goalCurrentLabel_month: "今月の実施回数", goalCurrentLabel_year: "今年の実施回数",
         paceAchieved: "今月の目標はもう達成しています！",
         pacePerDay: "目標達成には1日に{count}回以上のペースが必要です",
         paceInterval: "残り{daysLeft}日で{remaining}回。{interval}日に1回のペースで行けば達成できます",
@@ -1389,7 +1399,16 @@
     let myUserName = localStorage.getItem("gym_my_name") || "";
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
     let selectedLocation = localStorage.getItem("gym_location") || "home";
-    let monthlyGoalCount = parseInt(localStorage.getItem("gym_monthly_goal_count") || "15", 10);
+    let goalCounts = (() => {
+      const saved = localStorage.getItem("gym_goal_counts");
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) {}
+      }
+      // 旧バージョン（月間のみ）からの移行
+      const oldMonthly = parseInt(localStorage.getItem("gym_monthly_goal_count") || "15", 10);
+      return { week: 3, month: oldMonthly, year: 100 };
+    })();
+    const GOAL_SLIDER_RANGES = { week: [1, 14], month: [1, 31], year: [1, 366] };
     let amIRunning = false;
     let pendingTimerStartTime = null;
     let editingLogKey = null;
@@ -1476,6 +1495,8 @@
       setT("t-loc-other", t.locOther);
       setT("t-edit-loc-home", t.locHome);
       setT("t-edit-loc-other", t.locOther);
+      setT("t-manual-loc-home", t.locHome);
+      setT("t-manual-loc-other", t.locOther);
 
       setT("t-history-btn", t.historyBtn);
       setT("t-results-history-title", t.resultsHistoryTitle);
@@ -1623,8 +1644,7 @@
         document.getElementById("auth-modal").style.display = "none";
         document.getElementById("my-name-display").innerText = myUserName;
         document.getElementById("my-avatar-display").innerText = myUserAvatar;
-        document.getElementById("goalInput").value = monthlyGoalCount;
-        updateGoalSliderLabel(monthlyGoalCount);
+        updateGoalSliderForPeriod();
         if(!calendarTargetUser) calendarTargetUser = myUserName;
         checkMyTimerStatus();
         updateStreakAndGoals();
@@ -2129,33 +2149,44 @@
         badge.innerHTML = `<span style="display:inline-flex; align-items:center; vertical-align:middle; margin-right:2px;"><svg width="11" height="15" viewBox="0 0 24 24" style="filter: drop-shadow(0 0 3px #22D3EE); transform: scaleY(1.3); transform-origin: center;"><defs><linearGradient id="flameGradBadge" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#flameGradBadge)" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.545 3.75 3.75 0 0 1 3.255 3.717Z"/></svg></span>${streak} ${t.statStreak}`;
       }
 
-      const currentMonth = getLocalISOString(new Date()).slice(0, 7);
+      let thisStart, thisEnd;
+      if (reportPeriod === 'week') { [thisStart, thisEnd] = getWeekRange(0); }
+      else if (reportPeriod === 'year') { [thisStart, thisEnd] = getYearRange(0); }
+      else { [thisStart, thisEnd] = getMonthRange(0); }
+
       let totalSessions = 0;
       Object.values(allLogsData).forEach(log => {
-        if (log.user === myUserName && log.month === currentMonth) {
-          totalSessions++;
-        }
+        if (log.user !== myUserName || !log.startTime) return;
+        const d = new Date(log.startTime);
+        if (d >= thisStart && d < thisEnd) totalSessions++;
       });
 
-      let percent = monthlyGoalCount > 0 ? Math.min(100, Math.round((totalSessions / monthlyGoalCount) * 100)) : 0;
+      const goalCount = goalCounts[reportPeriod] || 1;
+      let percent = goalCount > 0 ? Math.min(100, Math.round((totalSessions / goalCount) * 100)) : 0;
       const countEl = document.getElementById("goal-current-count");
-      if(countEl) countEl.innerHTML = `${totalSessions}<span style="font-size:0.9rem; color:var(--text-sub); font-weight:700;"> / ${monthlyGoalCount}</span>`;
+      if(countEl) countEl.innerHTML = `${totalSessions}<span style="font-size:0.9rem; color:var(--text-sub); font-weight:700;"> / ${goalCount}</span>`;
       const pgText = document.getElementById("goal-progress-text");
       if(pgText) pgText.innerText = `${percent}%`;
       const barFill = document.getElementById("goal-bar-fill");
       if(barFill) barFill.style.width = `${percent}%`;
 
-      renderGoalPaceMessage(totalSessions);
+      const t2 = i18n[currentLang];
+      const titleEl = document.getElementById("t-goal-title");
+      const labelEl = document.getElementById("t-goal-current-label");
+      if (titleEl) titleEl.innerText = t2[`goalTitle_${reportPeriod}`];
+      if (labelEl) labelEl.innerText = t2[`goalCurrentLabel_${reportPeriod}`];
+
+      renderGoalPaceMessage(totalSessions, goalCount, thisStart, thisEnd);
 
       try { renderPeriodReport(); } catch(e){}
     }
 
     // 🧮 目標達成に必要なペースを計算して表示する
-    function renderGoalPaceMessage(totalSessions) {
+    function renderGoalPaceMessage(totalSessions, goalCount, periodStart, periodEnd) {
       const el = document.getElementById("goal-pace-text");
       if (!el) return;
       const t = i18n[currentLang];
-      const remaining = monthlyGoalCount - totalSessions;
+      const remaining = goalCount - totalSessions;
       const num = (n) => `<span style="font-family:'LINE Seed JP', sans-serif;">${n}</span>`;
 
       if (remaining <= 0) {
@@ -2165,8 +2196,9 @@
       }
 
       const now = new Date();
-      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-      const daysRemaining = daysInMonth - now.getDate() + 1; // 今日を含める
+      const totalDaysInPeriod = Math.round((periodEnd - periodStart) / 86400000);
+      const elapsedDays = Math.floor((now - periodStart) / 86400000) + 1;
+      const daysRemaining = totalDaysInPeriod - elapsedDays + 1;
 
       if (daysRemaining <= 0) {
         el.innerHTML = "";
@@ -2221,8 +2253,21 @@
       document.querySelectorAll('#report-period-toggle button').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.period === period);
       });
+      updateGoalSliderForPeriod();
       renderPeriodReport();
+      try { updateStreakAndGoals(); } catch(e){}
     };
+
+    function updateGoalSliderForPeriod() {
+      const input = document.getElementById("goalInput");
+      if (!input) return;
+      const [min, max] = GOAL_SLIDER_RANGES[reportPeriod] || [1, 31];
+      input.min = min;
+      input.max = max;
+      const val = goalCounts[reportPeriod] || min;
+      input.value = val;
+      updateGoalSliderLabel(val);
+    }
 
     function renderPeriodReport() {
       if (!myUserName) return;
@@ -2412,8 +2457,8 @@
       playSound('click');
       const val = parseInt(document.getElementById("goalInput").value, 10);
       if (!isNaN(val) && val > 0) {
-        monthlyGoalCount = val;
-        localStorage.setItem("gym_monthly_goal_count", val);
+        goalCounts[reportPeriod] = val;
+        localStorage.setItem("gym_goal_counts", JSON.stringify(goalCounts));
         updateStreakAndGoals();
       }
     };
@@ -2800,7 +2845,22 @@
       if (nModal && nModal.style.display === "flex") {
         renderNotifications();
       }
+      try { cleanupOldNotifications(); } catch(e){}
     });
+
+    // 🧹 30日以上前の通知は自動的に削除して溜まり続けないようにする
+    let notifCleanupDone = false;
+    function cleanupOldNotifications() {
+      if (notifCleanupDone) return; // 1回のセッションにつき1回だけ実行すれば十分
+      notifCleanupDone = true;
+      const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+      const cutoff = Date.now() - THIRTY_DAYS;
+      Object.entries(allNotifications).forEach(([key, notif]) => {
+        if (notif.timestamp && notif.timestamp < cutoff) {
+          remove(ref(db, `notifications/${key}`));
+        }
+      });
+    }
 
     onValue(ref(db, "monthly_results"), (snapshot) => {
       allMonthlyResults = snapshot.val() || {};
@@ -3619,6 +3679,15 @@
       if (!isOpen) box.scrollIntoView({ behavior: "smooth", block: "nearest" });
     };
 
+    let manualLocation = 'home';
+    window.setManualLocation = (loc) => {
+      playSound('click');
+      manualLocation = loc;
+      document.querySelectorAll("#manual-location-toggle-group button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.loc === loc);
+      });
+    };
+
     window.addManualLog = () => {
       playSound('click');
       const t = i18n[currentLang];
@@ -3652,7 +3721,8 @@
         likes: {},
         comments: {},
         month: dateVal.slice(0, 7),
-        date: localISO
+        date: localISO,
+        location: manualLocation
       });
 
       document.getElementById("manualTimeFrom").value = "10:00";
