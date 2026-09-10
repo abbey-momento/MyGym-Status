@@ -227,10 +227,6 @@
     .exercise-type-btn.active { border-color: var(--accent); background: rgba(47,143,255,0.16); color: #fff; box-shadow: 0 0 10px rgba(47,143,255,0.2); }
 
     .type-split-box { display:none; background: rgba(0,0,0,0.3); border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
-    .type-split-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-    .type-split-row:last-of-type { margin-bottom: 0; }
-    .type-split-input { width: 64px; padding: 10px 6px; text-align: center; border-radius: 8px; font-size: 1rem; font-weight: 700; background: rgba(0,0,0,0.5); border: 1.5px solid var(--card-border); color: #fff; }
-    .type-split-total { font-size: 0.75rem; text-align: right; margin-top: 10px; font-weight: 800; font-family: 'LINE Seed JP', sans-serif; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); }
     .location-toggle-group button { background: transparent; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.75rem; cursor: pointer; border-radius: 999px; padding: 5px 12px; font-family: inherit; transition: 0.2s; }
     .location-toggle-group button.active { background: var(--accent-gradient); color: #0B0F19; }
     .location-toggle-group button:disabled { cursor: default; opacity: 0.5; }
@@ -1391,7 +1387,7 @@
         locHome: "Casa", locOther: "Fuera",
         typeStrength: "Fuerza", typeCardio: "Cardio", typeStretch: "Otro",
         breakdownTitle: "Desglose por tipo", calorieLabel: "Calorías estimadas", calorieNote: "※ Estimación basada en 65kg de peso corporal",
-        splitLabel: "Reparte el tiempo entre los tipos elegidos (%)", splitTotalLabel: "Total",
+        splitLabel: "Desliza para repartir el tiempo entre ambos", splitLabel3: "Se reparte en 3 partes iguales",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
         historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
@@ -1443,7 +1439,7 @@
         locHome: "家", locOther: "外",
         typeStrength: "筋トレ", typeCardio: "有酸素", typeStretch: "その他",
         breakdownTitle: "運動タイプの内訳", calorieLabel: "概算カロリー", calorieNote: "※体重65kg想定の概算値です",
-        splitLabel: "選んだ種類に時間配分(%)を振り分けてください", splitTotalLabel: "合計",
+        splitLabel: "スライダーを動かして時間配分を調整", splitLabel3: "3種類は均等に3分割されます",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
         historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
@@ -1497,12 +1493,15 @@
       }
     }
 
-    // 種類を複数選んだ時、それぞれの割合(%)を自分で入力できる欄を表示する
+    const TYPE_COLORS = { strength: 'var(--accent)', cardio: '#FF6B6B', stretch: 'var(--ring-inner)' };
+
+    // 種類を複数選んだ時、スライダーをドラッグして配分を調整できるようにする
     function renderTypeSplitInputs(containerId, typeSet, initialMinutes) {
       const container = document.getElementById(containerId);
       if (!container) return;
       const types = Array.from(typeSet);
       const t = i18n[currentLang];
+      const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
 
       if (types.length < 2) {
         container.style.display = "none";
@@ -1510,75 +1509,76 @@
         return;
       }
 
-      const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
-      let initialPct = null;
-      if (initialMinutes) {
-        const totalMin = types.reduce((s, ty) => s + (initialMinutes[ty] || 0), 0);
-        if (totalMin > 0) {
-          initialPct = {};
-          types.forEach(ty => { initialPct[ty] = Math.round(((initialMinutes[ty] || 0) / totalMin) * 100); });
+      if (types.length === 2) {
+        let initialVal = 50;
+        if (initialMinutes) {
+          const total = (initialMinutes[types[0]] || 0) + (initialMinutes[types[1]] || 0);
+          if (total > 0) initialVal = Math.round(((initialMinutes[types[0]] || 0) / total) * 100);
         }
+        container.style.display = "block";
+        container.innerHTML = `
+          <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:10px;">${t.splitLabel}</div>
+          <div style="display:flex; height:44px; border-radius:12px; overflow:hidden; margin-bottom:10px;">
+            <div id="${containerId}-seg-0" style="background:${TYPE_COLORS[types[0]]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem; color:#fff; white-space:nowrap; overflow:hidden; transition:width 0.05s linear;"></div>
+            <div id="${containerId}-seg-1" style="background:${TYPE_COLORS[types[1]]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem; color:#0B0F19; white-space:nowrap; overflow:hidden; transition:width 0.05s linear;"></div>
+          </div>
+          <input type="range" min="0" max="100" value="${initialVal}" id="${containerId}-slider" data-type-a="${types[0]}" data-type-b="${types[1]}" oninput="updateTypeSplitSlider('${containerId}')" style="width:100%; accent-color: var(--accent);">
+        `;
+        updateTypeSplitSlider(containerId);
+        return;
       }
-      const equalPct = Math.round(100 / types.length);
 
+      // 3種類同時選択は均等3分割のシンプル表示（ドラッグ調整はなし）
       container.style.display = "block";
       container.innerHTML = `
-        <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:8px;">${t.splitLabel}</div>
-        ${types.map(type => `
-          <div class="type-split-row">
-            <span style="font-size:0.85rem; color:#fff; font-weight:700;">${typeLabels[type]}</span>
-            <div style="display:flex; align-items:center; gap:5px;">
-              <input type="number" min="0" max="100" value="${initialPct ? initialPct[type] : equalPct}" data-split-type="${type}" class="type-split-input" oninput="updateTypeSplitTotal('${containerId}')">
-              <span style="font-size:0.75rem; color:var(--text-sub);">%</span>
-            </div>
-          </div>
-        `).join("")}
-        <div class="type-split-total" id="${containerId}-total"></div>
+        <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:10px;">${t.splitLabel3}</div>
+        <div style="display:flex; height:44px; border-radius:12px; overflow:hidden; gap:2px;">
+          ${types.map(type => `<div style="flex:1; background:${TYPE_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.7rem; color:#fff;">${typeLabels[type]}</div>`).join("")}
+        </div>
       `;
-      updateTypeSplitTotal(containerId);
     }
 
-    window.updateTypeSplitTotal = (containerId) => {
-      const container = document.getElementById(containerId);
-      const totalEl = document.getElementById(`${containerId}-total`);
-      if (!container || !totalEl) return;
+    window.updateTypeSplitSlider = (containerId) => {
+      const slider = document.getElementById(`${containerId}-slider`);
+      if (!slider) return;
+      const val = parseInt(slider.value, 10);
       const t = i18n[currentLang];
-      let sum = 0;
-      container.querySelectorAll("input[data-split-type]").forEach(inp => { sum += parseInt(inp.value, 10) || 0; });
-      totalEl.innerText = `${t.splitTotalLabel}: ${sum}%`;
-      totalEl.style.color = sum === 100 ? "var(--ring-inner)" : "var(--neon-pink)";
+      const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
+      const typeA = slider.dataset.typeA, typeB = slider.dataset.typeB;
+      const segA = document.getElementById(`${containerId}-seg-0`);
+      const segB = document.getElementById(`${containerId}-seg-1`);
+      if (segA) {
+        segA.style.width = `${val}%`;
+        segA.innerText = val >= 16 ? `${typeLabels[typeA]} ${val}%` : (val > 0 ? `${val}%` : '');
+      }
+      if (segB) {
+        const valB = 100 - val;
+        segB.style.width = `${valB}%`;
+        segB.innerText = valB >= 16 ? `${typeLabels[typeB]} ${valB}%` : (valB > 0 ? `${valB}%` : '');
+      }
     };
 
-    // 入力された割合(%)をもとに、実際の分数に変換する（合計が100%ちょうどでなくても、比率どおりに正規化する）
+    // スライダー（または3種類なら均等分割）の値をもとに、実際の分数に変換する
     function splitDurationByTypes(durationMin, typeSet, containerId) {
       const types = Array.from(typeSet);
       if (types.length === 1) return { [types[0]]: durationMin };
 
-      const container = document.getElementById(containerId);
-      const percents = {};
-      let sum = 0;
-      if (container) {
-        container.querySelectorAll("input[data-split-type]").forEach(inp => {
-          const v = Math.max(0, parseInt(inp.value, 10) || 0);
-          percents[inp.dataset.splitType] = v;
-          sum += v;
-        });
-      }
-      if (sum <= 0) {
-        // 入力が空/0の場合は均等割りにフォールバック
-        types.forEach(type => { percents[type] = 1; });
-        sum = types.length;
+      if (types.length === 2) {
+        const slider = document.getElementById(`${containerId}-slider`);
+        const pctA = slider ? parseInt(slider.value, 10) : 50;
+        const minA = Math.round(durationMin * pctA / 100);
+        return { [types[0]]: minA, [types[1]]: durationMin - minA };
       }
 
       const split = {};
       let allocated = 0;
       types.forEach((type, i) => {
         if (i === types.length - 1) {
-          split[type] = durationMin - allocated; // 端数は最後の種類に寄せて合計を必ず一致させる
+          split[type] = durationMin - allocated;
         } else {
-          const min = Math.round(durationMin * (percents[type] || 0) / sum);
-          split[type] = min;
-          allocated += min;
+          const m = Math.floor(durationMin / types.length);
+          split[type] = m;
+          allocated += m;
         }
       });
       return split;
