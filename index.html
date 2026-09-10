@@ -1496,7 +1496,7 @@
 
     const TYPE_COLORS = { strength: '#2F8FFF', cardio: '#5CB4FF', stretch: '#A9DBFF' };
     const TYPE_OPACITY = { strength: 1, cardio: 1, stretch: 1 };
-    const TYPE_TEXT_COLORS = { strength: '#fff', cardio: '#052240', stretch: '#052240' };
+    const TYPE_TEXT_COLORS = { strength: '#fff', cardio: '#fff', stretch: '#052240' };
 
     // 種類を選んだ時、バー上の境界線をドラッグして配分を自由に調整できるようにする（1種類の時も高さを揃えるため常に表示）
     function renderTypeSplitInputs(containerId, typeSet, initialMinutes) {
@@ -1525,7 +1525,7 @@
       container.innerHTML = `
         <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:12px;">${t.splitLabel}</div>
         <div id="${containerId}-bar" style="position:relative; display:flex; height:44px; border-radius:12px; overflow:hidden; touch-action:none; cursor:${types.length > 1 ? 'ew-resize' : 'default'};">
-          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; opacity:${TYPE_OPACITY[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden; ${i > 0 ? 'border-left:2px solid rgba(11,15,25,0.5);' : ''}"></div>`).join("")}
+          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; opacity:${TYPE_OPACITY[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden;"></div>`).join("")}
         </div>
       `;
 
@@ -1546,8 +1546,9 @@
         const seg = document.getElementById(`${containerId}-seg-${i}`);
         if (!seg) return;
         const width = edges[i + 1] - edges[i];
+        const pctNum = `<span style="font-family:'LINE Seed JP', sans-serif;">${Math.round(width)}</span>%`;
         seg.style.width = `${width}%`;
-        seg.innerText = width >= 14 ? `${typeLabels[type]} ${Math.round(width)}%` : (width > 3 ? `${Math.round(width)}%` : '');
+        seg.innerHTML = width >= 14 ? `${typeLabels[type]} ${pctNum}` : (width > 3 ? pctNum : '');
       });
     }
 
