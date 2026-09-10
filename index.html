@@ -1493,15 +1493,15 @@
       }
     }
 
-    const TYPE_COLORS = { strength: 'var(--accent)', cardio: '#FF6B6B', stretch: 'var(--ring-inner)' };
+    const TYPE_COLORS = { strength: 'var(--accent)', cardio: '#FFB84D', stretch: 'var(--ring-inner)' };
+    const TYPE_TEXT_COLORS = { strength: '#fff', cardio: '#3a2400', stretch: '#04231f' };
 
-    // 種類を複数選んだ時、スライダーをドラッグして配分を調整できるようにする
+    // 種類を複数選んだ時、バー上の境界線をドラッグして配分を自由に調整できるようにする（2種類でも3種類でも同じ仕組み）
     function renderTypeSplitInputs(containerId, typeSet, initialMinutes) {
       const container = document.getElementById(containerId);
       if (!container) return;
       const types = Array.from(typeSet);
       const t = i18n[currentLang];
-      const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
 
       if (types.length < 2) {
         container.style.display = "none";
@@ -1509,76 +1509,114 @@
         return;
       }
 
-      if (types.length === 2) {
-        let initialVal = 50;
-        if (initialMinutes) {
-          const total = (initialMinutes[types[0]] || 0) + (initialMinutes[types[1]] || 0);
-          if (total > 0) initialVal = Math.round(((initialMinutes[types[0]] || 0) / total) * 100);
+      // 初期の境界値(%)。既存データがあればそこから、なければ均等割りを初期値にするだけ（固定ではなく、あくまでスタート位置）
+      let boundaries;
+      if (initialMinutes) {
+        const total = types.reduce((s, ty) => s + (initialMinutes[ty] || 0), 0);
+        if (total > 0) {
+          let cum = 0;
+          boundaries = types.slice(0, -1).map(ty => { cum += (initialMinutes[ty] || 0) / total * 100; return Math.round(cum); });
         }
-        container.style.display = "block";
-        container.innerHTML = `
-          <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:10px;">${t.splitLabel}</div>
-          <div style="display:flex; height:44px; border-radius:12px; overflow:hidden; margin-bottom:10px;">
-            <div id="${containerId}-seg-0" style="background:${TYPE_COLORS[types[0]]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem; color:#fff; white-space:nowrap; overflow:hidden; transition:width 0.05s linear;"></div>
-            <div id="${containerId}-seg-1" style="background:${TYPE_COLORS[types[1]]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem; color:#0B0F19; white-space:nowrap; overflow:hidden; transition:width 0.05s linear;"></div>
-          </div>
-          <input type="range" min="0" max="100" value="${initialVal}" id="${containerId}-slider" data-type-a="${types[0]}" data-type-b="${types[1]}" oninput="updateTypeSplitSlider('${containerId}')" style="width:100%; accent-color: var(--accent);">
-        `;
-        updateTypeSplitSlider(containerId);
-        return;
+      }
+      if (!boundaries) {
+        boundaries = types.slice(0, -1).map((_, i) => Math.round(100 * (i + 1) / types.length));
       }
 
-      // 3種類同時選択は均等3分割のシンプル表示（ドラッグ調整はなし）
+      container.dataset.boundaries = JSON.stringify(boundaries);
+      container.dataset.types = JSON.stringify(types);
+
       container.style.display = "block";
       container.innerHTML = `
-        <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:10px;">${t.splitLabel3}</div>
-        <div style="display:flex; height:44px; border-radius:12px; overflow:hidden; gap:2px;">
-          ${types.map(type => `<div style="flex:1; background:${TYPE_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.7rem; color:#fff;">${typeLabels[type]}</div>`).join("")}
+        <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:12px;">${t.splitLabel}</div>
+        <div id="${containerId}-bar" style="position:relative; display:flex; height:44px; border-radius:12px; overflow:hidden; touch-action:none; cursor:ew-resize;">
+          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden;"></div>`).join("")}
         </div>
       `;
+
+      drawTypeSplitBar(containerId);
+      attachTypeSplitDrag(containerId);
     }
 
-    window.updateTypeSplitSlider = (containerId) => {
-      const slider = document.getElementById(`${containerId}-slider`);
-      if (!slider) return;
-      const val = parseInt(slider.value, 10);
+    function drawTypeSplitBar(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const types = JSON.parse(container.dataset.types || "[]");
+      const boundaries = JSON.parse(container.dataset.boundaries || "[]");
       const t = i18n[currentLang];
       const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
-      const typeA = slider.dataset.typeA, typeB = slider.dataset.typeB;
-      const segA = document.getElementById(`${containerId}-seg-0`);
-      const segB = document.getElementById(`${containerId}-seg-1`);
-      if (segA) {
-        segA.style.width = `${val}%`;
-        segA.innerText = val >= 16 ? `${typeLabels[typeA]} ${val}%` : (val > 0 ? `${val}%` : '');
-      }
-      if (segB) {
-        const valB = 100 - val;
-        segB.style.width = `${valB}%`;
-        segB.innerText = valB >= 16 ? `${typeLabels[typeB]} ${valB}%` : (valB > 0 ? `${valB}%` : '');
-      }
-    };
+      const edges = [0, ...boundaries, 100];
 
-    // スライダー（または3種類なら均等分割）の値をもとに、実際の分数に変換する
+      types.forEach((type, i) => {
+        const seg = document.getElementById(`${containerId}-seg-${i}`);
+        if (!seg) return;
+        const width = edges[i + 1] - edges[i];
+        seg.style.width = `${width}%`;
+        seg.innerText = width >= 14 ? `${typeLabels[type]} ${Math.round(width)}%` : (width > 3 ? `${Math.round(width)}%` : '');
+      });
+    }
+
+    function attachTypeSplitDrag(containerId) {
+      const container = document.getElementById(containerId);
+      const barEl = document.getElementById(`${containerId}-bar`);
+      if (!container || !barEl) return;
+
+      let draggingIdx = null;
+      const getPct = (clientX) => {
+        const rect = barEl.getBoundingClientRect();
+        return Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
+      };
+      const getClientX = (e) => (e.touches ? e.touches[0].clientX : e.clientX);
+
+      const onDown = (e) => {
+        const pct = getPct(getClientX(e));
+        const bounds = JSON.parse(container.dataset.boundaries);
+        let minDist = Infinity, idx = 0;
+        bounds.forEach((b, i) => { const d = Math.abs(b - pct); if (d < minDist) { minDist = d; idx = i; } });
+        draggingIdx = idx;
+        e.preventDefault();
+      };
+      const onMove = (e) => {
+        if (draggingIdx === null) return;
+        const bounds = JSON.parse(container.dataset.boundaries);
+        let pct = Math.round(getPct(getClientX(e)));
+        const minB = draggingIdx === 0 ? 2 : bounds[draggingIdx - 1] + 2;
+        const maxB = draggingIdx === bounds.length - 1 ? 98 : bounds[draggingIdx + 1] - 2;
+        pct = Math.min(maxB, Math.max(minB, pct));
+        bounds[draggingIdx] = pct;
+        container.dataset.boundaries = JSON.stringify(bounds);
+        drawTypeSplitBar(containerId);
+        e.preventDefault();
+      };
+      const onUp = () => { draggingIdx = null; };
+
+      barEl.addEventListener('mousedown', onDown);
+      barEl.addEventListener('touchstart', onDown, { passive: false });
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchend', onUp);
+    }
+
+    // ドラッグ位置(境界%)をもとに、実際の分数に変換する
     function splitDurationByTypes(durationMin, typeSet, containerId) {
       const types = Array.from(typeSet);
       if (types.length === 1) return { [types[0]]: durationMin };
 
-      if (types.length === 2) {
-        const slider = document.getElementById(`${containerId}-slider`);
-        const pctA = slider ? parseInt(slider.value, 10) : 50;
-        const minA = Math.round(durationMin * pctA / 100);
-        return { [types[0]]: minA, [types[1]]: durationMin - minA };
-      }
+      const container = document.getElementById(containerId);
+      let boundaries = null;
+      try { boundaries = container ? JSON.parse(container.dataset.boundaries) : null; } catch (e) {}
+      if (!boundaries) boundaries = types.slice(0, -1).map((_, i) => Math.round(100 * (i + 1) / types.length));
 
+      const edges = [0, ...boundaries, 100];
       const split = {};
       let allocated = 0;
       types.forEach((type, i) => {
         if (i === types.length - 1) {
           split[type] = durationMin - allocated;
         } else {
-          const m = Math.floor(durationMin / types.length);
-          split[type] = m;
-          allocated += m;
+          const min = Math.round(durationMin * (edges[i + 1] - edges[i]) / 100);
+          split[type] = min;
+          allocated += min;
         }
       });
       return split;
