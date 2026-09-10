@@ -1495,6 +1495,11 @@
     }
 
     const TYPE_COLORS = { strength: 'linear-gradient(135deg,#0B5F52,#0FA98A)', cardio: 'linear-gradient(135deg,#0FA98A,#2DD4BF)', stretch: 'linear-gradient(135deg,#2DD4BF,#9FF5E8)' };
+    const TYPE_ORDER = ['strength', 'cardio', 'stretch'];
+    // 選んだ順ではなく、常に固定順（筋トレ→有酸素→その他）で並べる（グラデーションの並びを崩さないため）
+    function sortTypesFixed(typeSet) {
+      return TYPE_ORDER.filter(type => typeSet.has(type));
+    }
     const TYPE_OPACITY = { strength: 1, cardio: 1, stretch: 1 };
     const TYPE_TEXT_COLORS = { strength: '#fff', cardio: '#fff', stretch: '#2a4a42' };
 
@@ -1502,7 +1507,7 @@
     function renderTypeSplitInputs(containerId, typeSet, initialMinutes) {
       const container = document.getElementById(containerId);
       if (!container) return;
-      const types = Array.from(typeSet);
+      const types = sortTypesFixed(typeSet);
       const t = i18n[currentLang];
 
       // 初期の境界値(%)。既存データがあればそこから、なければ均等割りを初期値にするだけ（固定ではなく、あくまでスタート位置）
@@ -1602,7 +1607,7 @@
 
     // ドラッグ位置(境界%)をもとに、実際の分数に変換する
     function splitDurationByTypes(durationMin, typeSet, containerId) {
-      const types = Array.from(typeSet);
+      const types = sortTypesFixed(typeSet);
       if (types.length === 1) return { [types[0]]: durationMin };
 
       const container = document.getElementById(containerId);
