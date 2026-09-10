@@ -219,6 +219,12 @@
 
     .location-toggle-group { display: inline-flex; gap: 3px; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 999px; padding: 3px; }
     .location-toggle-floating { position: absolute; top: 6px; right: 6px; z-index: 5; }
+
+    .exercise-type-group { display: flex; gap: 8px; margin-bottom: 14px; }
+    .exercise-type-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 4px; color: var(--text-sub); cursor: pointer; transition: 0.15s; }
+    .exercise-type-btn svg { width: 18px; height: 18px; }
+    .exercise-type-btn span { font-size: 0.68rem; font-weight: 700; }
+    .exercise-type-btn.active { border-color: var(--accent); background: rgba(47,143,255,0.12); color: #fff; box-shadow: 0 0 10px rgba(47,143,255,0.2); }
     .location-toggle-group button { background: transparent; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.75rem; cursor: pointer; border-radius: 999px; padding: 5px 12px; font-family: inherit; transition: 0.2s; }
     .location-toggle-group button.active { background: var(--accent-gradient); color: #0B0F19; }
     .location-toggle-group button:disabled { cursor: default; opacity: 0.5; }
@@ -506,6 +512,20 @@
           <path d="m9.6 14.4 4.8-4.8"/>
         </svg>
       </h2>
+      <div class="exercise-type-group" id="memo-type-toggle">
+        <div class="exercise-type-btn active" data-type="strength" onclick="setMemoExerciseType('strength')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z"/><path d="m2.5 21.5 1.4-1.4"/><path d="m20.1 3.9 1.4-1.4"/><path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z"/><path d="m9.6 14.4 4.8-4.8"/></svg>
+          <span id="t-type-strength">筋トレ</span>
+        </div>
+        <div class="exercise-type-btn" data-type="cardio" onclick="setMemoExerciseType('cardio')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <span id="t-type-cardio">有酸素</span>
+        </div>
+        <div class="exercise-type-btn" data-type="stretch" onclick="setMemoExerciseType('stretch')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2"/><path d="M12.59 19.41A2 2 0 1 0 14 16H2"/><path d="M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+          <span id="t-type-stretch">その他</span>
+        </div>
+      </div>
       <div class="form-group">
         <textarea id="trainingMemoInput" rows="3" placeholder="Ej: ¡Hoy hice pierna con todo!"></textarea>
       </div>
@@ -552,6 +572,20 @@
       </div>
       <div class="form-group">
         <input type="text" id="editLogMemo" placeholder="Nota opcional" />
+      </div>
+      <div class="exercise-type-group" id="edit-type-toggle">
+        <div class="exercise-type-btn active" data-type="strength" onclick="setEditExerciseType('strength')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z"/><path d="m2.5 21.5 1.4-1.4"/><path d="m20.1 3.9 1.4-1.4"/><path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z"/><path d="m9.6 14.4 4.8-4.8"/></svg>
+          <span id="t-edit-type-strength">筋トレ</span>
+        </div>
+        <div class="exercise-type-btn" data-type="cardio" onclick="setEditExerciseType('cardio')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <span id="t-edit-type-cardio">有酸素</span>
+        </div>
+        <div class="exercise-type-btn" data-type="stretch" onclick="setEditExerciseType('stretch')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2"/><path d="M12.59 19.41A2 2 0 1 0 14 16H2"/><path d="M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+          <span id="t-edit-type-stretch">その他</span>
+        </div>
       </div>
       <div class="form-group" style="display:flex; justify-content:center;">
         <div class="location-toggle-group" id="edit-location-toggle-group">
@@ -832,6 +866,21 @@
         <div id="weekly-bar-chart" class="weekly-bar-chart"></div>
       </div>
 
+      <!-- 💪 運動タイプの内訳・カロリー概算 -->
+      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
+        <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2a2 2 0 0 0-2 2v5.5L6.5 12 9 14.5V20a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-5.5l2.5-2.5L15 9.5V4a2 2 0 0 0-2-2z"/></svg>
+          <span id="t-breakdown-title">運動タイプの内訳</span>
+        </h3>
+        <div id="type-breakdown-bar" style="display:flex; height:10px; border-radius:6px; overflow:hidden; margin-bottom:10px; background:rgba(255,255,255,0.05);"></div>
+        <div id="type-breakdown-legend" style="display:flex; flex-wrap:wrap; gap:10px 16px; margin-bottom:14px;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:0.7rem; color:var(--text-sub); text-transform:uppercase; font-weight:700;" id="t-calorie-label">概算カロリー</span>
+          <span style="font-size:1.2rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif;" id="calorie-total-text">0 kcal</span>
+        </div>
+        <div style="font-size:0.65rem; color:var(--text-sub); margin-top:4px;" id="t-calorie-note">※体重65kg想定の概算値です</div>
+      </div>
+
       <!-- 🟩 アクティビティ・ヒートマップ -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
         <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;">
@@ -920,6 +969,20 @@
             </div>
           </div>
           <input type="text" id="manualMemo" placeholder="Nota opcional" style="padding:10px; border-radius: 10px; font-size:0.9rem;">
+          <div class="exercise-type-group" id="manual-type-toggle" style="margin-bottom:0;">
+            <div class="exercise-type-btn active" data-type="strength" onclick="setManualExerciseType('strength')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z"/><path d="m2.5 21.5 1.4-1.4"/><path d="m20.1 3.9 1.4-1.4"/><path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z"/><path d="m9.6 14.4 4.8-4.8"/></svg>
+              <span id="t-manual-type-strength">筋トレ</span>
+            </div>
+            <div class="exercise-type-btn" data-type="cardio" onclick="setManualExerciseType('cardio')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <span id="t-manual-type-cardio">有酸素</span>
+            </div>
+            <div class="exercise-type-btn" data-type="stretch" onclick="setManualExerciseType('stretch')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2"/><path d="M12.59 19.41A2 2 0 1 0 14 16H2"/><path d="M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+              <span id="t-manual-type-stretch">その他</span>
+            </div>
+          </div>
           <div style="display:flex; justify-content:center;">
             <div class="location-toggle-group" id="manual-location-toggle-group">
               <button type="button" onclick="setManualLocation('home')" data-loc="home" id="t-manual-loc-home">家</button>
@@ -1317,6 +1380,8 @@
         privacyTitle: "Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking", privFontsize: "Tamaño de texto",
         privSound: "Sonido", privVibrate: "Vibración",
         locHome: "Casa", locOther: "Fuera",
+        typeStrength: "Fuerza", typeCardio: "Cardio", typeStretch: "Otro",
+        breakdownTitle: "Desglose por tipo", calorieLabel: "Calorías estimadas", calorieNote: "※ Estimación basada en 65kg de peso corporal",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
         historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
@@ -1366,6 +1431,8 @@
         privacyTitle: "プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する", privFontsize: "文字サイズ",
         privSound: "効果音", privVibrate: "バイブレーション",
         locHome: "家", locOther: "外",
+        typeStrength: "筋トレ", typeCardio: "有酸素", typeStretch: "その他",
+        breakdownTitle: "運動タイプの内訳", calorieLabel: "概算カロリー", calorieNote: "※体重65kg想定の概算値です",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
         historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
@@ -1400,6 +1467,14 @@
     let myUserName = localStorage.getItem("gym_my_name") || "";
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
     let selectedLocation = localStorage.getItem("gym_location") || "home";
+    let selectedExerciseType = "strength";
+    window.setMemoExerciseType = (type) => {
+      playSound('click');
+      selectedExerciseType = type;
+      document.querySelectorAll("#memo-type-toggle .exercise-type-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.type === type);
+      });
+    };
     let goalCounts = (() => {
       const saved = localStorage.getItem("gym_goal_counts");
       if (saved) {
@@ -1498,6 +1573,18 @@
       setT("t-edit-loc-other", t.locOther);
       setT("t-manual-loc-home", t.locHome);
       setT("t-manual-loc-other", t.locOther);
+      setT("t-type-strength", t.typeStrength);
+      setT("t-type-cardio", t.typeCardio);
+      setT("t-type-stretch", t.typeStretch);
+      setT("t-manual-type-strength", t.typeStrength);
+      setT("t-manual-type-cardio", t.typeCardio);
+      setT("t-manual-type-stretch", t.typeStretch);
+      setT("t-edit-type-strength", t.typeStrength);
+      setT("t-edit-type-cardio", t.typeCardio);
+      setT("t-edit-type-stretch", t.typeStretch);
+      setT("t-breakdown-title", t.breakdownTitle);
+      setT("t-calorie-label", t.calorieLabel);
+      setT("t-calorie-note", t.calorieNote);
 
       setT("t-history-btn", t.historyBtn);
       setT("t-results-history-title", t.resultsHistoryTitle);
@@ -2108,12 +2195,17 @@
         comments: {},
         month: localISO.slice(0, 7),
         date: localISO,
-        location: sessionLocation
+        location: sessionLocation,
+        type: selectedExerciseType
       });
 
       remove(ref(db, `current/${myUserName}`));
       document.getElementById("memo-modal").style.display = "none";
       pendingTimerStartTime = null;
+      selectedExerciseType = "strength";
+      document.querySelectorAll("#memo-type-toggle .exercise-type-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.type === "strength");
+      });
     };
 
     function calculateStreakForUser(logs, targetUser) {
@@ -2178,8 +2270,69 @@
       if (labelEl) labelEl.innerText = t2[`goalCurrentLabel_${reportPeriod}`];
 
       renderGoalPaceMessage(totalSessions, goalCount, thisStart, thisEnd);
+      try { renderTypeBreakdown(thisStart, thisEnd); } catch(e){}
 
       try { renderPeriodReport(); } catch(e){}
+    }
+
+    // 💪 運動タイプ内訳・カロリー概算
+    const EXERCISE_TYPE_META = {
+      strength: { color: 'var(--accent)', met: 5 },
+      cardio: { color: '#FF6B6B', met: 8 },
+      stretch: { color: 'var(--ring-inner)', met: 2.5 }
+    };
+    const ASSUMED_WEIGHT_KG = 65;
+
+    function renderTypeBreakdown(periodStart, periodEnd) {
+      const t = i18n[currentLang];
+      const barEl = document.getElementById("type-breakdown-bar");
+      const legendEl = document.getElementById("type-breakdown-legend");
+      const calEl = document.getElementById("calorie-total-text");
+      if (!barEl || !legendEl || !calEl) return;
+
+      const totals = { strength: 0, cardio: 0, stretch: 0 };
+      Object.values(allLogsData).forEach(log => {
+        if (log.user !== myUserName || !log.startTime) return;
+        const d = new Date(log.startTime);
+        if (d < periodStart || d >= periodEnd) return;
+        const type = totals[log.type] !== undefined ? log.type : 'strength';
+        totals[type] += log.duration || 0;
+      });
+
+      const grandTotal = totals.strength + totals.cardio + totals.stretch;
+
+      if (grandTotal === 0) {
+        barEl.innerHTML = '';
+        legendEl.innerHTML = `<span style="font-size:0.75rem; color:var(--text-sub);">${t.emptyData}</span>`;
+        calEl.innerText = "0 kcal";
+        return;
+      }
+
+      barEl.innerHTML = Object.keys(EXERCISE_TYPE_META).map(type => {
+        const pct = (totals[type] / grandTotal) * 100;
+        if (pct <= 0) return '';
+        return `<div style="width:${pct}%; background:${EXERCISE_TYPE_META[type].color};"></div>`;
+      }).join("");
+
+      const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
+      legendEl.innerHTML = Object.keys(EXERCISE_TYPE_META).map(type => {
+        if (totals[type] <= 0) return '';
+        const pct = Math.round((totals[type] / grandTotal) * 100);
+        return `
+          <div style="display:flex; align-items:center; gap:6px; font-size:0.75rem;">
+            <span style="width:8px; height:8px; border-radius:50%; background:${EXERCISE_TYPE_META[type].color}; flex-shrink:0;"></span>
+            <span style="color:#fff; font-weight:700;">${typeLabels[type]}</span>
+            <span style="color:var(--text-sub); font-family:'LINE Seed JP', sans-serif;">${pct}%</span>
+          </div>
+        `;
+      }).join("");
+
+      let totalKcal = 0;
+      Object.keys(EXERCISE_TYPE_META).forEach(type => {
+        const met = EXERCISE_TYPE_META[type].met;
+        totalKcal += met * 3.5 * ASSUMED_WEIGHT_KG / 200 * totals[type];
+      });
+      calEl.innerHTML = `<span style="font-family:'LINE Seed JP', sans-serif;">${Math.round(totalKcal)}</span> kcal`;
     }
 
     // 🧮 目標達成に必要なペースを計算して表示する
@@ -3689,6 +3842,15 @@
       });
     };
 
+    let manualExerciseType = 'strength';
+    window.setManualExerciseType = (type) => {
+      playSound('click');
+      manualExerciseType = type;
+      document.querySelectorAll("#manual-type-toggle .exercise-type-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.type === type);
+      });
+    };
+
     window.addManualLog = () => {
       playSound('click');
       const t = i18n[currentLang];
@@ -3723,7 +3885,8 @@
         comments: {},
         month: dateVal.slice(0, 7),
         date: localISO,
-        location: manualLocation
+        location: manualLocation,
+        type: manualExerciseType
       });
 
       document.getElementById("manualTimeFrom").value = "10:00";
@@ -3753,6 +3916,10 @@
       document.getElementById("editLogMemo").value = log.memo || "";
       editingLogLocation = log.location || 'home';
       updateEditLocationToggleUI();
+      editingExerciseType = log.type || 'strength';
+      document.querySelectorAll("#edit-type-toggle .exercise-type-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.type === editingExerciseType);
+      });
       
       document.getElementById("edit-log-modal").style.display = "flex";
     };
@@ -3762,6 +3929,15 @@
       playSound('click');
       editingLogLocation = loc;
       updateEditLocationToggleUI();
+    };
+
+    let editingExerciseType = 'strength';
+    window.setEditExerciseType = (type) => {
+      playSound('click');
+      editingExerciseType = type;
+      document.querySelectorAll("#edit-type-toggle .exercise-type-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.type === type);
+      });
     };
 
     function updateEditLocationToggleUI() {
@@ -3808,7 +3984,8 @@
         memo: memo || "",
         month: dateVal.slice(0, 7),
         date: localISO,
-        location: editingLogLocation
+        location: editingLogLocation,
+        type: editingExerciseType
       }).then(() => {
         closeEditLogModal();
       });
