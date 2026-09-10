@@ -1493,25 +1493,20 @@
       }
     }
 
-    const TYPE_COLORS = { strength: 'var(--accent)', cardio: '#FFB84D', stretch: 'var(--ring-inner)' };
-    const TYPE_TEXT_COLORS = { strength: '#fff', cardio: '#3a2400', stretch: '#04231f' };
+    const TYPE_COLORS = { strength: '#7CC4FF', cardio: '#7CC4FF', stretch: '#7CC4FF' };
+    const TYPE_OPACITY = { strength: 1, cardio: 0.7, stretch: 0.45 };
+    const TYPE_TEXT_COLORS = { strength: '#0B0F19', cardio: '#0B0F19', stretch: '#0B0F19' };
 
-    // 種類を複数選んだ時、バー上の境界線をドラッグして配分を自由に調整できるようにする（2種類でも3種類でも同じ仕組み）
+    // 種類を選んだ時、バー上の境界線をドラッグして配分を自由に調整できるようにする（1種類の時も高さを揃えるため常に表示）
     function renderTypeSplitInputs(containerId, typeSet, initialMinutes) {
       const container = document.getElementById(containerId);
       if (!container) return;
       const types = Array.from(typeSet);
       const t = i18n[currentLang];
 
-      if (types.length < 2) {
-        container.style.display = "none";
-        container.innerHTML = "";
-        return;
-      }
-
       // 初期の境界値(%)。既存データがあればそこから、なければ均等割りを初期値にするだけ（固定ではなく、あくまでスタート位置）
       let boundaries;
-      if (initialMinutes) {
+      if (initialMinutes && types.length > 1) {
         const total = types.reduce((s, ty) => s + (initialMinutes[ty] || 0), 0);
         if (total > 0) {
           let cum = 0;
@@ -1528,13 +1523,13 @@
       container.style.display = "block";
       container.innerHTML = `
         <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:12px;">${t.splitLabel}</div>
-        <div id="${containerId}-bar" style="position:relative; display:flex; height:44px; border-radius:12px; overflow:hidden; touch-action:none; cursor:ew-resize;">
-          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden;"></div>`).join("")}
+        <div id="${containerId}-bar" style="position:relative; display:flex; height:44px; border-radius:12px; overflow:hidden; touch-action:none; cursor:${types.length > 1 ? 'ew-resize' : 'default'};">
+          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; opacity:${TYPE_OPACITY[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden; ${i > 0 ? 'border-left:2px solid rgba(11,15,25,0.5);' : ''}"></div>`).join("")}
         </div>
       `;
 
       drawTypeSplitBar(containerId);
-      attachTypeSplitDrag(containerId);
+      if (types.length > 1) attachTypeSplitDrag(containerId);
     }
 
     function drawTypeSplitBar(containerId) {
@@ -2313,6 +2308,7 @@
 
         document.getElementById("trainingMemoInput").value = "";
         document.getElementById("memo-modal").style.display = "flex";
+        renderTypeSplitInputs("memo-type-split", selectedExerciseTypes);
       } else {
         playSound('start');
         triggerVibrate(60);
@@ -3984,7 +3980,10 @@
       const isOpen = box.style.display !== "none";
       box.style.display = isOpen ? "none" : "block";
       if (btn) btn.classList.toggle("active", !isOpen);
-      if (!isOpen) box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      if (!isOpen) {
+        box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        renderTypeSplitInputs("manual-type-split", manualExerciseTypes);
+      }
     };
 
     let manualLocation = 'home';
