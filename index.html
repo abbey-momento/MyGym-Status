@@ -368,47 +368,39 @@
     .log-card-item {
       display: flex; align-items: center; gap: 14px;
       background: #06080f;
-      border: 1px solid rgba(255,0,200,0.35);
+      border: 1px solid rgba(47,143,255,0.35);
       border-radius: 4px;
-      padding: 12px;
+      padding: 18px 16px;
       margin-bottom: 12px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 0 0 1px rgba(0,229,255,0.08) inset, 0 0 14px rgba(255,0,200,0.08);
+      box-shadow: 0 0 0 1px rgba(45,212,191,0.08) inset, 0 0 14px rgba(47,143,255,0.1);
     }
     .log-card-item::before {
       content: "";
       position: absolute; inset: 0;
-      background: repeating-linear-gradient(0deg, rgba(0,229,255,0.05) 0px, rgba(0,229,255,0.05) 1px, transparent 1px, transparent 3px);
+      background: repeating-linear-gradient(0deg, rgba(45,212,191,0.05) 0px, rgba(45,212,191,0.05) 1px, transparent 1px, transparent 3px);
       pointer-events: none;
     }
     .log-card-item::after {
-      content: ""; position: absolute; top: 0; left: 0; width: 8px; height: 8px;
-      border-top: 2px solid #00E5FF; border-left: 2px solid #00E5FF;
+      content: ""; position: absolute; top: 0; left: 0; width: 10px; height: 10px;
+      border-top: 2px solid var(--ring-inner); border-left: 2px solid var(--ring-inner);
     }
-    .log-card-badge {
-      width: 58px; height: 58px; border-radius: 3px; flex-shrink: 0;
-      background: #0A0014;
-      border: 1px solid #FF00C8;
-      box-shadow: 0 0 8px rgba(255,0,200,0.5), inset 0 0 10px rgba(0,229,255,0.15);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      position: relative; z-index: 1;
-    }
+    .log-card-num-unit { display: flex; align-items: baseline; gap: 6px; flex-shrink: 0; position: relative; z-index: 1; }
     .log-card-num {
-      font-family: 'Press Start 2P', monospace; font-size: 1rem; line-height: 1; color: #00E5FF;
-      text-shadow: 0 0 6px #00E5FF, 2px 0 #FF00C8;
+      font-family: 'Press Start 2P', monospace; font-size: 2.1rem; line-height: 1; color: var(--ring-inner);
+      text-shadow: 0 0 8px var(--ring-inner), 2px 0 var(--accent);
     }
-    .log-card-unit { font-size: 0.55rem; color: #FF00C8; font-family: 'VT323', monospace; margin-top: 5px; letter-spacing: 1px; text-transform: uppercase; }
+    .log-card-unit { font-size: 1rem; color: var(--accent); font-family: 'VT323', monospace; text-transform: uppercase; }
     .log-card-mid { flex: 1; min-width: 0; position: relative; z-index: 1; }
     .log-card-top-row { display: flex; align-items: center; gap: 6px; }
-    .log-card-date { font-weight: 700; color: #00E5FF; font-size: 1rem; font-family: 'VT323', monospace; letter-spacing: 1px; }
-    .log-card-date::before { content: "> "; color: #FF00C8; }
-    .log-card-time { font-size: 0.85rem; color: #FFD400; font-weight: 400; font-family: 'VT323', monospace; margin-top: 1px; letter-spacing: 0.5px; }
-    .log-card-memo { font-size: 0.78rem; color: #7DF9FF; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'VT323', monospace; opacity: 0.75; }
-    .log-card-actions { display: flex; gap: 6px; flex-shrink: 0; position: relative; z-index: 1; }
-    .log-card-actions .btn-action-svg { background: #0A0014; border: 1px solid rgba(0,229,255,0.4); border-radius: 3px; color: #00E5FF; }
-    .log-card-actions .btn-action-svg.delete { border-color: rgba(255,0,200,0.4); color: #FF00C8; }
-    .log-card-item .loc-tag { background: rgba(255,212,0,0.12); color: #FFD400; border: 1px solid rgba(255,212,0,0.4); font-family: 'VT323', monospace; font-size: 0.7rem; }
+    .log-card-date { font-weight: 700; color: var(--text-sub); font-size: 1.15rem; font-family: 'VT323', monospace; }
+    .log-card-time { font-size: 1.1rem; color: #7CC4FF; font-weight: 400; font-family: 'VT323', monospace; margin-top: 2px; }
+    .log-card-memo { font-size: 0.78rem; color: #9FD8FF; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'VT323', monospace; opacity: 0.75; }
+    .log-card-actions { display: flex; gap: 8px; flex-shrink: 0; position: relative; z-index: 1; }
+    .log-card-actions .btn-action-svg { width: 34px; height: 34px; background: #050b14; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: var(--text-sub); }
+    .log-card-actions .btn-action-svg.delete { border-color: rgba(255,255,255,0.12); color: var(--text-sub); }
+    .log-card-item .loc-tag { background: rgba(47,143,255,0.15); color: var(--accent); border: 1px solid rgba(47,143,255,0.4); font-family: 'VT323', monospace; font-size: 0.75rem; padding: 2px 7px; border-radius: 5px; }
     .list-item:last-child { border-bottom: none; }
     .list-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; font-family: 'LINE Seed JP', sans-serif; }
     .list-title { font-weight: 700; color: #FFF; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
@@ -558,6 +550,12 @@
       </div>
       <div class="form-group">
         <input type="text" id="editLogMemo" placeholder="Nota opcional" />
+      </div>
+      <div class="form-group" style="display:flex; justify-content:center;">
+        <div class="location-toggle-group" id="edit-location-toggle-group">
+          <button type="button" onclick="setEditLocation('home')" data-loc="home" id="t-edit-loc-home">家</button>
+          <button type="button" onclick="setEditLocation('other')" data-loc="other" id="t-edit-loc-other">外</button>
+        </div>
       </div>
       <button class="btn-primary" onclick="saveEditedLog()" id="t-btn-save-edit-log">Guardar Cambios</button>
       <button class="btn-secondary" onclick="closeEditLogModal()" id="t-btn-cancel-edit-log">Cancelar</button>
@@ -1459,6 +1457,8 @@
       setT("t-priv-vibrate", t.privVibrate);
       setT("t-loc-home", t.locHome);
       setT("t-loc-other", t.locOther);
+      setT("t-edit-loc-home", t.locHome);
+      setT("t-edit-loc-other", t.locOther);
 
       setT("t-history-btn", t.historyBtn);
       setT("t-results-history-title", t.resultsHistoryTitle);
@@ -3506,9 +3506,8 @@
 
         return `
           <div class="log-card-item">
-            <div class="log-card-badge">
-              <div class="log-card-num">${log.duration}</div>
-              <div class="log-card-unit">${t.unitMin}</div>
+            <div class="log-card-num-unit">
+              <span class="log-card-num">${log.duration}</span><span class="log-card-unit">min</span>
             </div>
             <div class="log-card-mid">
               <div class="log-card-top-row">
@@ -3591,9 +3590,26 @@
       document.getElementById("editLogTimeFrom").value = `${hFrom}:${mFrom}`;
       document.getElementById("editLogTimeTo").value = `${hTo}:${mTo}`;
       document.getElementById("editLogMemo").value = log.memo || "";
+      editingLogLocation = log.location || 'home';
+      updateEditLocationToggleUI();
       
       document.getElementById("edit-log-modal").style.display = "flex";
     };
+
+    let editingLogLocation = 'home';
+    window.setEditLocation = (loc) => {
+      playSound('click');
+      editingLogLocation = loc;
+      updateEditLocationToggleUI();
+    };
+
+    function updateEditLocationToggleUI() {
+      const group = document.getElementById("edit-location-toggle-group");
+      if (!group) return;
+      group.querySelectorAll("button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.loc === editingLogLocation);
+      });
+    }
 
     window.closeEditLogModal = () => {
       playSound('click');
@@ -3630,7 +3646,8 @@
         duration: diffMin,
         memo: memo || "",
         month: dateVal.slice(0, 7),
-        date: localISO
+        date: localISO,
+        location: editingLogLocation
       }).then(() => {
         closeEditLogModal();
       });
