@@ -884,6 +884,17 @@
           <span style="font-size:1.2rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif;" id="calorie-total-text">0 kcal</span>
         </div>
         <div style="font-size:0.65rem; color:var(--text-sub); margin-top:4px;" id="t-calorie-note">※体重65kg想定の概算値です</div>
+
+        <div style="margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+            <span style="font-size:0.68rem; color:var(--text-sub);" id="t-kg-label">脂肪1kg分の目安まで</span>
+            <span style="font-size:0.85rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;" id="kg-progress-pct">0%</span>
+          </div>
+          <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
+            <div id="kg-progress-fill" style="width:0%; height:100%; background:linear-gradient(90deg,#0FA98A,#2DD4BF); transition:width 0.3s;"></div>
+          </div>
+          <div style="font-size:0.62rem; color:var(--text-sub); margin-top:4px;" id="t-kg-note">※体脂肪1kgあたり約7,700kcalという一般的な目安をもとにした遊び用の参考値です</div>
+        </div>
       </div>
 
       <!-- 🟩 アクティビティ・ヒートマップ -->
@@ -1388,6 +1399,7 @@
         locHome: "Casa", locOther: "Fuera",
         typeStrength: "Fuerza", typeCardio: "Cardio", typeStretch: "Otro",
         breakdownTitle: "Desglose por tipo", calorieLabel: "Calorías estimadas", calorieNote: "※ Estimación basada en 65kg de peso corporal",
+        kgLabel: "Hacia 1kg de grasa", kgNote: "※ Referencia lúdica basada en ~7.700kcal por kg de grasa corporal",
         splitLabel: "Desliza para repartir el tiempo entre ambos", splitLabel3: "Se reparte en 3 partes iguales",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
@@ -1440,6 +1452,7 @@
         locHome: "家", locOther: "外",
         typeStrength: "筋トレ", typeCardio: "有酸素", typeStretch: "その他",
         breakdownTitle: "運動タイプの内訳", calorieLabel: "概算カロリー", calorieNote: "※体重65kg想定の概算値です",
+        kgLabel: "脂肪1kg分の目安まで", kgNote: "※体脂肪1kgあたり約7,700kcalという一般的な目安をもとにした遊び用の参考値です",
         splitLabel: "スライダーを動かして時間配分を調整", splitLabel3: "3種類は均等に3分割されます",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
@@ -1739,6 +1752,8 @@
       setT("t-breakdown-title", t.breakdownTitle);
       setT("t-calorie-label", t.calorieLabel);
       setT("t-calorie-note", t.calorieNote);
+      setT("t-kg-label", t.kgLabel);
+      setT("t-kg-note", t.kgNote);
 
       setT("t-history-btn", t.historyBtn);
       setT("t-results-history-title", t.resultsHistoryTitle);
@@ -2445,11 +2460,12 @@
 
     // 💪 運動タイプ内訳・カロリー概算
     const EXERCISE_TYPE_META = {
-      strength: { color: 'var(--accent)', met: 5 },
-      cardio: { color: '#FF6B6B', met: 8 },
-      stretch: { color: 'var(--ring-inner)', met: 2.5 }
+      strength: { color: '#0FA98A', met: 5 },
+      cardio: { color: '#2DD4BF', met: 8 },
+      stretch: { color: '#9FF5E8', met: 2.5 }
     };
     const ASSUMED_WEIGHT_KG = 65;
+    const KCAL_PER_KG_FAT = 7700; // 体脂肪1kgあたりの一般的な目安値
 
     function renderTypeBreakdown(periodStart, periodEnd) {
       const t = i18n[currentLang];
@@ -2480,6 +2496,10 @@
         barEl.innerHTML = '';
         legendEl.innerHTML = `<span style="font-size:0.75rem; color:var(--text-sub);">${t.emptyData}</span>`;
         calEl.innerText = "0 kcal";
+        const kgPctEl0 = document.getElementById("kg-progress-pct");
+        const kgFillEl0 = document.getElementById("kg-progress-fill");
+        if (kgPctEl0) kgPctEl0.innerText = "0%";
+        if (kgFillEl0) kgFillEl0.style.width = "0%";
         return;
       }
 
@@ -2508,6 +2528,12 @@
         totalKcal += met * 3.5 * ASSUMED_WEIGHT_KG / 200 * totals[type];
       });
       calEl.innerHTML = `<span style="font-family:'LINE Seed JP', sans-serif;">${Math.round(totalKcal)}</span> kcal`;
+
+      const kgPct = Math.min(100, Math.round((totalKcal / KCAL_PER_KG_FAT) * 100));
+      const kgPctEl = document.getElementById("kg-progress-pct");
+      const kgFillEl = document.getElementById("kg-progress-fill");
+      if (kgPctEl) kgPctEl.innerHTML = `<span style="font-family:'LINE Seed JP', sans-serif;">${kgPct}</span>%`;
+      if (kgFillEl) kgFillEl.style.width = `${kgPct}%`;
     }
 
     // 🧮 目標達成に必要なペースを計算して表示する
