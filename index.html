@@ -225,7 +225,7 @@
     .exercise-type-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; background: rgba(0,0,0,0.3); border: 1.5px solid var(--card-border); border-radius: 12px; padding: 12px 4px; color: var(--text-sub); cursor: pointer; transition: 0.15s; }
     .exercise-type-btn svg { width: 20px; height: 20px; }
     .exercise-type-btn span { font-size: 0.75rem; font-weight: 700; }
-    .exercise-type-btn.active { border-color: var(--accent); background: rgba(47,143,255,0.16); color: #fff; box-shadow: 0 0 10px rgba(47,143,255,0.2); }
+    .exercise-type-btn.active { border-color: var(--ring-inner); background: rgba(45,212,191,0.16); color: #fff; box-shadow: 0 0 10px rgba(45,212,191,0.25); }
 
     .type-split-box { display:none; background: rgba(0,0,0,0.3); border: 1.5px solid var(--ring-inner); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 0 16px rgba(45,212,191,0.15); }
     .location-toggle-group button { background: transparent; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.75rem; cursor: pointer; border-radius: 999px; padding: 5px 12px; font-family: inherit; transition: 0.2s; }
@@ -1494,9 +1494,9 @@
       }
     }
 
-    const TYPE_COLORS = { strength: '#0FA98A', cardio: '#2DD4BF', stretch: '#A9F5EA' };
+    const TYPE_COLORS = { strength: 'linear-gradient(135deg,#0B5F52,#0FA98A)', cardio: 'linear-gradient(135deg,#0FA98A,#2DD4BF)', stretch: 'linear-gradient(135deg,#2DD4BF,#9FF5E8)' };
     const TYPE_OPACITY = { strength: 1, cardio: 1, stretch: 1 };
-    const TYPE_TEXT_COLORS = { strength: '#fff', cardio: '#052a24', stretch: '#052a24' };
+    const TYPE_TEXT_COLORS = { strength: '#fff', cardio: '#fff', stretch: '#2a4a42' };
 
     // 種類を選んだ時、バー上の境界線をドラッグして配分を自由に調整できるようにする（1種類の時も高さを揃えるため常に表示）
     function renderTypeSplitInputs(containerId, typeSet, initialMinutes) {
@@ -1525,7 +1525,7 @@
       container.innerHTML = `
         <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:12px;">${t.splitLabel}</div>
         <div id="${containerId}-bar" style="position:relative; display:flex; height:44px; border-radius:12px; overflow:hidden; touch-action:none; cursor:${types.length > 1 ? 'ew-resize' : 'default'}; box-shadow: 0 0 14px rgba(45,212,191,0.35), inset 0 0 10px rgba(0,0,0,0.3);">
-          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; opacity:${TYPE_OPACITY[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden; text-shadow: 0 0 6px rgba(0,0,0,0.25); box-shadow: 0 0 10px rgba(45,212,191,0.45) inset;"></div>`).join("")}
+          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; opacity:${TYPE_OPACITY[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden;"></div>`).join("")}
         </div>
       `;
 
