@@ -808,11 +808,18 @@
         <input type="range" id="goalInput" min="1" max="31" step="1" value="15" oninput="updateGoalSliderLabel(this.value)" onchange="saveMonthlyGoal()">
       </div>
 
-      <!-- 📊 週間レポート -->
+      <!-- 📊 レポート -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
-        <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          <span id="t-weekly-report-title">週間レポート</span>
+        <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px; justify-content:space-between;">
+          <span style="display:flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span id="t-weekly-report-title">レポート</span>
+          </span>
+          <div class="fontsize-toggle-group" id="report-period-toggle">
+            <button onclick="setReportPeriod('week')" data-period="week" class="active" id="t-period-week" style="font-size:0.68rem; padding:5px 9px;">週</button>
+            <button onclick="setReportPeriod('month')" data-period="month" id="t-period-month" style="font-size:0.68rem; padding:5px 9px;">月</button>
+            <button onclick="setReportPeriod('year')" data-period="year" id="t-period-year" style="font-size:0.68rem; padding:5px 9px;">年</button>
+          </div>
         </h3>
         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
           <div>
@@ -1307,7 +1314,10 @@
         winnerLabel: "Ganador/a de",
         championLabel: "Campeón Actual", championYouMessage: "¡Eres el campeón de este mes!",
         milestoneTimeTitle: "¡Hito alcanzado!", milestoneCountTitle: "¡Hito alcanzado!", milestoneBestTitle: "¡Récord personal!", milestoneCloseBtn: "¡Genial!",
-        weeklyReportTitle: "Reporte Semanal", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada",
+        weeklyReportTitle: "Reporte", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada",
+        thisMonthLabel: "Total este mes", vsLastMonth: "vs mes pasado",
+        thisYearLabel: "Total este año", vsLastYear: "vs año pasado",
+        periodWeek: "Sem", periodMonth: "Mes", periodYear: "Año",
         exportTitle: "Exportar Datos",
         importTitle: "Importar Datos", importBtn: "Seleccionar archivo JSON", importInvalid: "Archivo JSON inválido",
         importResult: "{count} registros importados. {skip} duplicados omitidos.", importEmpty: "No se encontraron registros válidos en el archivo.",
@@ -1351,7 +1361,10 @@
         winnerLabel: "の優勝者",
         championLabel: "現チャンピオン", championYouMessage: "あなたが今月のチャンピオンです！",
         milestoneTimeTitle: "マイルストーン達成！", milestoneCountTitle: "マイルストーン達成！", milestoneBestTitle: "自己ベスト更新！", milestoneCloseBtn: "やったー！",
-        weeklyReportTitle: "週間レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比",
+        weeklyReportTitle: "レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比",
+        thisMonthLabel: "今月の合計", vsLastMonth: "先月比",
+        thisYearLabel: "今年の合計", vsLastYear: "昨年比",
+        periodWeek: "週", periodMonth: "月", periodYear: "年",
         exportTitle: "データのエクスポート",
         importTitle: "データのインポート", importBtn: "JSONファイルを選択", importInvalid: "無効なJSONファイルです",
         importResult: "{count}件をインポートしました。（重複{skip}件はスキップ）", importEmpty: "ファイル内に有効な記録が見つかりませんでした。",
@@ -1471,6 +1484,9 @@
       setT("t-champion-label", t.championLabel);
       setT("t-milestone-close", t.milestoneCloseBtn);
       setT("t-weekly-report-title", t.weeklyReportTitle);
+      setT("t-period-week", t.periodWeek);
+      setT("t-period-month", t.periodMonth);
+      setT("t-period-year", t.periodYear);
       setT("t-this-week-label", t.thisWeekLabel);
       
       const btnAction = document.getElementById("btn-timer-action");
@@ -2131,7 +2147,7 @@
 
       renderGoalPaceMessage(totalSessions);
 
-      try { renderWeeklyReport(); } catch(e){}
+      try { renderPeriodReport(); } catch(e){}
     }
 
     // 🧮 目標達成に必要なペースを計算して表示する
@@ -2182,55 +2198,113 @@
       return [start, end];
     }
 
-    function renderWeeklyReport() {
+    function getMonthRange(offsetMonths) {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth() + offsetMonths, 1);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start.getFullYear(), start.getMonth() + 1, 1);
+      return [start, end];
+    }
+
+    function getYearRange(offsetYears) {
+      const now = new Date();
+      const start = new Date(now.getFullYear() + offsetYears, 0, 1);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start.getFullYear() + 1, 0, 1);
+      return [start, end];
+    }
+
+    let reportPeriod = 'week';
+    window.setReportPeriod = (period) => {
+      playSound('click');
+      reportPeriod = period;
+      document.querySelectorAll('#report-period-toggle button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.period === period);
+      });
+      renderPeriodReport();
+    };
+
+    function renderPeriodReport() {
       if (!myUserName) return;
       const totalEl = document.getElementById("weekly-total-text");
       const compareEl = document.getElementById("weekly-compare-text");
       const chartEl = document.getElementById("weekly-bar-chart");
+      const labelEl = document.getElementById("t-this-week-label");
       if (!totalEl || !chartEl) return;
+      const t = i18n[currentLang];
 
-      const [thisStart, thisEnd] = getWeekRange(0);
-      const [lastStart, lastEnd] = getWeekRange(-1);
-      let thisWeekTotal = 0, lastWeekTotal = 0;
-      const dayTotals = [0, 0, 0, 0, 0, 0, 0];
+      let thisStart, thisEnd, lastStart, lastEnd, bars, barLabels, compareLabel, totalLabel, getBarIndex;
 
+      if (reportPeriod === 'month') {
+        [thisStart, thisEnd] = getMonthRange(0);
+        [lastStart, lastEnd] = getMonthRange(-1);
+        bars = new Array(6).fill(0);
+        barLabels = currentLang === 'es' ? ['S1','S2','S3','S4','S5','S6'] : ['1週','2週','3週','4週','5週','6週'];
+        const firstDow = thisStart.getDay();
+        getBarIndex = (d) => Math.floor((d.getDate() - 1 + firstDow) / 7);
+        compareLabel = t.vsLastMonth;
+        totalLabel = t.thisMonthLabel;
+      } else if (reportPeriod === 'year') {
+        [thisStart, thisEnd] = getYearRange(0);
+        [lastStart, lastEnd] = getYearRange(-1);
+        bars = new Array(12).fill(0);
+        barLabels = currentLang === 'es'
+          ? ['E','F','M','A','M','J','J','A','S','O','N','D']
+          : ['1','2','3','4','5','6','7','8','9','10','11','12'];
+        getBarIndex = (d) => d.getMonth();
+        compareLabel = t.vsLastYear;
+        totalLabel = t.thisYearLabel;
+      } else {
+        [thisStart, thisEnd] = getWeekRange(0);
+        [lastStart, lastEnd] = getWeekRange(-1);
+        bars = new Array(7).fill(0);
+        barLabels = currentLang === 'es' ? ['D','L','M','X','J','V','S'] : ['日','月','火','水','木','金','土'];
+        getBarIndex = (d) => d.getDay();
+        compareLabel = t.vsLastWeek;
+        totalLabel = t.thisWeekLabel;
+      }
+
+      let thisTotal = 0, lastTotal = 0;
       Object.values(allLogsData).forEach(log => {
         if (log.user !== myUserName || !log.startTime) return;
         const d = new Date(log.startTime);
         if (d >= thisStart && d < thisEnd) {
-          thisWeekTotal += log.duration || 0;
-          dayTotals[d.getDay()] += log.duration || 0;
+          thisTotal += log.duration || 0;
+          const idx = getBarIndex(d);
+          if (idx >= 0 && idx < bars.length) bars[idx] += log.duration || 0;
         } else if (d >= lastStart && d < lastEnd) {
-          lastWeekTotal += log.duration || 0;
+          lastTotal += log.duration || 0;
         }
       });
 
-      totalEl.innerText = formatTimeFriendly(thisWeekTotal);
+      totalEl.innerText = formatTimeFriendly(thisTotal);
+      if (labelEl) labelEl.innerText = totalLabel;
 
       if (compareEl) {
-        if (lastWeekTotal === 0) {
+        if (lastTotal === 0) {
           compareEl.innerText = "";
           compareEl.style.color = "var(--text-sub)";
         } else {
-          const diff = thisWeekTotal - lastWeekTotal;
-          const pct = Math.round((diff / lastWeekTotal) * 100);
+          const diff = thisTotal - lastTotal;
+          const pct = Math.round((diff / lastTotal) * 100);
           const arrow = diff >= 0 ? "▲" : "▼";
-          compareEl.innerHTML = `${arrow} <span style="font-family:'LINE Seed JP', sans-serif;">${Math.abs(pct)}</span>% ${t_vsLastWeekLabel()}`;
+          compareEl.innerHTML = `${arrow} <span style="font-family:'LINE Seed JP', sans-serif;">${Math.abs(pct)}</span>% ${compareLabel}`;
           compareEl.style.color = diff >= 0 ? "var(--green)" : "var(--neon-pink)";
           compareEl.style.textShadow = diff >= 0 ? "none" : "0 0 8px rgba(255,61,186,0.5)";
         }
       }
 
-      const maxDay = Math.max(...dayTotals, 1);
-      const dayLabels = currentLang === 'es' ? ['D','L','M','X','J','V','S'] : ['日','月','火','水','木','金','土'];
-      const todayIdx = new Date().getDay();
-      chartEl.innerHTML = dayTotals.map((min, idx) => {
-        const heightPct = Math.max(4, Math.round((min / maxDay) * 100));
-        const isToday = idx === todayIdx;
+      const maxBar = Math.max(...bars, 1);
+      const now = new Date();
+      const todayBarIdx = (now >= thisStart && now < thisEnd) ? getBarIndex(now) : -1;
+
+      chartEl.innerHTML = bars.map((min, idx) => {
+        const heightPct = Math.max(4, Math.round((min / maxBar) * 100));
+        const isToday = idx === todayBarIdx;
         return `
           <div class="weekly-bar-col">
             <div class="weekly-bar${isToday ? ' is-today' : ''}" style="height:${heightPct}%;" title="${formatTimeFriendly(min)}"></div>
-            <div class="weekly-bar-label${isToday ? ' is-today' : ''}">${dayLabels[idx]}</div>
+            <div class="weekly-bar-label${isToday ? ' is-today' : ''}">${barLabels[idx]}</div>
           </div>
         `;
       }).join("");
