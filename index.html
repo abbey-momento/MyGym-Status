@@ -217,7 +217,8 @@
     
     .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 26px 0 20px; position: relative; }
 
-    .location-toggle-group { position: absolute; top: 6px; right: 6px; z-index: 5; display: flex; gap: 3px; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 999px; padding: 3px; }
+    .location-toggle-group { display: inline-flex; gap: 3px; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 999px; padding: 3px; }
+    .location-toggle-floating { position: absolute; top: 6px; right: 6px; z-index: 5; }
     .location-toggle-group button { background: transparent; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.75rem; cursor: pointer; border-radius: 999px; padding: 5px 12px; font-family: inherit; transition: 0.2s; }
     .location-toggle-group button.active { background: var(--accent-gradient); color: #0B0F19; }
     .location-toggle-group button:disabled { cursor: default; opacity: 0.5; }
@@ -609,7 +610,7 @@
     </div>
 
     <div class="timer-container">
-      <div class="location-toggle-group" id="location-toggle-group">
+      <div class="location-toggle-group location-toggle-floating" id="location-toggle-group">
         <button onclick="setLocation('home')" data-loc="home" id="t-loc-home">家</button>
         <button onclick="setLocation('other')" data-loc="other" id="t-loc-other">外</button>
       </div>
