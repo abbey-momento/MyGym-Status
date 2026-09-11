@@ -650,6 +650,17 @@
         <span style="font-size:0.9rem; font-weight:700;" id="t-priv-sound">効果音</span>
         <input type="checkbox" class="toggle-switch" id="pref-sound" onchange="setSoundEnabled(this.checked)">
       </div>
+
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-size:0.9rem; font-weight:700;" id="t-weight-label">体重（カロリー概算用）</span>
+          <div style="display:flex; align-items:center; gap:5px;">
+            <input type="number" id="pref-weight-kg" min="20" max="250" placeholder="65" oninput="setWeightKg(this.value)" style="width:64px; padding:8px; text-align:center; border-radius:8px;">
+            <span style="font-size:0.8rem; color:var(--text-sub);">kg</span>
+          </div>
+        </div>
+        <div style="font-size:0.65rem; color:var(--text-sub);" id="t-weight-note">※この端末だけに保存され、Firebaseや他の家族には共有されません。未入力の場合は65kgとして概算します。</div>
+      </div>
     </div>
   </div>
 
@@ -1455,7 +1466,8 @@
         privSound: "Sonido",
         locHome: "Casa", locOther: "Fuera",
         typeStrength: "Fuerza", typeCardio: "Cardio", typeStretch: "Otro",
-        breakdownTitle: "Desglose por tipo", calorieLabel: "Calorías estimadas", calorieNote: "※ Estimación basada en 65kg de peso corporal",
+        breakdownTitle: "Desglose por tipo", calorieLabel: "Calorías estimadas", calorieNote: "※ Estimación basada en 65kg de peso corporal", calorieNoteCustom: "※ Estimación basada en tu peso registrado ({weight}kg)",
+        weightLabel: "Peso (para calorías)", weightNote: "※ Solo se guarda en este dispositivo, no se comparte con Firebase ni con tu familia. Si lo dejas vacío, se estima con 65kg.",
         kgLabel: "Hacia 1kg de grasa", kgNote: "※ Referencia lúdica basada en ~7.700kcal por kg de grasa corporal",
         splitLabel: "Desliza para repartir el tiempo entre ambos", splitLabel3: "Se reparte en 3 partes iguales",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
@@ -1520,7 +1532,8 @@
         privSound: "効果音",
         locHome: "家", locOther: "外",
         typeStrength: "筋トレ", typeCardio: "有酸素", typeStretch: "その他",
-        breakdownTitle: "運動タイプの内訳", calorieLabel: "概算カロリー", calorieNote: "※体重65kg想定の概算値です",
+        breakdownTitle: "運動タイプの内訳", calorieLabel: "概算カロリー", calorieNote: "※体重65kg想定の概算値です", calorieNoteCustom: "※設定した体重（{weight}kg）をもとにした概算値です",
+        weightLabel: "体重（カロリー概算用）", weightNote: "※この端末だけに保存され、Firebaseや他の家族には共有されません。未入力の場合は65kgとして概算します。",
         kgLabel: "脂肪1kg分の目安まで", kgNote: "※体脂肪1kgあたり約7,700kcalという一般的な目安をもとにした遊び用の参考値です",
         splitLabel: "スライダーを動かして時間配分を調整", splitLabel3: "3種類は均等に3分割されます",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
@@ -1843,6 +1856,8 @@
       setT("t-breakdown-title", t.breakdownTitle);
       setT("t-calorie-label", t.calorieLabel);
       setT("t-calorie-note", t.calorieNote);
+      setT("t-weight-label", t.weightLabel);
+      setT("t-weight-note", t.weightNote);
       setT("t-kg-label", t.kgLabel);
       setT("t-kg-note", t.kgNote);
 
@@ -2551,8 +2566,23 @@
       cardio: { color: '#2DD4BF', met: 8 },
       stretch: { color: '#9FF5E8', met: 2.5 }
     };
-    const ASSUMED_WEIGHT_KG = 65;
+    const DEFAULT_WEIGHT_KG = 65;
     const KCAL_PER_KG_FAT = 7700; // 体脂肪1kgあたりの一般的な目安値
+
+    // 体重（カロリー概算用）：この端末だけに保存。Firebaseには一切送らない
+    function getWeightKg() {
+      const saved = parseFloat(localStorage.getItem("gym_weight_kg"));
+      return (!isNaN(saved) && saved > 0) ? saved : DEFAULT_WEIGHT_KG;
+    }
+    window.setWeightKg = (val) => {
+      const num = parseFloat(val);
+      if (!isNaN(num) && num > 0) {
+        localStorage.setItem("gym_weight_kg", num);
+      } else {
+        localStorage.removeItem("gym_weight_kg");
+      }
+      try { updateStreakAndGoals(); } catch(e){}
+    };
 
     function renderTypeBreakdown(periodStart, periodEnd) {
       const t = i18n[currentLang];
@@ -2612,9 +2642,17 @@
       let totalKcal = 0;
       Object.keys(EXERCISE_TYPE_META).forEach(type => {
         const met = EXERCISE_TYPE_META[type].met;
-        totalKcal += met * 3.5 * ASSUMED_WEIGHT_KG / 200 * totals[type];
+        totalKcal += met * 3.5 * getWeightKg() / 200 * totals[type];
       });
       calEl.innerHTML = `<span style="font-family:'LINE Seed JP', sans-serif;">${Math.round(totalKcal)}</span> kcal`;
+
+      const noteEl = document.getElementById("t-calorie-note");
+      if (noteEl) {
+        const hasCustomWeight = localStorage.getItem("gym_weight_kg");
+        noteEl.innerText = hasCustomWeight
+          ? t.calorieNoteCustom.replace("{weight}", getWeightKg())
+          : t.calorieNote;
+      }
 
       const kgPct = Math.min(100, Math.round((totalKcal / KCAL_PER_KG_FAT) * 100));
       const kgPctEl = document.getElementById("kg-progress-pct");
@@ -3487,6 +3525,8 @@
       playSound('click');
       document.getElementById("settings-modal").style.display = "flex";
       initPrivacyToggles();
+      const weightInput = document.getElementById("pref-weight-kg");
+      if (weightInput) weightInput.value = localStorage.getItem("gym_weight_kg") || "";
     };
 
     window.closeSettingsModal = () => {
