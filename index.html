@@ -653,6 +653,47 @@
     </div>
   </div>
 
+  <div id="about-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <h2 style="font-size: 1.1rem;" id="t-about-title">このアプリについて</h2>
+        <button onclick="closeAboutModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="font-size:0.85rem; color:#fff; line-height:1.7; margin-bottom:18px;" id="t-about-intro">
+        MyGymは、家族で使う小さなトレーニング記録アプリです。誰が今トレーニング中かを共有したり、記録をつけたり、月ごとのランキングで励まし合ったりできます。
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <h3 style="font-size:0.8rem; color:var(--ring-inner); font-weight:800; margin-bottom:6px;" id="t-about-security-title">セキュリティについて</h3>
+        <p style="font-size:0.78rem; color:var(--text-sub); line-height:1.7;" id="t-about-security-body">
+          データはFirebase（Googleのサービス）に保存されています。アプリを開くと自動的にログインする仕組みになっていて、ログインした人だけがデータを読み書きできます。ただし今の設定は「ログインしていれば誰でも見られる」という、家族などの少人数利用を前提にしたシンプルなものです。不特定多数に公開したり、機密性の高い情報を扱うアプリではありません。
+        </p>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <h3 style="font-size:0.8rem; color:var(--ring-inner); font-weight:800; margin-bottom:6px;" id="t-about-privacy-title">個人情報について</h3>
+        <p style="font-size:0.78rem; color:var(--text-sub); line-height:1.7;" id="t-about-privacy-body">
+          保存されるのは、ニックネーム・アバター・トレーニングの時間や日付・任意のメモだけです。メールアドレスや電話番号、本名の登録は必要ありません。「プライバシー・公開設定」から、名前や運動時間を他の人に見せるかどうかを自分で選べます。
+        </p>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <h3 style="font-size:0.8rem; color:var(--ring-inner); font-weight:800; margin-bottom:6px;" id="t-about-export-title">データのエクスポートはいつ使う？</h3>
+        <p style="font-size:0.78rem; color:var(--text-sub); line-height:1.7;" id="t-about-export-body">
+          自分の記録をJSON/CSVファイルとして手元に保存できる機能です。例えば「スマホを機種変更する前の念のためのバックアップ」「自分の記録を表計算ソフトで見返したい時」「アカウントを削除する前に記録を残しておきたい時」などに使えます。エクスポートしたファイルは、同じ画面の「インポート」から読み込んで復元することもできます。
+        </p>
+      </div>
+
+      <div style="margin-bottom:6px;">
+        <h3 style="font-size:0.8rem; color:var(--ring-inner); font-weight:800; margin-bottom:6px;" id="t-about-other-title">その他</h3>
+        <p style="font-size:0.78rem; color:var(--text-sub); line-height:1.7;" id="t-about-other-body">
+          「ログアウト」はこの端末に保存された名前情報を消すだけで、記録データは消えません。「アカウントを削除」は、自分の記録・いいね・コメントなどを完全に削除する操作で、元に戻せません。心配な場合は、削除前に一度データのエクスポートをおすすめします。
+        </p>
+      </div>
+    </div>
+  </div>
+
   <header>
     <div class="brand">
       <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1047,6 +1088,9 @@
       <div style="margin-top: 10px; text-align: center;">
         <button onclick="deleteAccount()" style="background:transparent; border:none; color:var(--red); font-size:0.75rem; cursor:pointer; text-decoration:underline; opacity:0.8;" id="t-delete-account">Eliminar cuenta</button>
       </div>
+      <div style="margin-top: 14px; text-align: center;">
+        <button onclick="openAboutModal()" style="background:transparent; border:none; color:var(--text-sub); font-size:0.72rem; cursor:pointer; text-decoration:underline; opacity:0.6;" id="t-about-link">このアプリについて</button>
+      </div>
     </div>
   </div>
 
@@ -1374,6 +1418,17 @@
         raceTitle: "Energy Race", timelineTitle: "Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", manualTitleShort: "Añadir", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
         deleteAccountBtn: "Eliminar cuenta",
+        aboutLink: "Acerca de esta app",
+        aboutTitle: "Acerca de esta app",
+        aboutIntro: "MyGym es una pequeña app de registro de entrenamiento para usar en familia. Puedes compartir quién está entrenando ahora, llevar un registro y animarse mutuamente con el ranking mensual.",
+        aboutSecurityTitle: "Sobre la seguridad",
+        aboutSecurityBody: "Los datos se guardan en Firebase (un servicio de Google). Al abrir la app, inicias sesión automáticamente, y solo quienes hayan iniciado sesión pueden leer y escribir datos. Sin embargo, la configuración actual es simple: cualquiera que haya iniciado sesión puede ver los datos, pensada para un uso familiar o de grupos pequeños. No es una app diseñada para exponerse públicamente ni para manejar información sensible.",
+        aboutPrivacyTitle: "Sobre los datos personales",
+        aboutPrivacyBody: "Solo se guardan: apodo, avatar, horarios y fechas de entrenamiento, y notas opcionales. No es necesario registrar correo electrónico, teléfono ni nombre real. Desde \"Privacidad\" puedes elegir si mostrar tu nombre o tu tiempo de entrenamiento a los demás.",
+        aboutExportTitle: "¿Cuándo usar la exportación de datos?",
+        aboutExportBody: "Te permite guardar tus registros como archivo JSON/CSV. Es útil, por ejemplo, como respaldo antes de cambiar de teléfono, para revisar tus registros en una hoja de cálculo, o para conservar tus datos antes de eliminar tu cuenta. El archivo exportado también se puede volver a cargar desde \"Importar\" en la misma pantalla.",
+        aboutOtherTitle: "Otros",
+        aboutOtherBody: "\"Cerrar sesión\" solo borra el nombre guardado en este dispositivo; tus registros no se eliminan. \"Eliminar cuenta\" borra por completo tus registros, likes y comentarios, y no se puede deshacer. Si te preocupa, te recomendamos exportar tus datos antes de eliminar la cuenta.",
         confirmDeleteAccount: "¿Seguro que quieres eliminar la cuenta \"{name}\"? Se borrarán todos tus registros, ajustes y notificaciones de Firebase. Esto no se puede deshacer.",
         confirmDeleteAccountFinal: "Última confirmación: esta acción es permanente. ¿Eliminar de verdad?",
         accountDeleted: "La cuenta se ha eliminado.",
@@ -1428,6 +1483,17 @@
         raceTitle: "エネルギーレース", timelineTitle: "アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", manualTitleShort: "追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト",
         deleteAccountBtn: "アカウントを削除",
+        aboutLink: "このアプリについて",
+        aboutTitle: "このアプリについて",
+        aboutIntro: "MyGymは、家族で使う小さなトレーニング記録アプリです。誰が今トレーニング中かを共有したり、記録をつけたり、月ごとのランキングで励まし合ったりできます。",
+        aboutSecurityTitle: "セキュリティについて",
+        aboutSecurityBody: "データはFirebase（Googleのサービス）に保存されています。アプリを開くと自動的にログインする仕組みになっていて、ログインした人だけがデータを読み書きできます。ただし今の設定は「ログインしていれば誰でも見られる」という、家族などの少人数利用を前提にしたシンプルなものです。不特定多数に公開したり、機密性の高い情報を扱うアプリではありません。",
+        aboutPrivacyTitle: "個人情報について",
+        aboutPrivacyBody: "保存されるのは、ニックネーム・アバター・トレーニングの時間や日付・任意のメモだけです。メールアドレスや電話番号、本名の登録は必要ありません。「プライバシー・公開設定」から、名前や運動時間を他の人に見せるかどうかを自分で選べます。",
+        aboutExportTitle: "データのエクスポートはいつ使う？",
+        aboutExportBody: "自分の記録をJSON/CSVファイルとして手元に保存できる機能です。例えば「スマホを機種変更する前の念のためのバックアップ」「自分の記録を表計算ソフトで見返したい時」「アカウントを削除する前に記録を残しておきたい時」などに使えます。エクスポートしたファイルは、同じ画面の「インポート」から読み込んで復元することもできます。",
+        aboutOtherTitle: "その他",
+        aboutOtherBody: "「ログアウト」はこの端末に保存された名前情報を消すだけで、記録データは消えません。「アカウントを削除」は、自分の記録・いいね・コメントなどを完全に削除する操作で、元に戻せません。心配な場合は、削除前に一度データのエクスポートをおすすめします。",
         confirmDeleteAccount: "「{name}」のアカウントを削除しますか？記録・設定・通知など、Firebase上のデータがすべて消えます。この操作は元に戻せません。",
         confirmDeleteAccountFinal: "最終確認です。この操作は取り消せません。本当に削除しますか？",
         accountDeleted: "アカウントを削除しました。",
@@ -1734,6 +1800,17 @@
       setT("t-history-title", t.historyTitle);
       setT("t-logout", t.logout);
       setT("t-delete-account", t.deleteAccountBtn);
+      setT("t-about-link", t.aboutLink);
+      setT("t-about-title", t.aboutTitle);
+      setT("t-about-intro", t.aboutIntro);
+      setT("t-about-security-title", t.aboutSecurityTitle);
+      setT("t-about-security-body", t.aboutSecurityBody);
+      setT("t-about-privacy-title", t.aboutPrivacyTitle);
+      setT("t-about-privacy-body", t.aboutPrivacyBody);
+      setT("t-about-export-title", t.aboutExportTitle);
+      setT("t-about-export-body", t.aboutExportBody);
+      setT("t-about-other-title", t.aboutOtherTitle);
+      setT("t-about-other-body", t.aboutOtherBody);
       setT("t-export-title", t.exportTitle);
       setT("t-import-title", t.importTitle);
       setT("t-import-btn", t.importBtn);
@@ -3415,6 +3492,16 @@
     window.closeSettingsModal = () => {
       playSound('click');
       document.getElementById("settings-modal").style.display = "none";
+    };
+
+    window.openAboutModal = () => {
+      playSound('click');
+      document.getElementById("about-modal").style.display = "flex";
+    };
+
+    window.closeAboutModal = () => {
+      playSound('click');
+      document.getElementById("about-modal").style.display = "none";
     };
 
     window.goToLog = (logKey, notifKey) => {
