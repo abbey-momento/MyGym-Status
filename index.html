@@ -227,7 +227,7 @@
     .exercise-type-btn span { font-size: 0.75rem; font-weight: 700; }
     .exercise-type-btn.active { border-color: var(--ring-inner); background: rgba(45,212,191,0.16); color: #fff; box-shadow: 0 0 10px rgba(45,212,191,0.25); }
 
-    .type-split-box { display:none; background: rgba(0,0,0,0.3); border: 1.5px solid var(--ring-inner); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 0 16px rgba(45,212,191,0.15); }
+    .type-split-box { display:none; background: rgba(0,0,0,0.3); border: 1.5px solid var(--ring-inner); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
     .location-toggle-group button { background: transparent; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.75rem; cursor: pointer; border-radius: 999px; padding: 5px 12px; font-family: inherit; transition: 0.2s; }
     .location-toggle-group button.active { background: var(--accent-gradient); color: #0B0F19; }
     .location-toggle-group button:disabled { cursor: default; opacity: 0.5; }
@@ -567,11 +567,11 @@
       <div class="form-group time-inputs-row">
         <div class="time-input-col">
           <label style="font-size:0.7rem;" id="t-edit-label-from">Desde</label>
-          <input type="time" id="editLogTimeFrom" />
+          <input type="time" id="editLogTimeFrom" oninput="updateEditSplitDuration()">
         </div>
         <div class="time-input-col">
           <label style="font-size:0.7rem;" id="t-edit-label-to">Hasta</label>
-          <input type="time" id="editLogTimeTo" />
+          <input type="time" id="editLogTimeTo" oninput="updateEditSplitDuration()">
         </div>
       </div>
       <div class="form-group">
@@ -977,11 +977,11 @@
           <div class="time-inputs-row">
             <div class="time-input-col">
               <label style="font-size:0.7rem;" id="t-label-from">Desde</label>
-              <input type="time" id="manualTimeFrom" value="10:00" style="padding:10px; border-radius: 12px;" />
+              <input type="time" id="manualTimeFrom" value="10:00" style="padding:10px; border-radius: 12px;" oninput="updateManualSplitDuration()">
             </div>
             <div class="time-input-col">
               <label style="font-size:0.7rem;" id="t-label-to">Hasta</label>
-              <input type="time" id="manualTimeTo" value="11:00" style="padding:10px; border-radius: 12px;" />
+              <input type="time" id="manualTimeTo" value="11:00" style="padding:10px; border-radius: 12px;" oninput="updateManualSplitDuration()">
             </div>
           </div>
           <input type="text" id="manualMemo" placeholder="Nota opcional" style="padding:10px; border-radius: 10px; font-size:0.9rem;">
@@ -1489,13 +1489,14 @@
     let myUserAvatar = localStorage.getItem("gym_my_avatar") || "";
     let selectedLocation = localStorage.getItem("gym_location") || "home";
     let selectedExerciseTypes = new Set(["strength"]);
+    let pendingMemoDurationMin = 0;
     window.setMemoExerciseType = (type) => {
       playSound('click');
       toggleTypeInSet(selectedExerciseTypes, type);
       document.querySelectorAll("#memo-type-toggle .exercise-type-btn").forEach(btn => {
         btn.classList.toggle("active", selectedExerciseTypes.has(btn.dataset.type));
       });
-      renderTypeSplitInputs("memo-type-split", selectedExerciseTypes);
+      renderTypeSplitInputs("memo-type-split", selectedExerciseTypes, null, pendingMemoDurationMin);
     };
 
     // 複数選択トグル：最低1つは選ばれた状態を保つ
@@ -1507,7 +1508,12 @@
       }
     }
 
-    const TYPE_COLORS = { strength: 'linear-gradient(135deg,#0B5F52,#0FA98A)', cardio: 'linear-gradient(135deg,#0FA98A,#2DD4BF)', stretch: 'linear-gradient(135deg,#2DD4BF,#9FF5E8)' };
+    const TYPE_COLORS = { strength: 'linear-gradient(135deg,#0FA98A,#17BC9B)', cardio: 'linear-gradient(135deg,#2DD4BF,#3EE0CC)', stretch: 'linear-gradient(135deg,#9FF5E8,#B8F8EE)' };
+    const TYPE_ICON_SVG = {
+      strength: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z"/><path d="m2.5 21.5 1.4-1.4"/><path d="m20.1 3.9 1.4-1.4"/><path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z"/><path d="m9.6 14.4 4.8-4.8"/></svg>',
+      cardio: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+      stretch: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2"/><path d="M12.59 19.41A2 2 0 1 0 14 16H2"/><path d="M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2"/></svg>'
+    };
     const TYPE_ORDER = ['strength', 'cardio', 'stretch'];
     // 選んだ順ではなく、常に固定順（筋トレ→有酸素→その他）で並べる（グラデーションの並びを崩さないため）
     function sortTypesFixed(typeSet) {
@@ -1517,7 +1523,7 @@
     const TYPE_TEXT_COLORS = { strength: '#fff', cardio: '#fff', stretch: '#2a4a42' };
 
     // 種類を選んだ時、バー上の境界線をドラッグして配分を自由に調整できるようにする（1種類の時も高さを揃えるため常に表示）
-    function renderTypeSplitInputs(containerId, typeSet, initialMinutes) {
+    function renderTypeSplitInputs(containerId, typeSet, initialMinutes, totalDurationMin) {
       const container = document.getElementById(containerId);
       if (!container) return;
       const types = sortTypesFixed(typeSet);
@@ -1538,12 +1544,13 @@
 
       container.dataset.boundaries = JSON.stringify(boundaries);
       container.dataset.types = JSON.stringify(types);
+      if (totalDurationMin !== undefined) container.dataset.totalDuration = totalDurationMin;
 
       container.style.display = "block";
       container.innerHTML = `
         <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:12px;">${t.splitLabel}</div>
-        <div id="${containerId}-bar" style="position:relative; display:flex; height:44px; border-radius:12px; overflow:hidden; touch-action:none; cursor:${types.length > 1 ? 'ew-resize' : 'default'}; box-shadow: 0 0 14px rgba(45,212,191,0.35), inset 0 0 10px rgba(0,0,0,0.3);">
-          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; opacity:${TYPE_OPACITY[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden;"></div>`).join("")}
+        <div id="${containerId}-bar" style="position:relative; display:flex; height:44px; border-radius:12px; overflow:hidden; touch-action:none; cursor:${types.length > 1 ? 'ew-resize' : 'default'};">
+          ${types.map((type, i) => `<div id="${containerId}-seg-${i}" style="background:${TYPE_COLORS[type]}; opacity:${TYPE_OPACITY[type]}; color:${TYPE_TEXT_COLORS[type]}; display:flex; align-items:center; justify-content:center; gap:4px; font-weight:800; font-size:0.72rem; white-space:nowrap; overflow:hidden;"></div>`).join("")}
         </div>
       `;
 
@@ -1551,22 +1558,26 @@
       if (types.length > 1) attachTypeSplitDrag(containerId);
     }
 
-    function drawTypeSplitBar(containerId) {
+    // 合計時間(分)がまだ分かっている場合のみ渡す。省略時は前回保存された値を使う
+    function drawTypeSplitBar(containerId, totalDurationMin) {
       const container = document.getElementById(containerId);
       if (!container) return;
+      if (totalDurationMin !== undefined) container.dataset.totalDuration = totalDurationMin;
+      const totalDur = parseInt(container.dataset.totalDuration, 10) || 0;
+
       const types = JSON.parse(container.dataset.types || "[]");
       const boundaries = JSON.parse(container.dataset.boundaries || "[]");
       const t = i18n[currentLang];
-      const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
       const edges = [0, ...boundaries, 100];
 
       types.forEach((type, i) => {
         const seg = document.getElementById(`${containerId}-seg-${i}`);
         if (!seg) return;
         const width = edges[i + 1] - edges[i];
-        const pctNum = `<span style="font-family:'LINE Seed JP', sans-serif;">${Math.round(width)}</span>%`;
+        const min = Math.round(totalDur * width / 100);
+        const minLabel = `<span style="font-family:'LINE Seed JP', sans-serif;">${min}</span>${t.unitMin}`;
         seg.style.width = `${width}%`;
-        seg.innerHTML = width >= 14 ? `${typeLabels[type]} ${pctNum}` : (width > 3 ? pctNum : '');
+        seg.innerHTML = width >= 14 ? `${TYPE_ICON_SVG[type]} ${minLabel}` : (width > 6 ? minLabel : '');
       });
     }
 
@@ -2336,7 +2347,8 @@
 
         document.getElementById("trainingMemoInput").value = "";
         document.getElementById("memo-modal").style.display = "flex";
-        renderTypeSplitInputs("memo-type-split", selectedExerciseTypes);
+        pendingMemoDurationMin = durationMin;
+        renderTypeSplitInputs("memo-type-split", selectedExerciseTypes, null, durationMin);
       } else {
         playSound('start');
         triggerVibrate(60);
@@ -2388,7 +2400,7 @@
       document.querySelectorAll("#memo-type-toggle .exercise-type-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.type === "strength");
       });
-      renderTypeSplitInputs("memo-type-split", selectedExerciseTypes);
+      renderTypeSplitInputs("memo-type-split", selectedExerciseTypes, null, 0);
     };
 
     function calculateStreakForUser(logs, targetUser) {
@@ -4023,6 +4035,20 @@
       }).join("");
     };
 
+    function getManualDurationMin() {
+      const timeFrom = document.getElementById("manualTimeFrom").value;
+      const timeTo = document.getElementById("manualTimeTo").value;
+      if (!timeFrom || !timeTo) return 0;
+      const [fromH, fromM] = timeFrom.split(':').map(Number);
+      const [toH, toM] = timeTo.split(':').map(Number);
+      const diff = (toH * 60 + toM) - (fromH * 60 + fromM);
+      return diff > 0 ? diff : 0;
+    }
+
+    window.updateManualSplitDuration = () => {
+      drawTypeSplitBar("manual-type-split", getManualDurationMin());
+    };
+
     window.toggleManualAddForm = () => {
       playSound('click');
       const box = document.getElementById("manual-log-box");
@@ -4033,7 +4059,7 @@
       if (btn) btn.classList.toggle("active", !isOpen);
       if (!isOpen) {
         box.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        renderTypeSplitInputs("manual-type-split", manualExerciseTypes);
+        renderTypeSplitInputs("manual-type-split", manualExerciseTypes, null, getManualDurationMin());
       }
     };
 
@@ -4053,7 +4079,7 @@
       document.querySelectorAll("#manual-type-toggle .exercise-type-btn").forEach(btn => {
         btn.classList.toggle("active", manualExerciseTypes.has(btn.dataset.type));
       });
-      renderTypeSplitInputs("manual-type-split", manualExerciseTypes);
+      renderTypeSplitInputs("manual-type-split", manualExerciseTypes, null, getManualDurationMin());
     };
 
     window.addManualLog = () => {
@@ -4101,7 +4127,7 @@
       document.querySelectorAll("#manual-type-toggle .exercise-type-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.type === "strength");
       });
-      renderTypeSplitInputs("manual-type-split", manualExerciseTypes);
+      renderTypeSplitInputs("manual-type-split", manualExerciseTypes, null, 0);
       toggleManualAddForm();
     };
 
@@ -4130,9 +4156,23 @@
       document.querySelectorAll("#edit-type-toggle .exercise-type-btn").forEach(btn => {
         btn.classList.toggle("active", editingExerciseTypes.has(btn.dataset.type));
       });
-      renderTypeSplitInputs("edit-type-split", editingExerciseTypes, log.typeSplit || null);
+      renderTypeSplitInputs("edit-type-split", editingExerciseTypes, log.typeSplit || null, getEditDurationMin());
       
       document.getElementById("edit-log-modal").style.display = "flex";
+    };
+
+    function getEditDurationMin() {
+      const timeFrom = document.getElementById("editLogTimeFrom").value;
+      const timeTo = document.getElementById("editLogTimeTo").value;
+      if (!timeFrom || !timeTo) return 0;
+      const [fromH, fromM] = timeFrom.split(':').map(Number);
+      const [toH, toM] = timeTo.split(':').map(Number);
+      const diff = (toH * 60 + toM) - (fromH * 60 + fromM);
+      return diff > 0 ? diff : 0;
+    }
+
+    window.updateEditSplitDuration = () => {
+      drawTypeSplitBar("edit-type-split", getEditDurationMin());
     };
 
     let editingLogLocation = 'home';
@@ -4149,7 +4189,7 @@
       document.querySelectorAll("#edit-type-toggle .exercise-type-btn").forEach(btn => {
         btn.classList.toggle("active", editingExerciseTypes.has(btn.dataset.type));
       });
-      renderTypeSplitInputs("edit-type-split", editingExerciseTypes);
+      renderTypeSplitInputs("edit-type-split", editingExerciseTypes, null, getEditDurationMin());
     };
 
     function updateEditLocationToggleUI() {
