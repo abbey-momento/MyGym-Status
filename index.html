@@ -979,7 +979,10 @@
             <div style="font-size:0.65rem; color:var(--text-sub); margin-top:4px;" id="t-calorie-note">※体重65kg想定の概算値です</div>
 
             <div style="margin-top:14px;">
-              <div style="font-size:1rem; font-weight:800; color:#fff; margin-bottom:8px;" id="kg-milestone-text">これまで 0kg 分運動しました！</div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+                <div style="font-size:1rem; font-weight:800; color:#fff;" id="kg-milestone-text">今週で 0kg 分運動しました！</div>
+                <span style="font-size:0.9rem; font-weight:800; color:var(--ring-inner); flex-shrink:0; margin-left:8px;" id="kg-progress-pct">0%</span>
+              </div>
               <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
                 <div id="kg-progress-fill" style="width:0%; height:100%; background:linear-gradient(90deg,#0FA98A,#2DD4BF); transition:width 0.3s;"></div>
               </div>
@@ -1466,7 +1469,8 @@
         typeStrength: "Fuerza", typeCardio: "Cardio", typeStretch: "Otro",
         breakdownTitle: "Desglose por tipo", calorieLabel: "Calorías estimadas", calorieNote: "※ Estimación basada en 65kg de peso corporal", calorieNoteCustom: "※ Estimación basada en tu peso registrado ({weight}kg)",
         weightLabel: "Peso (para calorías)", weightNote: "※ Solo se guarda en este dispositivo, no se comparte con Firebase ni con tu familia. Si lo dejas vacío, se estima con 65kg.",
-        kgMilestoneText: "¡Llevas {kg}kg de ejercicio acumulado!", kgNextText: "Faltan {kcal}kcal para llegar a {nextKg}kg", kgNote: "※ Referencia lúdica acumulada, basada en ~7.700kcal por kg de grasa corporal",
+        kgMilestoneText_week: "¡Llevas {kg}kg de ejercicio esta semana!", kgMilestoneText_month: "¡Llevas {kg}kg de ejercicio este mes!", kgMilestoneText_year: "¡Llevas {kg}kg de ejercicio este año!",
+        kgNextText: "Faltan {kcal}kcal para llegar a {nextKg}kg", kgNote: "※ Referencia lúdica basada en ~7.700kcal por kg de grasa corporal",
         splitLabel: "Desliza para repartir el tiempo entre ambos", splitLabel3: "Se reparte en 3 partes iguales",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
@@ -1532,7 +1536,8 @@
         typeStrength: "筋トレ", typeCardio: "有酸素", typeStretch: "その他",
         breakdownTitle: "運動タイプの内訳", calorieLabel: "概算カロリー", calorieNote: "※体重65kg想定の概算値です", calorieNoteCustom: "※設定した体重（{weight}kg）をもとにした概算値です",
         weightLabel: "体重（カロリー概算用）", weightNote: "※この端末だけに保存され、Firebaseや他の家族には共有されません。未入力の場合は65kgとして概算します。",
-        kgMilestoneText: "これまで {kg}kg 分運動しました！", kgNextText: "次の{nextKg}kgまであと {kcal}kcal", kgNote: "※体脂肪1kgあたり約7,700kcalという目安をもとにした、通算での参考値",
+        kgMilestoneText_week: "今週で {kg}kg 分運動しました！", kgMilestoneText_month: "今月で {kg}kg 分運動しました！", kgMilestoneText_year: "今年で {kg}kg 分運動しました！",
+        kgNextText: "次の{nextKg}kgまであと {kcal}kcal", kgNote: "※体脂肪1kgあたり約7,700kcalという目安をもとにした参考値",
         splitLabel: "スライダーを動かして時間配分を調整", splitLabel3: "3種類は均等に3分割されます",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
@@ -2670,42 +2675,25 @@
           : t.calorieNote;
       }
 
-      renderKgMilestone();
+      renderKgMilestone(totalKcal);
     }
 
-    // 🏅 これまでの通算カロリーから「◯kg分運動した」を表示する（期間切り替えとは無関係の、全期間累計）
-    function renderKgMilestone() {
+    // 🏅 選んだ期間の概算カロリーから「◯kg分運動した」を表示する（週/月/年の切り替えに連動）
+    function renderKgMilestone(totalKcal) {
       const t = i18n[currentLang];
       const milestoneEl = document.getElementById("kg-milestone-text");
+      const pctEl = document.getElementById("kg-progress-pct");
       const nextEl = document.getElementById("kg-next-text");
       const fillEl = document.getElementById("kg-progress-fill");
       if (!milestoneEl || !myUserName) return;
 
-      let allTotals = { strength: 0, cardio: 0, stretch: 0 };
-      Object.values(allLogsData).forEach(log => {
-        if (log.user !== myUserName) return;
-        if (log.typeSplit) {
-          Object.entries(log.typeSplit).forEach(([type, min]) => {
-            if (allTotals[type] !== undefined) allTotals[type] += min || 0;
-          });
-        } else {
-          const type = allTotals[log.type] !== undefined ? log.type : 'strength';
-          allTotals[type] += log.duration || 0;
-        }
-      });
-
-      let allTimeKcal = 0;
-      Object.keys(EXERCISE_TYPE_META).forEach(type => {
-        const met = EXERCISE_TYPE_META[type].met;
-        allTimeKcal += met * 3.5 * getWeightKg() / 200 * allTotals[type];
-      });
-
-      const kgAchieved = Math.floor(allTimeKcal / KCAL_PER_KG_FAT);
-      const remainderKcal = allTimeKcal - kgAchieved * KCAL_PER_KG_FAT;
+      const kgAchieved = Math.floor(totalKcal / KCAL_PER_KG_FAT);
+      const remainderKcal = totalKcal - kgAchieved * KCAL_PER_KG_FAT;
       const remainingToNext = Math.max(0, Math.round(KCAL_PER_KG_FAT - remainderKcal));
       const pctToNext = Math.min(100, Math.round((remainderKcal / KCAL_PER_KG_FAT) * 100));
 
-      milestoneEl.innerHTML = t.kgMilestoneText.replace("{kg}", `<span style="color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${kgAchieved}</span>`);
+      milestoneEl.innerHTML = t[`kgMilestoneText_${reportPeriod}`].replace("{kg}", `<span style="color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${kgAchieved}</span>`);
+      if (pctEl) pctEl.innerHTML = `<span style="font-family:'LINE Seed JP', sans-serif;">${pctToNext}</span>%`;
       if (nextEl) nextEl.innerText = t.kgNextText.replace("{nextKg}", kgAchieved + 1).replace("{kcal}", remainingToNext.toLocaleString());
       if (fillEl) fillEl.style.width = `${pctToNext}%`;
     }
