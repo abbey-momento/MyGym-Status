@@ -988,7 +988,7 @@
               <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
                 <div id="kg-progress-fill" style="width:0%; height:100%; background:linear-gradient(90deg,#0FA98A,#2DD4BF); transition:width 0.3s;"></div>
               </div>
-              <div style="font-size:0.62rem; color:var(--text-sub); margin-top:4px;" id="t-kg-note">※体脂肪1kgあたり約7,700kcalという一般的な目安をもとにした遊び用の参考値です</div>
+              <div style="font-size:0.62rem; color:var(--text-sub); margin-top:4px;" id="t-kg-note">※体脂肪1kgあたり約7,700kcalという目安をもとにした参考値</div>
             </div>
           </div>
         </div>
@@ -1536,7 +1536,7 @@
         typeStrength: "筋トレ", typeCardio: "有酸素", typeStretch: "その他",
         breakdownTitle: "運動タイプの内訳", calorieLabel: "概算カロリー", calorieNote: "※体重65kg想定の概算値です", calorieNoteCustom: "※設定した体重（{weight}kg）をもとにした概算値です",
         weightLabel: "体重（カロリー概算用）", weightNote: "※この端末だけに保存され、Firebaseや他の家族には共有されません。未入力の場合は65kgとして概算します。",
-        kgLabel: "脂肪1kg分の目安まで", kgNote: "※体脂肪1kgあたり約7,700kcalという一般的な目安をもとにした遊び用の参考値です",
+        kgLabel: "脂肪1kg分の目安まで", kgNote: "※体脂肪1kgあたり約7,700kcalという目安をもとにした参考値",
         splitLabel: "スライダーを動かして時間配分を調整", splitLabel3: "3種類は均等に3分割されます",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
@@ -2066,13 +2066,22 @@
       document.getElementById("edit-modal").style.display = "none";
     };
 
-    window.saveEditedProfile = () => {
+    window.saveEditedProfile = async () => {
       playSound('start');
       const newName = document.getElementById("editNameInput").value.trim();
       if (!newName) return alert(i18n[currentLang].alertName);
 
       if (newName !== myUserName) {
         const oldName = myUserName;
+
+        // 新しい名前がすでに使われていないか確認（登録時と同じチェック）
+        try {
+          const snap = await get(ref(db, `users/${newName}/privacy`));
+          if (snap.exists()) {
+            const ok = confirm(i18n[currentLang].nameExistsConfirm.replace("{name}", newName));
+            if (!ok) return;
+          }
+        } catch (e) {}
 
         // 現在のステータス移行
         if (activeUsersData[oldName]) {
@@ -2082,7 +2091,17 @@
         // プライバシー設定移行
         const p = getPrivacy(oldName);
         set(ref(db, `users/${newName}/privacy`), p);
-        remove(ref(db, `users/${oldName}/privacy`));
+
+        // 実績（マイルストーン進捗）移行
+        try {
+          const mSnap = await get(ref(db, `users/${oldName}/milestoneProgress`));
+          if (mSnap.exists()) {
+            set(ref(db, `users/${newName}/milestoneProgress`), mSnap.val());
+          }
+        } catch (e) {}
+
+        // 古い名前のノードを丸ごと削除（放置すると後で同じ名前を使った人にデータが引き継がれてしまうため）
+        remove(ref(db, `users/${oldName}`));
 
         // 過去ログ・いいね・コメント・通知に登場する古い名前も新しい名前へ一括移行
         // （これをやらないと、名前変更前の記録が自分の履歴/連続日数/実績として認識されなくなるため）
