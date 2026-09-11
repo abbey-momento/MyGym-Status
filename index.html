@@ -616,6 +616,43 @@
     </div>
   </div>
 
+  <div id="settings-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <h2 style="font-size: 1.1rem;" id="t-privacy-title">プライバシー・公開設定</h2>
+        <button onclick="closeSettingsModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <span style="font-size:0.9rem; font-weight:700;" id="t-priv-name">名前を公開する</span>
+        <input type="checkbox" class="toggle-switch" id="priv-showName" onchange="updatePrivacySetting('showName', this.checked)">
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <span style="font-size:0.9rem; font-weight:700;" id="t-priv-time">運動時間を公開する</span>
+        <input type="checkbox" class="toggle-switch" id="priv-showTime" onchange="updatePrivacySetting('showTime', this.checked)">
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.9rem; font-weight:700;" id="t-priv-ranking">ランキングに参加する</span>
+        <input type="checkbox" class="toggle-switch" id="priv-inRanking" onchange="updatePrivacySetting('inRanking', this.checked)">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
+        <span style="font-size:0.9rem; font-weight:700;" id="t-priv-fontsize">文字サイズ</span>
+        <div class="fontsize-toggle-group" id="fontsize-toggle-group">
+          <button onclick="setFontScale('small')" data-scale="small">A</button>
+          <button onclick="setFontScale('normal')" data-scale="normal">A</button>
+          <button onclick="setFontScale('large')" data-scale="large">A</button>
+          <button onclick="setFontScale('xlarge')" data-scale="xlarge">A</button>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <span style="font-size:0.9rem; font-weight:700;" id="t-priv-sound">効果音</span>
+        <input type="checkbox" class="toggle-switch" id="pref-sound" onchange="setSoundEnabled(this.checked)">
+      </div>
+    </div>
+  </div>
+
   <header>
     <div class="brand">
       <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -636,6 +673,9 @@
       <div class="notif-bell-btn" id="notif-bell-btn" onclick="openNotificationModal()" style="display: none;">
         <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         <div class="notif-badge" id="notif-badge" style="display:none;">0</div>
+      </div>
+      <div class="notif-bell-btn" id="settings-gear-btn" onclick="openSettingsModal()" style="display: none;">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </div>
     </div>
   </header>
@@ -920,46 +960,7 @@
         </div>
       </div>
 
-      <!-- ⚙️ プライバシー設定 セクション -->
-      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
-        <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 16px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span id="t-privacy-title">プライバシー・公開設定</span>
-        </h3>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-name">名前を公開する</span>
-          <input type="checkbox" class="toggle-switch" id="priv-showName" onchange="updatePrivacySetting('showName', this.checked)">
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-time">運動時間を公開する</span>
-          <input type="checkbox" class="toggle-switch" id="priv-showTime" onchange="updatePrivacySetting('showTime', this.checked)">
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-ranking">ランキングに参加する</span>
-          <input type="checkbox" class="toggle-switch" id="priv-inRanking" onchange="updatePrivacySetting('inRanking', this.checked)">
-        </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
-          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-fontsize">文字サイズ</span>
-          <div class="fontsize-toggle-group" id="fontsize-toggle-group">
-            <button onclick="setFontScale('small')" data-scale="small">A</button>
-            <button onclick="setFontScale('normal')" data-scale="normal">A</button>
-            <button onclick="setFontScale('large')" data-scale="large">A</button>
-            <button onclick="setFontScale('xlarge')" data-scale="xlarge">A</button>
-          </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-sound">効果音</span>
-          <input type="checkbox" class="toggle-switch" id="pref-sound" onchange="setSoundEnabled(this.checked)">
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
-          <span style="font-size:0.9rem; font-weight:700;" id="t-priv-vibrate">バイブレーション</span>
-          <input type="checkbox" class="toggle-switch" id="pref-vibrate" onchange="setVibrateEnabled(this.checked)">
-        </div>
-      </div>
-      
       <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px; justify-content:space-between;">
         <span style="display:flex; align-items:center; gap:6px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -1106,10 +1107,8 @@
     }
 
     let soundEnabled = localStorage.getItem("gym_sound_enabled") !== "false";
-    let vibrateEnabled = localStorage.getItem("gym_vibrate_enabled") !== "false";
 
     function triggerVibrate(pattern = 40) {
-      if (!vibrateEnabled) return;
       if ("vibrate" in navigator) {
         try { navigator.vibrate(pattern); } catch(e) {}
       }
@@ -1395,7 +1394,7 @@
         deletedLog: "Este registro fue eliminado",
         anonUser: "Anónimo", anonTime: "Privado", tapToSeeTime: "Toca para ver el tiempo",
         privacyTitle: "Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking", privFontsize: "Tamaño de texto",
-        privSound: "Sonido", privVibrate: "Vibración",
+        privSound: "Sonido",
         locHome: "Casa", locOther: "Fuera",
         typeStrength: "Fuerza", typeCardio: "Cardio", typeStretch: "Otro",
         breakdownTitle: "Desglose por tipo", calorieLabel: "Calorías estimadas", calorieNote: "※ Estimación basada en 65kg de peso corporal",
@@ -1448,7 +1447,7 @@
         deletedLog: "この投稿は削除されました",
         anonUser: "匿名ユーザー", anonTime: "非公開", tapToSeeTime: "タップで経過時間を見る",
         privacyTitle: "プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する", privFontsize: "文字サイズ",
-        privSound: "効果音", privVibrate: "バイブレーション",
+        privSound: "効果音",
         locHome: "家", locOther: "外",
         typeStrength: "筋トレ", typeCardio: "有酸素", typeStretch: "その他",
         breakdownTitle: "運動タイプの内訳", calorieLabel: "概算カロリー", calorieNote: "※体重65kg想定の概算値です",
@@ -1744,7 +1743,6 @@
       setT("t-priv-ranking", t.privRank);
       setT("t-priv-fontsize", t.privFontsize);
       setT("t-priv-sound", t.privSound);
-      setT("t-priv-vibrate", t.privVibrate);
       setT("t-loc-home", t.locHome);
       setT("t-loc-other", t.locOther);
       setT("t-edit-loc-home", t.locHome);
@@ -1829,25 +1827,16 @@
       setFontScale(saved);
     }
 
-    // 🔔 効果音・バイブレーションのON/OFF（この端末だけの好み。ブラウザに保存）
+    // 🔔 効果音のON/OFF（この端末だけの好み。ブラウザに保存）
     window.setSoundEnabled = (enabled) => {
       soundEnabled = enabled;
       localStorage.setItem("gym_sound_enabled", enabled ? "true" : "false");
       if (enabled) playSound('click');
     };
 
-    window.setVibrateEnabled = (enabled) => {
-      playSound('click');
-      vibrateEnabled = enabled;
-      localStorage.setItem("gym_vibrate_enabled", enabled ? "true" : "false");
-      if (enabled) triggerVibrate(30);
-    };
-
     function initSoundVibratePrefs() {
       const soundToggle = document.getElementById("pref-sound");
-      const vibrateToggle = document.getElementById("pref-vibrate");
       if (soundToggle) soundToggle.checked = soundEnabled;
-      if (vibrateToggle) vibrateToggle.checked = vibrateEnabled;
     }
 
     function initPrivacyToggles() {
@@ -1872,6 +1861,9 @@
       
       const notifBtn = document.getElementById("notif-bell-btn");
       if(notifBtn) notifBtn.style.display = (tabId === 'timeline') ? 'flex' : 'none';
+
+      const settingsBtn = document.getElementById("settings-gear-btn");
+      if(settingsBtn) settingsBtn.style.display = (tabId === 'mypage') ? 'flex' : 'none';
 
       try {
         if(tabId === 'mypage' && myUserName) {
@@ -3406,6 +3398,17 @@
     window.closeNotificationModal = () => {
       playSound('click');
       document.getElementById("notification-modal").style.display = "none";
+    };
+
+    window.openSettingsModal = () => {
+      playSound('click');
+      document.getElementById("settings-modal").style.display = "flex";
+      initPrivacyToggles();
+    };
+
+    window.closeSettingsModal = () => {
+      playSound('click');
+      document.getElementById("settings-modal").style.display = "none";
     };
 
     window.goToLog = (logKey, notifKey) => {
