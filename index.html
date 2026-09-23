@@ -277,6 +277,9 @@
     .cal-detail-date { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; font-family: 'LINE Seed JP', sans-serif; }
     
     .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: 0.2s; }
+
+    .cal-filter-chip { flex-shrink: 0; display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 0.78rem; font-weight: 700; color: var(--text-sub); white-space: nowrap; transition: 0.2s; }
+    .cal-filter-chip.active { background: var(--accent-gradient); border-color: transparent; color: #0B0F19; }
     .cal-user-log-item:hover { border-color: var(--accent); background: rgba(47, 143, 255,0.05); }
 
     .timeline-card-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; transition: 0.3s; }
@@ -733,6 +736,16 @@
     </div>
   </div>
 
+  <div id="hall-of-fame-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <h2 style="font-size: 1.1rem;" id="t-halloffame-title">歴代チャンピオン</h2>
+        <button onclick="closeHallOfFameModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
+      </div>
+      <div id="hall-of-fame-content"></div>
+    </div>
+  </div>
+
   <header>
     <div class="brand">
       <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -822,6 +835,8 @@
           <span id="t-cal-today-btn">Hoy</span>
         </button>
       </div>
+
+      <div id="cal-user-filter-row" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; margin-bottom:12px;"></div>
 
       <div class="stats-row">
         <div class="stat-box">
@@ -1045,10 +1060,19 @@
       </div>
 
       <!-- 📅 週間まとめ -->
-      <button onclick="openWeeklySummaryModal()" style="width:100%; display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); color:#fff; cursor:pointer;">
+      <button onclick="openWeeklySummaryModal()" style="width:100%; display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--card-border); color:#fff; cursor:pointer;">
         <span class="mypage-icon-title" style="font-size:0.95rem; font-weight:800; gap:4px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span id="t-weekly-summary-btn">今週のまとめを見る</span>
+        </span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <!-- 🏛️ 殿堂 -->
+      <button onclick="openHallOfFameModal()" style="width:100%; display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border); color:#fff; cursor:pointer;">
+        <span class="mypage-icon-title" style="font-size:0.95rem; font-weight:800; gap:4px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V12h12v10"/><path d="M6 12 2 7l4-5h12l4 5-4 5"/><path d="M10 12V7"/><path d="M14 12V7"/></svg>
+          <span id="t-halloffame-btn">歴代チャンピオン</span>
         </span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
@@ -1487,6 +1511,7 @@
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando", activeStatusLabel: "Entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak", calTodayBtn: "Hoy",
+        calFilterAll: "Todos", calFilterMe: "Yo",
         raceTitle: "Energy Race", timelineTitle: "Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", manualTitleShort: "Añadir", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
         deleteAccountBtn: "Eliminar cuenta",
@@ -1532,9 +1557,15 @@
         kgMilestoneText_week: "¡Llevas {kg}kg de ejercicio esta semana!", kgMilestoneText_month: "¡Llevas {kg}kg de ejercicio este mes!", kgMilestoneText_year: "¡Llevas {kg}kg de ejercicio este año!",
         kgNextText: "Faltan {kcal}kcal para llegar a {nextKg}kg", kgNote: "※ Referencia lúdica basada en ~7.700kcal por kg de grasa corporal",
         badgesTitle: "Logros", badgesSeeAll: "Ver todos", badgesModalTitle: "Logros",
-        badgeFirst: "Primer registro", badgeStreak7: "7 días seguidos", badgeStreak30: "30 días seguidos",
+        badgeFirst: "Primer registro", badgeStreak3: "3 días seguidos", badgeStreak14: "14 días seguidos",
         badgeHours10: "10 horas totales", badgeHours50: "50 horas totales", badgeHours100: "100 horas totales",
-        badgeAllrounder: "Todo tipo de entreno", badgeOutdoor: "10 veces fuera", badgeChampion: "Campeón del mes",
+        badgeCount10: "10 sesiones", badgeCount50: "50 sesiones",
+        badgeEarlyBird: "Madrugador/a",
+        badgeAllrounder: "Todo tipo de entreno", badgeChampion: "Campeón del mes",
+        badgeHalfYearChampion: "Campeón del semestre", badgeYearChampion: "Campeón del año",
+        halloffameBtn: "Campeones históricos", halloffameTitle: "Campeones históricos",
+        hofYearTitle: "Campeón del año", hofHalfYearTitle: "Campeón del semestre", hofMonthTitle: "Campeón del mes",
+        champAnnounceMonth: "Resultado mensual", champAnnounceHalf: "Resultado del semestre", champAnnounceYear: "Resultado anual",
         bestsTitle: "Mejores marcas", pbBestSession: "Sesión más larga", pbBestWeek: "Mejor semana", pbTotalTime: "Tiempo total", pbSessionCount: "Sesiones",
         weeklySummaryBtn: "Ver resumen de esta semana", weeklySummaryTitle: "Resumen de esta semana",
         splitLabel: "Desliza para repartir el tiempo entre ambos", splitLabel3: "Se reparte en 3 partes iguales",
@@ -1560,6 +1591,7 @@
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中", activeStatusLabel: "トレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続", calTodayBtn: "今日",
+        calFilterAll: "全員", calFilterMe: "自分",
         raceTitle: "エネルギーレース", timelineTitle: "アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", manualTitleShort: "追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト",
         deleteAccountBtn: "アカウントを削除",
@@ -1605,9 +1637,15 @@
         kgMilestoneText_week: "今週で {kg}kg 分運動しました！", kgMilestoneText_month: "今月で {kg}kg 分運動しました！", kgMilestoneText_year: "今年で {kg}kg 分運動しました！",
         kgNextText: "次の{nextKg}kgまであと {kcal}kcal", kgNote: "※体脂肪1kgあたり約7,700kcalという目安をもとにした参考値",
         badgesTitle: "実績", badgesSeeAll: "すべて見る", badgesModalTitle: "実績",
-        badgeFirst: "はじめの一歩", badgeStreak7: "7日連続達成", badgeStreak30: "30日連続達成",
+        badgeFirst: "はじめの一歩", badgeStreak3: "3日連続達成", badgeStreak14: "14日連続達成",
         badgeHours10: "累計10時間", badgeHours50: "累計50時間", badgeHours100: "累計100時間",
-        badgeAllrounder: "オールラウンダー", badgeOutdoor: "外トレ10回", badgeChampion: "月間チャンピオン",
+        badgeCount10: "累計10回", badgeCount50: "累計50回",
+        badgeEarlyBird: "早起き部門",
+        badgeAllrounder: "オールラウンダー", badgeChampion: "月間チャンピオン",
+        badgeHalfYearChampion: "半期チャンピオン", badgeYearChampion: "年間チャンピオン",
+        halloffameBtn: "歴代チャンピオン", halloffameTitle: "歴代チャンピオン",
+        hofYearTitle: "年間チャンピオン", hofHalfYearTitle: "半期チャンピオン", hofMonthTitle: "月間チャンピオン",
+        champAnnounceMonth: "月間チャンピオン発表", champAnnounceHalf: "半期チャンピオン発表", champAnnounceYear: "年間チャンピオン発表",
         bestsTitle: "自己ベスト", pbBestSession: "最長セッション", pbBestWeek: "一番頑張った週", pbTotalTime: "累計時間", pbSessionCount: "回数",
         weeklySummaryBtn: "今週のまとめを見る", weeklySummaryTitle: "今週のまとめ",
         splitLabel: "スライダーを動かして時間配分を調整", splitLabel3: "3種類は均等に3分割されます",
@@ -1640,6 +1678,10 @@
     let allNotifications = {};
     let usersPrivacyData = {}; 
     let allMonthlyResults = {};
+    let allHalfYearResults = {};
+    let allYearResults = {};
+    let halfYearFinalizeChecked = {};
+    let yearFinalizeChecked = {};
     let monthFinalizeChecked = {};
     let selectedAvatar = "🐶";
     let editSelectedAvatar = "🐶";
@@ -1829,7 +1871,8 @@
     
     let calendarDate = new Date();
     let selectedDateStr = getLocalISOString().slice(0, 10);
-    let calendarTargetUser = null; 
+    let calendarTargetUser = null;
+    let calendarFilterMode = 'all'; // 'all' = 全員の記録を表示, 'user' = calendarTargetUserの記録だけ表示
     let activeCommentLogKey = null;
     
     let timerAnimationId;
@@ -1940,6 +1983,8 @@
       setT("t-bests-title", t.bestsTitle);
       setT("t-weekly-summary-btn", t.weeklySummaryBtn);
       setT("t-weekly-summary-title", t.weeklySummaryTitle);
+      setT("t-halloffame-btn", t.halloffameBtn);
+      setT("t-halloffame-title", t.halloffameTitle);
 
       setT("t-history-btn", t.historyBtn);
       setT("t-results-history-title", t.resultsHistoryTitle);
@@ -2384,14 +2429,21 @@
           }
         }
 
-        // 月間チャンピオン発表への自分のいいね・コメントを削除
-        for (const [monthStr, result] of Object.entries(allMonthlyResults)) {
-          if (result.likes && result.likes[name]) {
-            await remove(ref(db, `monthly_results/${monthStr}/likes/${name}`));
-          }
-          if (result.comments) {
-            for (const [cKey, c] of Object.entries(result.comments)) {
-              if (c.user === name) await remove(ref(db, `monthly_results/${monthStr}/comments/${cKey}`));
+        // 月間/半期/年間チャンピオン発表への自分のいいね・コメントを削除
+        const champResultSets = [
+          ['monthly_results', allMonthlyResults],
+          ['halfyear_results', allHalfYearResults],
+          ['year_results', allYearResults]
+        ];
+        for (const [path, resultsMap] of champResultSets) {
+          for (const [periodKey, result] of Object.entries(resultsMap)) {
+            if (result.likes && result.likes[name]) {
+              await remove(ref(db, `${path}/${periodKey}/likes/${name}`));
+            }
+            if (result.comments) {
+              for (const [cKey, c] of Object.entries(result.comments)) {
+                if (c.user === name) await remove(ref(db, `${path}/${periodKey}/comments/${cKey}`));
+              }
             }
           }
         }
@@ -2665,19 +2717,26 @@
         if (l.typeSplit) Object.keys(l.typeSplit).forEach(ty => typesUsed.add(ty));
         else typesUsed.add(l.type || 'strength');
       });
-      const outdoorCount = Object.values(allLogsData).filter(l => l.user === myUserName && l.location === 'other').length;
       const isChampion = Object.values(allMonthlyResults).some(r => r && r.ranking && r.ranking[0] && r.ranking[0].user === myUserName);
+      const isHalfYearChampion = Object.values(allHalfYearResults).some(r => r && r.ranking && r.ranking[0] && r.ranking[0].user === myUserName);
+      const isYearChampion = Object.values(allYearResults).some(r => r && r.ranking && r.ranking[0] && r.ranking[0].user === myUserName);
+
+      const earlyBird = Object.values(allLogsData).some(l => l.user === myUserName && l.startTime && new Date(l.startTime).getHours() < 6);
 
       return [
         { id: 'first', earned: pb.sessionCount >= 1, icon: 'star', label: t.badgeFirst },
-        { id: 'streak7', earned: longestStreak >= 7, icon: 'flame', label: t.badgeStreak7 },
-        { id: 'streak30', earned: longestStreak >= 30, icon: 'flame', label: t.badgeStreak30 },
+        { id: 'streak3', earned: longestStreak >= 3, icon: 'flame', label: t.badgeStreak3 },
+        { id: 'streak14', earned: longestStreak >= 14, icon: 'flame', label: t.badgeStreak14 },
+        { id: 'count10', earned: pb.sessionCount >= 10, icon: 'star', label: t.badgeCount10 },
+        { id: 'count50', earned: pb.sessionCount >= 50, icon: 'star', label: t.badgeCount50 },
         { id: 'hours10', earned: pb.totalMin / 60 >= 10, icon: 'clock', label: t.badgeHours10 },
         { id: 'hours50', earned: pb.totalMin / 60 >= 50, icon: 'clock', label: t.badgeHours50 },
         { id: 'hours100', earned: pb.totalMin / 60 >= 100, icon: 'clock', label: t.badgeHours100 },
         { id: 'allrounder', earned: typesUsed.size >= 3, icon: 'layers', label: t.badgeAllrounder },
-        { id: 'outdoor', earned: outdoorCount >= 10, icon: 'tree', label: t.badgeOutdoor },
+        { id: 'earlybird', earned: earlyBird, icon: 'sun', label: t.badgeEarlyBird },
         { id: 'champion', earned: isChampion, icon: 'trophy', label: t.badgeChampion },
+        { id: 'halfyear_champion', earned: isHalfYearChampion, icon: 'trophy', label: t.badgeHalfYearChampion },
+        { id: 'year_champion', earned: isYearChampion, icon: 'trophy', label: t.badgeYearChampion },
       ];
     }
 
@@ -2687,7 +2746,9 @@
       clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
       layers: '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
       tree: '<path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20H10A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/>',
-      trophy: '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0Z"/><path d="M17 5h3a2 2 0 0 1 0 4h-3"/><path d="M7 5H4a2 2 0 0 0 0 4h3"/>'
+      trophy: '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0Z"/><path d="M17 5h3a2 2 0 0 1 0 4h-3"/><path d="M7 5H4a2 2 0 0 0 0 4h3"/>',
+      sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+      moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'
     };
 
     function badgeItemHtml(b) {
@@ -2793,6 +2854,52 @@
     window.closeWeeklySummaryModal = () => {
       playSound('click');
       document.getElementById("weekly-summary-modal").style.display = "none";
+    };
+
+    window.openHallOfFameModal = () => {
+      playSound('click');
+      const t = i18n[currentLang];
+      const contentEl = document.getElementById("hall-of-fame-content");
+      if (!contentEl) return;
+
+      const rowHtml = (label, avatar, name) => `
+        <div style="display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:0.75rem; color:var(--text-sub); width:76px; flex-shrink:0;">${label}</span>
+          <span style="font-size:1.2rem;">${avatar}</span>
+          <span style="font-size:0.85rem; font-weight:700; color:#fff;">${name}</span>
+        </div>
+      `;
+
+      const sections = [
+        { title: t.hofYearTitle, results: allYearResults, keyFn: k => currentLang === 'es' ? k : `${k}年` },
+        { title: t.hofHalfYearTitle, results: allHalfYearResults, keyFn: k => { const [y,h] = k.split('-H'); return currentLang === 'es' ? `${y} ${h==='1'?'1er':'2do'} sem.` : `${y}年 ${h==='1'?'上':'下'}半期`; } },
+        { title: t.hofMonthTitle, results: allMonthlyResults, keyFn: k => getMonthLabel(k) },
+      ];
+
+      let html = "";
+      sections.forEach(sec => {
+        const keys = Object.keys(sec.results).sort().reverse();
+        html += `<div style="margin-bottom:18px;"><h3 style="font-size:0.8rem; color:var(--ring-inner); font-weight:800; margin-bottom:4px;">${sec.title}</h3>`;
+        if (keys.length === 0) {
+          html += `<div style="font-size:0.75rem; color:var(--text-sub); padding:10px 0;">${t.emptyData}</div>`;
+        } else {
+          keys.forEach(k => {
+            const r = sec.results[k];
+            if (!r.ranking || !r.ranking[0]) return;
+            const winner = r.ranking[0];
+            const displayName = winner.showName === false ? t.anonUser : winner.user;
+            html += rowHtml(sec.keyFn(k), winner.avatar || "👤", displayName);
+          });
+        }
+        html += `</div>`;
+      });
+
+      contentEl.innerHTML = html;
+      document.getElementById("hall-of-fame-modal").style.display = "flex";
+    };
+    window.closeHallOfFameModal = () => {
+      playSound('click');
+      document.getElementById("hall-of-fame-modal").style.display = "none";
     };
 
     function updateStreakAndGoals() {
@@ -3244,24 +3351,30 @@
       }
     };
 
-    // 💬 いいね・コメントの対象を「通常のログ」と「チャンピオン発表」の両方に対応させるヘルパー
+    // 💬 いいね・コメントの対象を「通常のログ」と「チャンピオン発表（月/半期/年）」の両方に対応させるヘルパー
+    function getChampResultsMeta(key) {
+      if (key.startsWith('champh-')) return { results: allHalfYearResults, id: key.slice(7), path: 'halfyear_results' };
+      if (key.startsWith('champy-')) return { results: allYearResults, id: key.slice(7), path: 'year_results' };
+      if (key.startsWith('champ-')) return { results: allMonthlyResults, id: key.slice(6), path: 'monthly_results' };
+      return null;
+    }
+
     function getInteractionItem(key) {
-      if (key.startsWith('champ-')) {
-        return allMonthlyResults[key.slice(6)] || null;
-      }
+      const meta = getChampResultsMeta(key);
+      if (meta) return meta.results[meta.id] || null;
       return allLogsData[key] || null;
     }
 
     function getInteractionPath(key, field) {
-      if (key.startsWith('champ-')) {
-        return `monthly_results/${key.slice(6)}/${field}`;
-      }
+      const meta = getChampResultsMeta(key);
+      if (meta) return `${meta.path}/${meta.id}/${field}`;
       return `logs/${key}/${field}`;
     }
 
     function getInteractionTargetUser(key) {
-      if (key.startsWith('champ-')) {
-        const result = allMonthlyResults[key.slice(6)];
+      const meta = getChampResultsMeta(key);
+      if (meta) {
+        const result = meta.results[meta.id];
         return (result && result.ranking && result.ranking[0]) ? result.ranking[0].user : null;
       }
       const item = allLogsData[key];
@@ -3650,7 +3763,7 @@
       try { renderEnergyRace(); } catch(e){}
       const timelineView = document.getElementById('view-timeline');
       if (timelineView && timelineView.classList.contains('active')) { try { renderTimeline(); } catch(e){} }
-      if (activeCommentLogKey && activeCommentLogKey.startsWith('champ-')) {
+      if (activeCommentLogKey && activeCommentLogKey.startsWith('champ')) {
         const cModal = document.getElementById("comment-modal");
         if (cModal && cModal.style.display === "flex") { try { renderModalComments(); } catch(e){} }
       }
@@ -3658,6 +3771,18 @@
       if (hModal && hModal.style.display === "flex") {
         renderHistoryList();
       }
+    });
+
+    onValue(ref(db, "halfyear_results"), (snapshot) => {
+      allHalfYearResults = snapshot.val() || {};
+      finalizeHalfYearIfNeeded();
+      try { renderBadges(); } catch(e){}
+    });
+
+    onValue(ref(db, "year_results"), (snapshot) => {
+      allYearResults = snapshot.val() || {};
+      finalizeYearIfNeeded();
+      try { renderBadges(); } catch(e){}
     });
 
     // 前月分のランキングが未確定なら、ログから集計してFirebaseに確定保存する
@@ -3701,22 +3826,123 @@
       });
     }
 
+    function monthInHalfYear(monthStr, halfYearStr) {
+      const [y, h] = halfYearStr.split('-H');
+      const [my, mm] = monthStr.split('-').map(Number);
+      if (my !== parseInt(y, 10)) return false;
+      return h === '1' ? mm <= 6 : mm >= 7;
+    }
+    function monthInYear(monthStr, yearStr) {
+      return monthStr.split('-')[0] === yearStr;
+    }
+
+    function finalizeHalfYearIfNeeded() {
+      if (!myUserName) return;
+      const now = new Date();
+      const prevHalfStr = getHalfYearStr(getPrevHalfYearDate(now));
+
+      if (allHalfYearResults[prevHalfStr]) {
+        maybeShowResultModalGeneric('half', prevHalfStr);
+        return;
+      }
+      if (halfYearFinalizeChecked[prevHalfStr]) return;
+      halfYearFinalizeChecked[prevHalfStr] = true;
+
+      const totals = {};
+      Object.values(allLogsData).forEach(log => {
+        if (!log.month || !monthInHalfYear(log.month, prevHalfStr)) return;
+        const p = getPrivacy(log.user);
+        const isMe = log.user === myUserName;
+        if (!isMe && !p.inRanking) return;
+        if (!totals[log.user]) totals[log.user] = { totalMin: 0, avatar: log.avatar || "👤", showName: p.showName };
+        totals[log.user].totalMin += log.duration;
+        totals[log.user].avatar = log.avatar || totals[log.user].avatar;
+      });
+
+      const sorted = Object.entries(totals).sort((a, b) => b[1].totalMin - a[1].totalMin);
+      if (sorted.length === 0) return;
+
+      const resultData = {
+        halfYear: prevHalfStr,
+        finalizedAt: Date.now(),
+        ranking: sorted.map(([user, data], idx) => ({
+          user, totalMin: data.totalMin, avatar: data.avatar, showName: data.showName, rank: idx + 1
+        }))
+      };
+      set(ref(db, `halfyear_results/${prevHalfStr}`), resultData).then(() => {
+        maybeShowResultModalGeneric('half', prevHalfStr);
+      });
+    }
+
+    function finalizeYearIfNeeded() {
+      if (!myUserName) return;
+      const now = new Date();
+      const prevYearStr = getYearStr(getPrevYearDate(now));
+
+      if (allYearResults[prevYearStr]) {
+        maybeShowResultModalGeneric('year', prevYearStr);
+        return;
+      }
+      if (yearFinalizeChecked[prevYearStr]) return;
+      yearFinalizeChecked[prevYearStr] = true;
+
+      const totals = {};
+      Object.values(allLogsData).forEach(log => {
+        if (!log.month || !monthInYear(log.month, prevYearStr)) return;
+        const p = getPrivacy(log.user);
+        const isMe = log.user === myUserName;
+        if (!isMe && !p.inRanking) return;
+        if (!totals[log.user]) totals[log.user] = { totalMin: 0, avatar: log.avatar || "👤", showName: p.showName };
+        totals[log.user].totalMin += log.duration;
+        totals[log.user].avatar = log.avatar || totals[log.user].avatar;
+      });
+
+      const sorted = Object.entries(totals).sort((a, b) => b[1].totalMin - a[1].totalMin);
+      if (sorted.length === 0) return;
+
+      const resultData = {
+        year: prevYearStr,
+        finalizedAt: Date.now(),
+        ranking: sorted.map(([user, data], idx) => ({
+          user, totalMin: data.totalMin, avatar: data.avatar, showName: data.showName, rank: idx + 1
+        }))
+      };
+      set(ref(db, `year_results/${prevYearStr}`), resultData).then(() => {
+        maybeShowResultModalGeneric('year', prevYearStr);
+      });
+    }
+
     function maybeShowResultModal(monthStr) {
-      const seenKey = "gym_seen_result_" + monthStr;
+      maybeShowResultModalGeneric('month', monthStr);
+    }
+    function maybeShowResultModalGeneric(kind, periodKey) {
+      const seenKey = kind === 'month' ? `gym_seen_result_${periodKey}` : `gym_seen_result_${kind}_${periodKey}`;
       if (localStorage.getItem(seenKey)) return;
       localStorage.setItem(seenKey, "1");
-      showResultAnnounceModal(monthStr);
+      showResultAnnounceModalGeneric(kind, periodKey);
     }
 
     function resultToTop3(resultData) {
       return resultData.ranking.slice(0, 3).map(r => [r.user, { totalMin: r.totalMin, avatar: r.avatar, showName: r.showName }]);
     }
 
-    window.showResultAnnounceModal = (monthStr) => {
-      const resultData = allMonthlyResults[monthStr];
+    function getHalfYearLabel(halfYearStr) {
+      const [y, h] = halfYearStr.split('-H');
+      return currentLang === 'es' ? `${y} ${h === '1' ? '1er' : '2do'} semestre` : `${y}年${h === '1' ? '上' : '下'}半期`;
+    }
+    function getYearLabel(yearStr) {
+      return currentLang === 'es' ? yearStr : `${yearStr}年`;
+    }
+
+    window.showResultAnnounceModal = (monthStr) => showResultAnnounceModalGeneric('month', monthStr);
+
+    window.showResultAnnounceModalGeneric = (kind, periodKey) => {
+      const resultsMap = kind === 'half' ? allHalfYearResults : kind === 'year' ? allYearResults : allMonthlyResults;
+      const resultData = resultsMap[periodKey];
       if (!resultData) return;
       const t = i18n[currentLang];
-      document.getElementById("result-announce-month").innerText = getMonthLabel(monthStr);
+      const label = kind === 'half' ? getHalfYearLabel(periodKey) : kind === 'year' ? getYearLabel(periodKey) : getMonthLabel(periodKey);
+      document.getElementById("result-announce-month").innerText = label;
       document.getElementById("result-announce-podium").innerHTML = buildPodiumHtml(resultToTop3(resultData));
 
       const isChampion = resultData.ranking.length > 0 && resultData.ranking[0].user === myUserName;
@@ -3889,14 +4115,17 @@
         const d = new Date(notif.timestamp);
         const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
 
-        const isAnnouncementRef = notif.logKey.startsWith('champ-');
+        const isAnnouncementRef = notif.logKey.startsWith('champ');
         let logPreview;
 
         if (isAnnouncementRef) {
-          const monthLabel = getMonthLabel(notif.logKey.slice(6));
+          const meta = getChampResultsMeta(notif.logKey);
+          const periodLabel = notif.logKey.startsWith('champh-') ? getHalfYearLabel(meta.id)
+            : notif.logKey.startsWith('champy-') ? getYearLabel(meta.id)
+            : getMonthLabel(meta.id);
           logPreview = `
             <div style="font-size:0.75rem; color:#FFC400; margin-top:6px; padding:6px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(255,196,0,0.2);">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#FFC400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> ${monthLabel}
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#FFC400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> ${periodLabel}
             </div>`;
         } else {
           const logItem = allLogsData[notif.logKey];
@@ -3962,29 +4191,49 @@
 
     function buildChampionAnnouncements() {
       const t = i18n[currentLang];
-      return Object.keys(allMonthlyResults).map(monthStr => {
-        const resultData = allMonthlyResults[monthStr];
-        if (!resultData || !resultData.ranking || resultData.ranking.length === 0) return null;
-        const top = resultData.ranking[0];
-        const isMe = top.user === myUserName;
-        const priv = getPrivacy(top.user);
-        const showName = isMe || (top.showName !== undefined ? top.showName : priv.showName);
-        const displayName = showName ? top.user : t.anonUser;
-        const postDate = resultData.finalizedAt ? new Date(resultData.finalizedAt) : new Date(`${monthStr}-01`);
-        const monthLabel = getMonthLabel(monthStr);
-        const message = currentLang === 'es'
-          ? `¡${displayName} fue el campeón/a de ${monthLabel} con ${formatTimeFriendly(top.totalMin)}!`
-          : `${monthLabel}のチャンピオンは${displayName}（合計${formatTimeFriendly(top.totalMin)}）でした！`;
-        return {
-          isAnnouncement: true,
-          key: `champ-${monthStr}`,
-          date: getLocalISOString(postDate),
-          avatar: top.avatar || '🏆',
-          message,
-          likes: resultData.likes || {},
-          comments: resultData.comments || {}
-        };
-      }).filter(Boolean);
+
+      const buildOne = (keyPrefix, resultsMap, periodLabelFn, periodDefaultDate, msgEs, msgJa) => {
+        return Object.keys(resultsMap).map(periodKey => {
+          const resultData = resultsMap[periodKey];
+          if (!resultData || !resultData.ranking || resultData.ranking.length === 0) return null;
+          const top = resultData.ranking[0];
+          const isMe = top.user === myUserName;
+          const priv = getPrivacy(top.user);
+          const showName = isMe || (top.showName !== undefined ? top.showName : priv.showName);
+          const displayName = showName ? top.user : t.anonUser;
+          const postDate = resultData.finalizedAt ? new Date(resultData.finalizedAt) : periodDefaultDate(periodKey);
+          const label = periodLabelFn(periodKey);
+          const message = currentLang === 'es' ? msgEs(displayName, label, top) : msgJa(displayName, label, top);
+          return {
+            isAnnouncement: true,
+            key: `${keyPrefix}${periodKey}`,
+            date: getLocalISOString(postDate),
+            avatar: top.avatar || '🏆',
+            message,
+            likes: resultData.likes || {},
+            comments: resultData.comments || {}
+          };
+        }).filter(Boolean);
+      };
+
+      const monthAnnouncements = buildOne('champ-', allMonthlyResults, getMonthLabel,
+        (k) => new Date(`${k}-01`),
+        (name, label, top) => `¡${name} fue el campeón/a de ${label} con ${formatTimeFriendly(top.totalMin)}!`,
+        (name, label, top) => `${label}のチャンピオンは${name}（合計${formatTimeFriendly(top.totalMin)}）でした！`);
+
+      const halfYearAnnouncements = buildOne('champh-', allHalfYearResults,
+        (k) => { const [y, h] = k.split('-H'); return currentLang === 'es' ? `${y} ${h === '1' ? '1er' : '2do'} semestre` : `${y}年${h === '1' ? '上' : '下'}半期`; },
+        (k) => { const [y, h] = k.split('-H'); return new Date(parseInt(y, 10), h === '1' ? 0 : 6, 1); },
+        (name, label, top) => `¡${name} fue el campeón/a de ${label} con ${formatTimeFriendly(top.totalMin)}!`,
+        (name, label, top) => `${label}のチャンピオンは${name}（合計${formatTimeFriendly(top.totalMin)}）でした！`);
+
+      const yearAnnouncements = buildOne('champy-', allYearResults,
+        (k) => currentLang === 'es' ? k : `${k}年`,
+        (k) => new Date(parseInt(k, 10), 0, 1),
+        (name, label, top) => `¡${name} fue el campeón/a del año ${label} con ${formatTimeFriendly(top.totalMin)}!`,
+        (name, label, top) => `${label}の年間チャンピオンは${name}（合計${formatTimeFriendly(top.totalMin)}）でした！`);
+
+      return [...monthAnnouncements, ...halfYearAnnouncements, ...yearAnnouncements];
     }
 
     function renderTimeline() {
@@ -4031,7 +4280,7 @@
                 <div class="timeline-user-box">
                   <div class="timeline-avatar champion-announce-avatar">${log.avatar}</div>
                   <div>
-                    <div class="timeline-name" style="color:#FFC400; display:flex; align-items:center; gap:5px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FFC400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>${currentLang === 'es' ? 'Resultado mensual' : '月間チャンピオン発表'}</div>
+                    <div class="timeline-name" style="color:#FFC400; display:flex; align-items:center; gap:5px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FFC400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>${log.key.startsWith('champh-') ? t.champAnnounceHalf : log.key.startsWith('champy-') ? t.champAnnounceYear : t.champAnnounceMonth}</div>
                     <div class="timeline-time">${dateStr}</div>
                   </div>
                 </div>
@@ -4120,8 +4369,51 @@
     window.switchCalendarUser = (username) => {
       playSound('click');
       calendarTargetUser = username;
+      calendarFilterMode = 'user';
       renderCalendar();
     };
+
+    window.setCalendarFilterUser = (username) => {
+      playSound('click');
+      calendarTargetUser = username;
+      calendarFilterMode = username ? 'user' : 'all';
+      renderCalendar();
+    };
+
+    // 家族みんな(全員)＋記録のある各ユーザーのチップを、カレンダー上部に表示する
+    function renderCalendarUserFilterRow() {
+      const rowEl = document.getElementById("cal-user-filter-row");
+      if (!rowEl || !myUserName) return;
+      const t = i18n[currentLang];
+
+      const usersMap = {};
+      Object.values(allLogsData).forEach(log => {
+        if (!log.user) return;
+        if (!usersMap[log.user]) usersMap[log.user] = log.avatar || "👤";
+        else if (log.avatar) usersMap[log.user] = log.avatar;
+      });
+      if (!usersMap[myUserName]) usersMap[myUserName] = myUserAvatar || "👤";
+
+      const otherUsers = Object.keys(usersMap).filter(u => u !== myUserName).sort();
+      const orderedUsers = [myUserName, ...otherUsers];
+
+      const allChip = `
+        <div class="cal-filter-chip ${calendarFilterMode === 'all' ? 'active' : ''}" onclick="setCalendarFilterUser(null)">
+          ${t.calFilterAll}
+        </div>
+      `;
+      const userChips = orderedUsers.map(u => {
+        const isActive = calendarFilterMode === 'user' && calendarTargetUser === u;
+        const label = (u === myUserName) ? t.calFilterMe : u;
+        return `
+          <div class="cal-filter-chip ${isActive ? 'active' : ''}" onclick="setCalendarFilterUser('${u}')">
+            <span>${usersMap[u]}</span><span>${label}</span>
+          </div>
+        `;
+      }).join("");
+
+      rowEl.innerHTML = allChip + userChips;
+    }
 
     function selectCalendarDay(dateKey, clickedEl, updateSelectionState = true) {
       if (updateSelectionState) {
@@ -4205,6 +4497,8 @@
         todayBtn.style.display = isCurrentMonth ? "none" : "inline-block";
       }
 
+      renderCalendarUserFilterRow();
+
       const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
       let targetMonthMin = 0;
       const targetTrainedDays = new Set();
@@ -4254,7 +4548,8 @@
 
         const cell = document.createElement("div");
         cell.className = "cal-day";
-        if (trainedDaysSet.has(dateKey)) cell.classList.add("has-activity");
+        const activeDaysSet = calendarFilterMode === 'user' ? targetTrainedDays : trainedDaysSet;
+        if (activeDaysSet.has(dateKey)) cell.classList.add("has-activity");
         if (dateKey === selectedDateStr) cell.classList.add("selected");
 
         cell.innerText = day;
@@ -4305,6 +4600,20 @@
 
     function getPrevMonthDate(d) {
       return new Date(d.getFullYear(), d.getMonth() - 1, 1);
+    }
+
+    // 半期キー: "2026-H1"(1〜6月) / "2026-H2"(7〜12月)
+    function getHalfYearStr(d) {
+      return `${d.getFullYear()}-H${d.getMonth() < 6 ? 1 : 2}`;
+    }
+    function getPrevHalfYearDate(d) {
+      return d.getMonth() < 6 ? new Date(d.getFullYear() - 1, 6, 1) : new Date(d.getFullYear(), 0, 1);
+    }
+    function getYearStr(d) {
+      return `${d.getFullYear()}`;
+    }
+    function getPrevYearDate(d) {
+      return new Date(d.getFullYear() - 1, 0, 1);
     }
 
     function getMonthLabel(monthStr) {
