@@ -2612,8 +2612,7 @@
       let durationMin = Math.round((Date.now() - startTime) / 60000);
       if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
 
-      const now = new Date();
-      const localISO = getLocalISOString(now);
+      const localISO = getLocalISOString(new Date(startTime));
       const sessionLocation = (activeUsersData[myUserName] && activeUsersData[myUserName].location) || 'home';
 
       push(ref(db, "logs"), {
@@ -4291,9 +4290,20 @@
 
       listEl.innerHTML = visibleLogs.map(log => {
         const d = new Date(log.date);
+        const dateOnlyStr = currentLang === 'es'
+            ? `${d.getDate()}/${d.getMonth()+1}`
+            : `${d.getMonth()+1}月${d.getDate()}日`;
         const dateStr = currentLang === 'es' 
             ? `${d.getDate()}/${d.getMonth()+1} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`
             : `${d.getMonth()+1}月${d.getDate()}日 ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+
+        let timeRangeStr = dateStr;
+        if (log.startTime && log.duration) {
+          const sD = new Date(log.startTime);
+          const eD = new Date(log.startTime + log.duration * 60000);
+          const fmt = (x) => `${x.getHours().toString().padStart(2,'0')}:${x.getMinutes().toString().padStart(2,'0')}`;
+          timeRangeStr = `${dateOnlyStr} ${fmt(sD)} - ${fmt(eD)}`;
+        }
 
         if (log.isAnnouncement) {
           const likes = log.likes || {};
@@ -4355,6 +4365,23 @@
         const displayDuration = (isMe || priv.showTime) ? `${log.duration} ${t.unitMin}` : t.anonTime;
         const locTag = log.location === 'other' ? `<span class="loc-tag">${t.locOther}</span>` : '';
 
+        // 種類別（筋トレ/有酸素/その他）の内訳バー。文字ラベルなし、色の比率だけ
+        let typeSplitBarHtml = '';
+        if (isMe || priv.showTime) {
+          let split = log.typeSplit;
+          if (!split) {
+            const legacyType = (EXERCISE_TYPE_META[log.type] !== undefined) ? log.type : 'strength';
+            split = { [legacyType]: log.duration };
+          }
+          const segs = Object.keys(EXERCISE_TYPE_META).map(type => {
+            const min = split[type] || 0;
+            if (min <= 0) return '';
+            const pct = (min / log.duration) * 100;
+            return `<div style="width:${pct}%; background:${EXERCISE_TYPE_META[type].color};"></div>`;
+          }).join('');
+          typeSplitBarHtml = `<div style="display:flex; height:5px; border-radius:3px; overflow:hidden; margin-top:8px; background:rgba(255,255,255,0.05);">${segs}</div>`;
+        }
+
         return `
           <div class="timeline-card-item" id="log-${log.key}">
             <div class="timeline-header">
@@ -4362,12 +4389,12 @@
                 <div class="timeline-avatar">${log.avatar || '👤'}</div>
                 <div>
                   <div class="timeline-name">${displayName}${locTag}</div>
-                  <div class="timeline-time">${dateStr}</div>
+                  <div class="timeline-time">${timeRangeStr}</div>
                 </div>
               </div>
               <div class="timeline-duration">${displayDuration}</div>
             </div>
-            
+            ${typeSplitBarHtml}
             ${log.memo ? `<div class="timeline-memo">${log.memo}</div>` : ''}
             
             <div class="timeline-actions">
