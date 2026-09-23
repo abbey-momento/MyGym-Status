@@ -834,7 +834,7 @@
         </button>
       </div>
 
-      <div class="stats-row">
+      <div class="stats-row" id="cal-stats-row">
         <div class="stat-box">
           <div class="stat-label" id="t-stat-days">Días</div>
           <div class="stat-num" id="stat-days-val">0</div>
@@ -4470,6 +4470,9 @@
           trainedDaysSet.add(log.date.slice(0, 10));
         }
       });
+
+      const statsRowEl = document.getElementById("cal-stats-row");
+      if (statsRowEl) statsRowEl.style.display = (calendarFilterMode === 'all') ? "none" : "grid";
 
       const targetStreak = calculateStreakForUser(allLogsData, calendarTargetUser);
       const isTgtMe = calendarTargetUser === myUserName;
