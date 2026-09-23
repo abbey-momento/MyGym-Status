@@ -1597,10 +1597,10 @@
         kgNextText: "Faltan {kcal}kcal para llegar a {nextKg}kg", kgNote: "※ Referencia lúdica basada en ~7.700kcal por kg de grasa corporal",
         badgesTitle: "Logros", badgesSeeAll: "Ver todos", badgesModalTitle: "Logros",
         badgeFirst: "Primer registro", badgeStreak3: "3 días seguidos", badgeStreak14: "14 días seguidos",
-        badgeHours10: "10 horas totales", badgeHours50: "50 horas totales", badgeHours100: "100 horas totales",
-        badgeCount10: "10 sesiones", badgeCount50: "50 sesiones",
+        badgeHours5: "5 horas totales", badgeHours10: "10 horas totales", badgeHours25: "25 horas totales", badgeHours50: "50 horas totales", badgeHours100: "100 horas totales", badgeHours200: "200 horas totales",
+        badgeCount10: "10 sesiones", badgeCount25: "25 sesiones", badgeCount50: "50 sesiones", badgeCount100: "100 sesiones",
         badgeEarlyBird: "Madrugador/a",
-        badgeAllrounder: "Todo tipo de entreno", badgeChampion: "Campeón del mes",
+        badgeAllrounder: "Probaste los 3 tipos", badgeChampion: "Campeón del mes",
         badgeHalfYearChampion: "Campeón del semestre", badgeYearChampion: "Campeón del año",
         halloffameBtn: "Campeones históricos", halloffameTitle: "Campeones históricos",
         hofYearTitle: "Campeón del año", hofHalfYearTitle: "Campeón del semestre", hofMonthTitle: "Campeón del mes",
@@ -1682,10 +1682,10 @@
         kgNextText: "次の{nextKg}kgまであと {kcal}kcal", kgNote: "※体脂肪1kgあたり約7,700kcalという目安をもとにした参考値",
         badgesTitle: "実績", badgesSeeAll: "すべて見る", badgesModalTitle: "実績",
         badgeFirst: "はじめの一歩", badgeStreak3: "3日連続達成", badgeStreak14: "14日連続達成",
-        badgeHours10: "累計10時間", badgeHours50: "累計50時間", badgeHours100: "累計100時間",
-        badgeCount10: "累計10回", badgeCount50: "累計50回",
+        badgeHours5: "累計5時間", badgeHours10: "累計10時間", badgeHours25: "累計25時間", badgeHours50: "累計50時間", badgeHours100: "累計100時間", badgeHours200: "累計200時間",
+        badgeCount10: "累計10回", badgeCount25: "累計25回", badgeCount50: "累計50回", badgeCount100: "累計100回",
         badgeEarlyBird: "早起き部門",
-        badgeAllrounder: "オールラウンダー", badgeChampion: "月間チャンピオン",
+        badgeAllrounder: "3種類を制覇", badgeChampion: "月間チャンピオン",
         badgeHalfYearChampion: "半期チャンピオン", badgeYearChampion: "年間チャンピオン",
         halloffameBtn: "歴代チャンピオン", halloffameTitle: "歴代チャンピオン",
         hofYearTitle: "年間チャンピオン", hofHalfYearTitle: "半期チャンピオン", hofMonthTitle: "月間チャンピオン",
@@ -2781,10 +2781,15 @@
         { id: 'streak3', earned: longestStreak >= 3, icon: 'flame', label: t.badgeStreak3 },
         { id: 'streak14', earned: longestStreak >= 14, icon: 'flame', label: t.badgeStreak14 },
         { id: 'count10', earned: pb.sessionCount >= 10, icon: 'star', label: t.badgeCount10 },
+        { id: 'count25', earned: pb.sessionCount >= 25, icon: 'star', label: t.badgeCount25 },
         { id: 'count50', earned: pb.sessionCount >= 50, icon: 'star', label: t.badgeCount50 },
+        { id: 'count100', earned: pb.sessionCount >= 100, icon: 'star', label: t.badgeCount100 },
+        { id: 'hours5', earned: pb.totalMin / 60 >= 5, icon: 'clock', label: t.badgeHours5 },
         { id: 'hours10', earned: pb.totalMin / 60 >= 10, icon: 'clock', label: t.badgeHours10 },
+        { id: 'hours25', earned: pb.totalMin / 60 >= 25, icon: 'clock', label: t.badgeHours25 },
         { id: 'hours50', earned: pb.totalMin / 60 >= 50, icon: 'clock', label: t.badgeHours50 },
         { id: 'hours100', earned: pb.totalMin / 60 >= 100, icon: 'clock', label: t.badgeHours100 },
+        { id: 'hours200', earned: pb.totalMin / 60 >= 200, icon: 'clock', label: t.badgeHours200 },
         { id: 'allrounder', earned: typesUsed.size >= 3, icon: 'layers', label: t.badgeAllrounder },
         { id: 'earlybird', earned: earlyBird, icon: 'sun', label: t.badgeEarlyBird },
         { id: 'champion', earned: isChampion, icon: 'trophy', label: t.badgeChampion },
@@ -3868,8 +3873,7 @@
       if (!container) return;
 
       // 自分の分は自分のストップウォッチで見えているので、ここには他の人だけ表示する
-      // 「外」でトレーニング中の人は、家のジムを使っていないのでここには出さない
-      const others = Object.entries(activeUsersData).filter(([u, d]) => u !== myUserName && (d.location || 'home') === 'home');
+      const others = Object.entries(activeUsersData).filter(([u, d]) => u !== myUserName);
 
       // プレビュー中の相手がいなくなったら、メインのストップウォッチ表示を元に戻す
       if (previewUser && !activeUsersData[previewUser]) {
@@ -3897,11 +3901,13 @@
             <span class="hype-fire-badge"><svg width="9" height="12" viewBox="0 0 24 24" style="filter: drop-shadow(0 0 3px #22D3EE); transform: scaleY(1.3); transform-origin: center;"><defs><linearGradient id="${gradId}" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#${gradId})" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.545 3.75 3.75 0 0 1 3.255 3.717Z"/></svg></span>
           </button>`;
 
+        const isOutside = (data.location || 'home') === 'other';
+
         return `
           <div class="active-user-row${isPreviewing ? ' is-previewing' : ''}">
             <span class="active-user-avatar">${data.avatar || '👤'}</span>
             <div class="active-user-info"${nameClickAttr}>
-              <div class="active-user-name">${dName}</div>
+              <div class="active-user-name">${dName}${isOutside ? ` <span class="loc-tag">${t.locOther}</span>` : ''}</div>
               <div class="active-user-status"><span class="pulse-dot"></span>${t.activeStatusLabel}</div>
             </div>
             ${cheerBtn}
