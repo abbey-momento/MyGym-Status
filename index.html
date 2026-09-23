@@ -725,10 +725,15 @@
   </div>
 
   <div id="weekly-summary-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
+    <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-        <h2 style="font-size: 1.1rem;" id="t-weekly-summary-title">今週のまとめ</h2>
+        <h2 style="font-size: 1.1rem;" id="t-weekly-summary-title">まとめ</h2>
         <button onclick="closeWeeklySummaryModal()" style="background:none; border:none; color:var(--text-sub); font-size:1.1rem; cursor:pointer;">✕</button>
+      </div>
+      <div class="fontsize-toggle-group" id="summary-period-toggle" style="width:100%; margin-bottom:16px;">
+        <button onclick="setSummaryPeriod('week')" data-period="week" class="active" id="t-summary-period-week" style="flex:1;">週</button>
+        <button onclick="setSummaryPeriod('month')" data-period="month" id="t-summary-period-month" style="flex:1;">月</button>
+        <button onclick="setSummaryPeriod('year')" data-period="year" id="t-summary-period-year" style="flex:1;">年</button>
       </div>
       <div id="weekly-summary-content"></div>
     </div>
@@ -1068,11 +1073,11 @@
         <div id="personal-bests-grid" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;"></div>
       </div>
 
-      <!-- 📅 週間まとめ -->
+      <!-- 📅 まとめ -->
       <button onclick="openWeeklySummaryModal()" style="width:100%; display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--card-border); color:#fff; cursor:pointer;">
         <span class="mypage-icon-title" style="font-size:0.95rem; font-weight:800; gap:4px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span id="t-weekly-summary-btn">今週のまとめを見る</span>
+          <span id="t-weekly-summary-btn">まとめを見る</span>
         </span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
@@ -1576,7 +1581,11 @@
         hofYearTitle: "Campeón del año", hofHalfYearTitle: "Campeón del semestre", hofMonthTitle: "Campeón del mes",
         champAnnounceMonth: "Resultado mensual", champAnnounceHalf: "Resultado del semestre", champAnnounceYear: "Resultado anual",
         bestsTitle: "Mejores marcas", pbBestSession: "Sesión más larga", pbBestWeek: "Mejor semana", pbTotalTime: "Tiempo total", pbSessionCount: "Sesiones",
-        weeklySummaryBtn: "Ver resumen de esta semana", weeklySummaryTitle: "Resumen de esta semana",
+        weeklySummaryBtn: "Ver resumen", weeklySummaryTitle: "Resumen",
+        summaryHeadlineNone: "Este periodo aún no tiene registros", summaryHeadlineFirst: "¡Buen comienzo!",
+        summaryHeadlineUp: "¡Vas mejor que el periodo anterior!", summaryHeadlineSame: "Mismo ritmo que el periodo anterior",
+        summaryHeadlineDown: "Un poco menos que antes, ¡tú puedes!",
+        summaryTrendLabel: "por tramo", summaryBestDay: "Mejor día", summaryAvgSession: "Promedio por sesión",
         splitLabel: "Desliza para repartir el tiempo entre ambos", splitLabel3: "Se reparte en 3 partes iguales",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
@@ -1656,7 +1665,11 @@
         hofYearTitle: "年間チャンピオン", hofHalfYearTitle: "半期チャンピオン", hofMonthTitle: "月間チャンピオン",
         champAnnounceMonth: "月間チャンピオン発表", champAnnounceHalf: "半期チャンピオン発表", champAnnounceYear: "年間チャンピオン発表",
         bestsTitle: "自己ベスト", pbBestSession: "最長セッション", pbBestWeek: "一番頑張った週", pbTotalTime: "累計時間", pbSessionCount: "回数",
-        weeklySummaryBtn: "今週のまとめを見る", weeklySummaryTitle: "今週のまとめ",
+        weeklySummaryBtn: "まとめを見る", weeklySummaryTitle: "まとめ",
+        summaryHeadlineNone: "この期間はまだ記録がありません", summaryHeadlineFirst: "いいスタートです！",
+        summaryHeadlineUp: "前の期間より頑張っています！", summaryHeadlineSame: "前の期間と同じペースです",
+        summaryHeadlineDown: "前より少し控えめ、この調子で！",
+        summaryTrendLabel: "の推移", summaryBestDay: "一番頑張った日", summaryAvgSession: "1回あたりの平均",
         splitLabel: "スライダーを動かして時間配分を調整", splitLabel3: "3種類は均等に3分割されます",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
@@ -1992,6 +2005,9 @@
       setT("t-bests-title", t.bestsTitle);
       setT("t-weekly-summary-btn", t.weeklySummaryBtn);
       setT("t-weekly-summary-title", t.weeklySummaryTitle);
+      setT("t-summary-period-week", t.periodWeek);
+      setT("t-summary-period-month", t.periodMonth);
+      setT("t-summary-period-year", t.periodYear);
       setT("t-halloffame-btn", t.halloffameBtn);
       setT("t-halloffame-title", t.halloffameTitle);
 
@@ -2805,43 +2821,150 @@
       `;
     }
 
+    let summaryPeriod = 'week';
+    window.setSummaryPeriod = (period) => {
+      playSound('click');
+      summaryPeriod = period;
+      document.querySelectorAll('#summary-period-toggle button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.period === period);
+      });
+      renderSummaryModalContent();
+    };
+
     window.openWeeklySummaryModal = () => {
       playSound('click');
+      renderSummaryModalContent();
+      document.getElementById("weekly-summary-modal").style.display = "flex";
+    };
+    window.closeWeeklySummaryModal = () => {
+      playSound('click');
+      document.getElementById("weekly-summary-modal").style.display = "none";
+    };
+
+    function renderSummaryModalContent() {
       const t = i18n[currentLang];
       const contentEl = document.getElementById("weekly-summary-content");
       if (!contentEl || !myUserName) return;
 
-      const [thisStart, thisEnd] = getWeekRange(0);
-      let totalMin = 0;
+      // 期間の範囲・比較対象・ミニグラフの区切りを、レポートカードと同じ考え方で用意する
+      let thisStart, thisEnd, lastStart, lastEnd, bars, barLabels, getBarIndex, periodLabel, compareLabel;
+      if (summaryPeriod === 'month') {
+        [thisStart, thisEnd] = getMonthRange(0);
+        [lastStart, lastEnd] = getMonthRange(-1);
+        bars = new Array(6).fill(0);
+        barLabels = currentLang === 'es' ? ['S1','S2','S3','S4','S5','S6'] : ['1週','2週','3週','4週','5週','6週'];
+        const firstDow = thisStart.getDay();
+        getBarIndex = (d) => Math.floor((d.getDate() - 1 + firstDow) / 7);
+        periodLabel = t.thisMonthLabel;
+        compareLabel = t.vsLastMonth;
+      } else if (summaryPeriod === 'year') {
+        [thisStart, thisEnd] = getYearRange(0);
+        [lastStart, lastEnd] = getYearRange(-1);
+        bars = new Array(12).fill(0);
+        barLabels = currentLang === 'es' ? ['E','F','M','A','M','J','J','A','S','O','N','D'] : ['1','2','3','4','5','6','7','8','9','10','11','12'];
+        getBarIndex = (d) => d.getMonth();
+        periodLabel = t.thisYearLabel;
+        compareLabel = t.vsLastYear;
+      } else {
+        [thisStart, thisEnd] = getWeekRange(0);
+        [lastStart, lastEnd] = getWeekRange(-1);
+        bars = new Array(7).fill(0);
+        barLabels = currentLang === 'es' ? ['D','L','M','X','J','V','S'] : ['日','月','火','水','木','金','土'];
+        getBarIndex = (d) => d.getDay();
+        periodLabel = t.thisWeekLabel;
+        compareLabel = t.vsLastWeek;
+      }
+
+      let totalMin = 0, lastTotalMin = 0, sessionCount = 0, bestSessionMin = 0;
       const typeTotals = { strength: 0, cardio: 0, stretch: 0 };
-      let sessionCount = 0;
+      const dayTotalsInPeriod = {};
+
       Object.values(allLogsData).forEach(log => {
         if (log.user !== myUserName || !log.startTime) return;
         const d = new Date(log.startTime);
-        if (d < thisStart || d >= thisEnd) return;
-        totalMin += log.duration || 0;
-        sessionCount++;
-        if (log.typeSplit) {
-          Object.entries(log.typeSplit).forEach(([type, min]) => { if (typeTotals[type] !== undefined) typeTotals[type] += min || 0; });
-        } else {
-          const type = typeTotals[log.type] !== undefined ? log.type : 'strength';
-          typeTotals[type] += log.duration || 0;
+        if (d >= thisStart && d < thisEnd) {
+          totalMin += log.duration || 0;
+          sessionCount++;
+          if (log.duration > bestSessionMin) bestSessionMin = log.duration;
+          const idx = getBarIndex(d);
+          if (idx >= 0 && idx < bars.length) bars[idx] += log.duration || 0;
+          const dayKey = getLocalISOString(d).slice(0, 10);
+          dayTotalsInPeriod[dayKey] = (dayTotalsInPeriod[dayKey] || 0) + (log.duration || 0);
+          if (log.typeSplit) {
+            Object.entries(log.typeSplit).forEach(([type, min]) => { if (typeTotals[type] !== undefined) typeTotals[type] += min || 0; });
+          } else {
+            const type = typeTotals[log.type] !== undefined ? log.type : 'strength';
+            typeTotals[type] += log.duration || 0;
+          }
+        } else if (d >= lastStart && d < lastEnd) {
+          lastTotalMin += log.duration || 0;
         }
       });
+
       const streak = calculateStreakForUser(allLogsData, myUserName);
       const grandTotal = typeTotals.strength + typeTotals.cardio + typeTotals.stretch;
       const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
+      const bestDayMin = Object.values(dayTotalsInPeriod).reduce((m, v) => Math.max(m, v), 0);
+
+      // 比較して、モチベが上がるような一言を出す
+      let headline = "";
+      if (totalMin === 0) {
+        headline = t.summaryHeadlineNone;
+      } else if (lastTotalMin === 0) {
+        headline = t.summaryHeadlineFirst;
+      } else if (totalMin > lastTotalMin) {
+        headline = t.summaryHeadlineUp;
+      } else if (totalMin === lastTotalMin) {
+        headline = t.summaryHeadlineSame;
+      } else {
+        headline = t.summaryHeadlineDown;
+      }
+
+      const maxBar = Math.max(...bars, 1);
+      const now = new Date();
+      const todayBarIdx = (now >= thisStart && now < thisEnd) ? getBarIndex(now) : -1;
+      const miniChartHtml = bars.map((min, idx) => {
+        const heightPct = Math.max(4, Math.round((min / maxBar) * 100));
+        const isToday = idx === todayBarIdx;
+        return `
+          <div class="weekly-bar-col">
+            <div class="weekly-bar${isToday ? ' is-today' : ''}" style="height:${heightPct}%;" title="${formatTimeFriendly(min)}"></div>
+            <div class="weekly-bar-label${isToday ? ' is-today' : ''}">${barLabels[idx]}</div>
+          </div>
+        `;
+      }).join("");
+
+      let compareHtml = "";
+      if (lastTotalMin > 0) {
+        const diff = totalMin - lastTotalMin;
+        const pct = Math.round((diff / lastTotalMin) * 100);
+        const arrow = diff >= 0 ? "▲" : "▼";
+        const color = diff >= 0 ? "var(--green)" : "var(--neon-pink)";
+        compareHtml = `<div style="font-size:0.8rem; font-weight:800; color:${color}; margin-top:6px;">${arrow} <span style="font-family:'LINE Seed JP', sans-serif;">${Math.abs(pct)}</span>% ${compareLabel}</div>`;
+      }
 
       contentEl.innerHTML = `
-        <div style="background: linear-gradient(160deg, rgba(47,143,255,0.12), rgba(45,212,191,0.08)); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; text-align:center;">
-          <div style="font-size:0.7rem; color:var(--text-sub); text-transform:uppercase; font-weight:700; margin-bottom:6px;">${t.thisWeekLabel}</div>
-          <div style="font-size:2rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif;">${formatTimeFriendly(totalMin)}</div>
-          <div style="display:flex; justify-content:center; gap:20px; margin-top:16px;">
-            <div><div style="font-size:1.1rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${sessionCount}</div><div style="font-size:0.62rem; color:var(--text-sub);">${t.pbSessionCount}</div></div>
-            <div><div style="font-size:1.1rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${streak}</div><div style="font-size:0.62rem; color:var(--text-sub);">${t.statStreak}</div></div>
+        <div style="background: linear-gradient(160deg, rgba(47,143,255,0.16), rgba(45,212,191,0.1)); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; text-align:center; box-shadow: 0 0 24px rgba(45,212,191,0.08);">
+          <div style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:10px;">${headline}</div>
+          <div style="font-size:0.68rem; color:var(--text-sub); text-transform:uppercase; font-weight:700;">${periodLabel}</div>
+          <div style="font-size:2.2rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif; margin-top:2px;">${formatTimeFriendly(totalMin)}</div>
+          ${compareHtml}
+
+          <div style="display:flex; justify-content:center; gap:24px; margin-top:18px;">
+            <div><div style="font-size:1.15rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${sessionCount}</div><div style="font-size:0.62rem; color:var(--text-sub);">${t.pbSessionCount}</div></div>
+            <div><div style="font-size:1.15rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${streak}</div><div style="font-size:0.62rem; color:var(--text-sub);">${t.statStreak}</div></div>
+            <div><div style="font-size:1.15rem; font-weight:800; color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${formatTimeFriendly(bestSessionMin)}</div><div style="font-size:0.62rem; color:var(--text-sub);">${t.pbBestSession}</div></div>
           </div>
-          ${grandTotal > 0 ? `
-            <div style="display:flex; height:8px; border-radius:5px; overflow:hidden; margin-top:18px;">
+        </div>
+
+        ${totalMin > 0 ? `
+          <div style="margin-top:16px;">
+            <div style="font-size:0.72rem; color:var(--text-sub); font-weight:700; margin-bottom:8px;">${periodLabel} ${t.summaryTrendLabel}</div>
+            <div class="weekly-bar-chart">${miniChartHtml}</div>
+          </div>
+
+          <div style="margin-top:18px; background: rgba(255,255,255,0.03); border-radius:12px; padding:14px;">
+            <div style="display:flex; height:8px; border-radius:5px; overflow:hidden;">
               ${Object.keys(EXERCISE_TYPE_META).map(type => {
                 const pct = (typeTotals[type] / grandTotal) * 100;
                 if (pct <= 0) return '';
@@ -2855,15 +2978,15 @@
                 return `<div style="display:flex; align-items:center; gap:5px; font-size:0.7rem;"><span style="width:7px; height:7px; border-radius:50%; background:${EXERCISE_TYPE_META[type].color};"></span><span style="color:#fff; font-weight:700;">${typeLabels[type]}</span><span style="color:var(--text-sub); font-family:'LINE Seed JP', sans-serif;">${pct}%</span></div>`;
               }).join("")}
             </div>
-          ` : `<div style="font-size:0.78rem; color:var(--text-sub); margin-top:16px;">${t.emptyData}</div>`}
-        </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:14px;">
+            <div class="pb-card"><div class="pb-value">${formatTimeFriendly(bestDayMin)}</div><div class="pb-label">${t.summaryBestDay}</div></div>
+            <div class="pb-card"><div class="pb-value">${formatTimeFriendly(Math.round(totalMin / Math.max(1, sessionCount)))}</div><div class="pb-label">${t.summaryAvgSession}</div></div>
+          </div>
+        ` : `<div style="font-size:0.78rem; color:var(--text-sub); margin-top:16px; text-align:center;">${t.emptyData}</div>`}
       `;
-      document.getElementById("weekly-summary-modal").style.display = "flex";
-    };
-    window.closeWeeklySummaryModal = () => {
-      playSound('click');
-      document.getElementById("weekly-summary-modal").style.display = "none";
-    };
+    }
 
     window.openHallOfFameModal = () => {
       playSound('click');
