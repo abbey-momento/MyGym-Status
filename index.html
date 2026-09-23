@@ -828,6 +828,9 @@
           <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
+      <div style="text-align:center; margin-bottom:8px;">
+        <span id="cal-selected-user-chip" style="display:none; align-items:center; gap:5px; background:rgba(47,143,255,0.12); border:1px solid var(--card-border); border-radius:999px; padding:4px 10px; font-size:0.72rem; font-weight:700; color:var(--accent);"></span>
+      </div>
       <div style="text-align:center; margin-top:-4px; margin-bottom:10px;">
         <button id="cal-today-btn" onclick="goToToday()" style="display:none; background:rgba(47,143,255,0.15); border:1px solid var(--card-border); color:var(--accent); padding:5px 14px; border-radius:20px; font-size:0.75rem; font-weight:700; cursor:pointer;">
           <span id="t-cal-today-btn">Hoy</span>
@@ -1507,7 +1510,7 @@
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando", activeStatusLabel: "Entrenando",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak", calTodayBtn: "Hoy",
-        calFilterAll: "Todos", calFilterMe: "Yo",
+        calFilterAll: "Todos", calFilterMe: "Yo", calSelectedUserPrefix: "Viendo: ",
         raceTitle: "Energy Race", timelineTitle: "Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", manualTitleShort: "Añadir", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
         deleteAccountBtn: "Eliminar cuenta",
@@ -1587,7 +1590,7 @@
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中", activeStatusLabel: "トレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続", calTodayBtn: "今日",
-        calFilterAll: "全員", calFilterMe: "自分",
+        calFilterAll: "全員", calFilterMe: "自分", calSelectedUserPrefix: "選択中：",
         raceTitle: "エネルギーレース", timelineTitle: "アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", manualTitleShort: "追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト",
         deleteAccountBtn: "アカウントを削除",
@@ -4537,6 +4540,22 @@
 
       const statsRowEl = document.getElementById("cal-stats-row");
       if (statsRowEl) statsRowEl.style.display = (calendarFilterMode === 'all') ? "none" : "grid";
+
+      const chipEl = document.getElementById("cal-selected-user-chip");
+      if (chipEl) {
+        if (calendarFilterMode === 'user' && calendarTargetUser) {
+          const isTgtMeChip = calendarTargetUser === myUserName;
+          const tgtAvatar = isTgtMeChip
+            ? (myUserAvatar || "👤")
+            : (Object.values(allLogsData).find(l => l.user === calendarTargetUser)?.avatar || "👤");
+          const tgtPrivChip = getPrivacy(calendarTargetUser);
+          const chipName = isTgtMeChip ? t.calFilterMe : (tgtPrivChip.showName ? calendarTargetUser : t.anonUser);
+          chipEl.style.display = "inline-flex";
+          chipEl.innerHTML = `<span>${tgtAvatar}</span><span>${t.calSelectedUserPrefix}${chipName}</span>`;
+        } else {
+          chipEl.style.display = "none";
+        }
+      }
 
       const targetStreak = calculateStreakForUser(allLogsData, calendarTargetUser);
       const isTgtMe = calendarTargetUser === myUserName;
