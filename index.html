@@ -996,24 +996,23 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             <span id="t-weekly-report-title">レポート</span>
           </h3>
-          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
-            <div>
-              <div style="font-size:0.68rem; color:var(--text-sub); text-transform:uppercase; font-weight:700; margin-bottom:2px;" id="t-this-week-label">今週の合計</div>
-              <div style="font-size:1.5rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif;" id="weekly-total-text">0分</div>
-            </div>
-            <div id="weekly-compare-text" style="font-size:0.85rem; font-weight:800;"></div>
-          </div>
           <div id="report-swipe-area" style="position:relative; touch-action: pan-y;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-              <button id="report-nav-prev-label" onclick="navigateReportPeriod(-1)" style="background:none; border:none; color:var(--text-sub); cursor:pointer; padding:4px; display:flex; align-items:center;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <span style="font-size:0.65rem; color:var(--text-sub);" id="t-report-swipe-hint">左右にスワイプで前後の期間</span>
-              <button id="report-nav-next-btn" onclick="navigateReportPeriod(1)" style="background:none; border:none; color:var(--text-sub); cursor:pointer; padding:4px; display:flex; align-items:center; visibility:hidden;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
+            <button id="report-nav-prev-label" onclick="navigateReportPeriod(-1)" style="position:absolute; left:-6px; top:50%; transform:translateY(-50%); z-index:2; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius:50%; width:26px; height:26px; color:var(--text-sub); cursor:pointer; display:flex; align-items:center; justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button id="report-nav-next-btn" onclick="navigateReportPeriod(1)" style="position:absolute; right:-6px; top:50%; transform:translateY(-50%); z-index:2; background:rgba(0,0,0,0.4); border:1px solid var(--card-border); border-radius:50%; width:26px; height:26px; color:var(--text-sub); cursor:pointer; display:flex; align-items:center; justify-content:center; visibility:hidden;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div id="report-content-area" style="padding:0 22px;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
+                <div>
+                  <div style="font-size:0.68rem; color:var(--text-sub); text-transform:uppercase; font-weight:700; margin-bottom:2px;" id="t-this-week-label">今週の合計</div>
+                  <div style="font-size:1.5rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif;" id="weekly-total-text">0分</div>
+                </div>
+                <div id="weekly-compare-text" style="font-size:0.85rem; font-weight:800;"></div>
+              </div>
+              <div id="weekly-bar-chart" class="weekly-bar-chart"></div>
             </div>
-            <div id="weekly-bar-chart" class="weekly-bar-chart"></div>
           </div>
         </div>
 
@@ -3156,25 +3155,77 @@
       playSound('click');
       // 未来方向には進めない(0が上限)
       if (direction > 0 && reportPeriodOffset >= 0) return;
-      reportPeriodOffset += direction;
-      renderPeriodReport();
+      animateReportSlide(direction, () => {
+        reportPeriodOffset += direction;
+        renderPeriodReport();
+      });
     };
 
-    // 📱 レポートエリアの左右スワイプで前後の期間に移動
+    // 🎞️ 期間切り替え時に、カードがスッと横に流れるようなスライド演出を付ける
+    function animateReportSlide(direction, updateFn) {
+      const area = document.getElementById("report-content-area");
+      if (!area) { updateFn(); return; }
+      area.style.transition = "transform 0.16s ease-in, opacity 0.16s ease-in";
+      area.style.transform = `translateX(${direction > 0 ? '-26px' : '26px'})`;
+      area.style.opacity = "0";
+      setTimeout(() => {
+        updateFn();
+        area.style.transition = "none";
+        area.style.transform = `translateX(${direction > 0 ? '26px' : '-26px'})`;
+        requestAnimationFrame(() => {
+          area.style.transition = "transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease-out";
+          area.style.transform = "translateX(0)";
+          area.style.opacity = "1";
+        });
+      }, 160);
+    }
+
+    // 📱 レポートエリアを指で実際にドラッグして、追従するようにスワイプできるようにする
     (function setupReportSwipe() {
-      let touchStartX = null, touchStartY = null;
+      let touchStartX = null, touchStartY = null, dragging = false, isHorizontal = null;
+      const area = () => document.getElementById("report-content-area");
+
       document.addEventListener('touchstart', (e) => {
-        const area = e.target.closest('#report-swipe-area');
-        if (!area) return;
+        const swipeArea = e.target.closest('#report-swipe-area');
+        if (!swipeArea) return;
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
+        dragging = true;
+        isHorizontal = null;
+        const el = area();
+        if (el) el.style.transition = "none";
       }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        if (!dragging || touchStartX === null) return;
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        if (isHorizontal === null) isHorizontal = Math.abs(dx) > Math.abs(dy);
+        if (!isHorizontal) return;
+        const el = area();
+        if (el) {
+          // 端(今の期間より未来)に来たら、少しだけ抵抗を付けて分かりやすくする
+          const resisted = (dx > 0 && reportPeriodOffset >= 0) ? dx * 0.25 : dx;
+          el.style.transform = `translateX(${resisted}px)`;
+          el.style.opacity = String(Math.max(0.4, 1 - Math.abs(resisted) / 220));
+        }
+      }, { passive: true });
+
       document.addEventListener('touchend', (e) => {
-        if (touchStartX === null) return;
+        if (!dragging || touchStartX === null) { dragging = false; return; }
         const dx = e.changedTouches[0].clientX - touchStartX;
-        const dy = e.changedTouches[0].clientY - touchStartY;
+        dragging = false;
         touchStartX = null;
-        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return; // 横方向の意図的なスワイプだけ拾う
+        const el = area();
+        if (!isHorizontal || Math.abs(dx) < 45) {
+          // しきい値未満は元の位置にスッと戻す
+          if (el) {
+            el.style.transition = "transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease-out";
+            el.style.transform = "translateX(0)";
+            el.style.opacity = "1";
+          }
+          return;
+        }
         window.navigateReportPeriod(dx < 0 ? 1 : -1);
       }, { passive: true });
     })();
