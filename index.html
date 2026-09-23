@@ -1003,7 +1003,18 @@
             </div>
             <div id="weekly-compare-text" style="font-size:0.85rem; font-weight:800;"></div>
           </div>
-          <div id="weekly-bar-chart" class="weekly-bar-chart"></div>
+          <div id="report-swipe-area" style="position:relative; touch-action: pan-y;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <button id="report-nav-prev-label" onclick="navigateReportPeriod(-1)" style="background:none; border:none; color:var(--text-sub); cursor:pointer; padding:4px; display:flex; align-items:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span style="font-size:0.65rem; color:var(--text-sub);" id="t-report-swipe-hint">左右にスワイプで前後の期間</span>
+              <button id="report-nav-next-btn" onclick="navigateReportPeriod(1)" style="background:none; border:none; color:var(--text-sub); cursor:pointer; padding:4px; display:flex; align-items:center; visibility:hidden;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <div id="weekly-bar-chart" class="weekly-bar-chart"></div>
+          </div>
         </div>
 
         <!-- 💪 運動タイプの内訳・カロリー概算 -->
@@ -1575,7 +1586,7 @@
         championLabel: "Campeón Actual", championYouMessage: "¡Eres el campeón de este mes!",
         milestoneTimeTitle: "¡Hito alcanzado!", milestoneCountTitle: "¡Hito alcanzado!", milestoneBestTitle: "¡Récord personal!", milestoneCloseBtn: "¡Genial!",
         statsGroupTitle: "Periodo",
-        weeklyReportTitle: "Reporte", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada",
+        weeklyReportTitle: "Reporte", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada", reportSwipeHint: "Desliza para ver periodos anteriores",
         thisMonthLabel: "Total este mes", vsLastMonth: "vs mes pasado",
         thisYearLabel: "Total este año", vsLastYear: "vs año pasado",
         periodWeek: "Sem", periodMonth: "Mes", periodYear: "Año",
@@ -1655,7 +1666,7 @@
         championLabel: "現チャンピオン", championYouMessage: "あなたが今月のチャンピオンです！",
         milestoneTimeTitle: "マイルストーン達成！", milestoneCountTitle: "マイルストーン達成！", milestoneBestTitle: "自己ベスト更新！", milestoneCloseBtn: "やったー！",
         statsGroupTitle: "期間の記録",
-        weeklyReportTitle: "レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比",
+        weeklyReportTitle: "レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比", reportSwipeHint: "左右にスワイプで前後の期間",
         thisMonthLabel: "今月の合計", vsLastMonth: "先月比",
         thisYearLabel: "今年の合計", vsLastYear: "昨年比",
         periodWeek: "週", periodMonth: "月", periodYear: "年",
@@ -1993,6 +2004,7 @@
       setT("t-milestone-close", t.milestoneCloseBtn);
       setT("t-stats-group-title", t.statsGroupTitle);
       setT("t-weekly-report-title", t.weeklyReportTitle);
+      setT("t-report-swipe-hint", t.reportSwipeHint);
       setT("t-period-week", t.periodWeek);
       setT("t-period-month", t.periodMonth);
       setT("t-period-year", t.periodYear);
@@ -3050,11 +3062,12 @@
       if (!milestoneEl || !myUserName) return;
 
       const kgAchieved = Math.floor(totalKcal / KCAL_PER_KG_FAT);
+      const kgAchievedDecimal = (totalKcal / KCAL_PER_KG_FAT).toFixed(1);
       const remainderKcal = totalKcal - kgAchieved * KCAL_PER_KG_FAT;
       const remainingToNext = Math.max(0, Math.round(KCAL_PER_KG_FAT - remainderKcal));
       const pctToNext = Math.min(100, Math.round((remainderKcal / KCAL_PER_KG_FAT) * 100));
 
-      milestoneEl.innerHTML = t[`kgMilestoneText_${reportPeriod}`].replace("{kg}", `<span style="color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${kgAchieved}</span>`);
+      milestoneEl.innerHTML = t[`kgMilestoneText_${reportPeriod}`].replace("{kg}", `<span style="color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${kgAchievedDecimal}</span>`);
       if (pctEl) pctEl.innerHTML = `<span style="font-family:'LINE Seed JP', sans-serif;">${pctToNext}</span>%`;
       if (nextEl) nextEl.innerText = t.kgNextText.replace("{nextKg}", kgAchieved + 1).replace("{kcal}", remainingToNext.toLocaleString());
       if (fillEl) fillEl.style.width = `${pctToNext}%`;
@@ -3126,9 +3139,11 @@
     }
 
     let reportPeriod = 'week';
+    let reportPeriodOffset = 0; // 0=今の期間, -1=1つ前, ...
     window.setReportPeriod = (period) => {
       playSound('click');
       reportPeriod = period;
+      reportPeriodOffset = 0;
       document.querySelectorAll('#report-period-toggle button').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.period === period);
       });
@@ -3136,6 +3151,33 @@
       renderPeriodReport();
       try { updateStreakAndGoals(); } catch(e){}
     };
+
+    window.navigateReportPeriod = (direction) => {
+      playSound('click');
+      // 未来方向には進めない(0が上限)
+      if (direction > 0 && reportPeriodOffset >= 0) return;
+      reportPeriodOffset += direction;
+      renderPeriodReport();
+    };
+
+    // 📱 レポートエリアの左右スワイプで前後の期間に移動
+    (function setupReportSwipe() {
+      let touchStartX = null, touchStartY = null;
+      document.addEventListener('touchstart', (e) => {
+        const area = e.target.closest('#report-swipe-area');
+        if (!area) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+      document.addEventListener('touchend', (e) => {
+        if (touchStartX === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        touchStartX = null;
+        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return; // 横方向の意図的なスワイプだけ拾う
+        window.navigateReportPeriod(dx < 0 ? 1 : -1);
+      }, { passive: true });
+    })();
 
     function updateGoalSliderForPeriod() {
       const input = document.getElementById("goalInput");
@@ -3167,8 +3209,8 @@
       let thisStart, thisEnd, lastStart, lastEnd, bars, barLabels, compareLabel, totalLabel, getBarIndex;
 
       if (reportPeriod === 'month') {
-        [thisStart, thisEnd] = getMonthRange(0);
-        [lastStart, lastEnd] = getMonthRange(-1);
+        [thisStart, thisEnd] = getMonthRange(reportPeriodOffset);
+        [lastStart, lastEnd] = getMonthRange(reportPeriodOffset - 1);
         bars = new Array(6).fill(0);
         barLabels = currentLang === 'es' ? ['S1','S2','S3','S4','S5','S6'] : ['1週','2週','3週','4週','5週','6週'];
         const firstDow = thisStart.getDay();
@@ -3176,8 +3218,8 @@
         compareLabel = t.vsLastMonth;
         totalLabel = t.thisMonthLabel;
       } else if (reportPeriod === 'year') {
-        [thisStart, thisEnd] = getYearRange(0);
-        [lastStart, lastEnd] = getYearRange(-1);
+        [thisStart, thisEnd] = getYearRange(reportPeriodOffset);
+        [lastStart, lastEnd] = getYearRange(reportPeriodOffset - 1);
         bars = new Array(12).fill(0);
         barLabels = currentLang === 'es'
           ? ['E','F','M','A','M','J','J','A','S','O','N','D']
@@ -3186,8 +3228,8 @@
         compareLabel = t.vsLastYear;
         totalLabel = t.thisYearLabel;
       } else {
-        [thisStart, thisEnd] = getWeekRange(0);
-        [lastStart, lastEnd] = getWeekRange(-1);
+        [thisStart, thisEnd] = getWeekRange(reportPeriodOffset);
+        [lastStart, lastEnd] = getWeekRange(reportPeriodOffset - 1);
         bars = new Array(7).fill(0);
         barLabels = currentLang === 'es' ? ['D','L','M','X','J','V','S'] : ['日','月','火','水','木','金','土'];
         getBarIndex = (d) => d.getDay();
@@ -3209,7 +3251,29 @@
       });
 
       totalEl.innerText = formatTimeFriendly(thisTotal);
-      if (labelEl) labelEl.innerText = totalLabel;
+      if (labelEl) {
+        if (reportPeriodOffset === 0) {
+          labelEl.innerText = totalLabel;
+        } else {
+          const rangeEndDisplay = new Date(thisEnd.getTime() - 1);
+          const fmt = (x) => currentLang === 'es' ? `${x.getDate()}/${x.getMonth()+1}` : `${x.getMonth()+1}/${x.getDate()}`;
+          if (reportPeriod === 'year') {
+            labelEl.innerText = `${thisStart.getFullYear()}`;
+          } else if (reportPeriod === 'month') {
+            labelEl.innerText = currentLang === 'es' ? `${t.months[thisStart.getMonth()]} ${thisStart.getFullYear()}` : `${thisStart.getFullYear()}年${thisStart.getMonth()+1}月`;
+          } else {
+            labelEl.innerText = `${fmt(thisStart)} - ${fmt(rangeEndDisplay)}`;
+          }
+        }
+      }
+
+      const navLabelEl = document.getElementById("report-nav-prev-label");
+      if (navLabelEl) {
+        const prevStart = reportPeriod === 'month' ? getMonthRange(reportPeriodOffset - 1)[0] : reportPeriod === 'year' ? getYearRange(reportPeriodOffset - 1)[0] : getWeekRange(reportPeriodOffset - 1)[0];
+        navLabelEl.title = prevStart.toDateString();
+      }
+      const nextBtnEl = document.getElementById("report-nav-next-btn");
+      if (nextBtnEl) nextBtnEl.style.visibility = (reportPeriodOffset >= 0) ? "hidden" : "visible";
 
       if (compareEl) {
         if (lastTotal === 0) {
