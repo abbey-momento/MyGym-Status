@@ -278,8 +278,6 @@
     
     .cal-user-log-item { background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: 0.2s; }
 
-    .cal-filter-chip { flex-shrink: 0; display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 0.78rem; font-weight: 700; color: var(--text-sub); white-space: nowrap; transition: 0.2s; }
-    .cal-filter-chip.active { background: var(--accent-gradient); border-color: transparent; color: #0B0F19; }
     .cal-user-log-item:hover { border-color: var(--accent); background: rgba(47, 143, 255,0.05); }
 
     .timeline-card-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; transition: 0.3s; }
@@ -835,8 +833,6 @@
           <span id="t-cal-today-btn">Hoy</span>
         </button>
       </div>
-
-      <div id="cal-user-filter-row" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; margin-bottom:12px;"></div>
 
       <div class="stats-row">
         <div class="stat-box">
@@ -4368,52 +4364,15 @@
 
     window.switchCalendarUser = (username) => {
       playSound('click');
-      calendarTargetUser = username;
-      calendarFilterMode = 'user';
+      if (calendarFilterMode === 'user' && calendarTargetUser === username) {
+        // 同じ人をもう一度押したら「全員」表示に戻す
+        calendarFilterMode = 'all';
+      } else {
+        calendarTargetUser = username;
+        calendarFilterMode = 'user';
+      }
       renderCalendar();
     };
-
-    window.setCalendarFilterUser = (username) => {
-      playSound('click');
-      calendarTargetUser = username;
-      calendarFilterMode = username ? 'user' : 'all';
-      renderCalendar();
-    };
-
-    // 家族みんな(全員)＋記録のある各ユーザーのチップを、カレンダー上部に表示する
-    function renderCalendarUserFilterRow() {
-      const rowEl = document.getElementById("cal-user-filter-row");
-      if (!rowEl || !myUserName) return;
-      const t = i18n[currentLang];
-
-      const usersMap = {};
-      Object.values(allLogsData).forEach(log => {
-        if (!log.user) return;
-        if (!usersMap[log.user]) usersMap[log.user] = log.avatar || "👤";
-        else if (log.avatar) usersMap[log.user] = log.avatar;
-      });
-      if (!usersMap[myUserName]) usersMap[myUserName] = myUserAvatar || "👤";
-
-      const otherUsers = Object.keys(usersMap).filter(u => u !== myUserName).sort();
-      const orderedUsers = [myUserName, ...otherUsers];
-
-      const allChip = `
-        <div class="cal-filter-chip ${calendarFilterMode === 'all' ? 'active' : ''}" onclick="setCalendarFilterUser(null)">
-          ${t.calFilterAll}
-        </div>
-      `;
-      const userChips = orderedUsers.map(u => {
-        const isActive = calendarFilterMode === 'user' && calendarTargetUser === u;
-        const label = (u === myUserName) ? t.calFilterMe : u;
-        return `
-          <div class="cal-filter-chip ${isActive ? 'active' : ''}" onclick="setCalendarFilterUser('${u}')">
-            <span>${usersMap[u]}</span><span>${label}</span>
-          </div>
-        `;
-      }).join("");
-
-      rowEl.innerHTML = allChip + userChips;
-    }
 
     function selectCalendarDay(dateKey, clickedEl, updateSelectionState = true) {
       if (updateSelectionState) {
@@ -4496,8 +4455,6 @@
         const isCurrentMonth = (year === now.getFullYear() && month === now.getMonth());
         todayBtn.style.display = isCurrentMonth ? "none" : "inline-block";
       }
-
-      renderCalendarUserFilterRow();
 
       const monthStr = `${year}-${(month + 1).toString().padStart(2, '0')}`;
       let targetMonthMin = 0;
