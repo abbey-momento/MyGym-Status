@@ -4545,7 +4545,7 @@
 
         if(usersListEl) {
           usersListEl.innerHTML = logsForDayAll.map(log => {
-            const isSelectedUser = log.user === calendarTargetUser;
+            const isSelectedUser = calendarFilterMode === 'user' && log.user === calendarTargetUser;
             const isMe = log.user === myUserName;
             const p = getPrivacy(log.user);
             
@@ -4615,7 +4615,7 @@
           const tgtPrivChip = getPrivacy(calendarTargetUser);
           const chipName = isTgtMeChip ? t.calFilterMe : (tgtPrivChip.showName ? calendarTargetUser : t.anonUser);
           chipEl.style.display = "inline-flex";
-          chipEl.innerHTML = `<span>${tgtAvatar}</span><span>${t.calSelectedUserPrefix}${chipName}</span>`;
+          chipEl.innerHTML = `<span>${tgtAvatar}</span><span>${chipName}</span>`;
         } else {
           chipEl.style.display = "none";
         }
