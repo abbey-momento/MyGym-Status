@@ -96,7 +96,7 @@
 
     .summary-fade-up { opacity: 0; transform: translateY(14px); animation: summaryFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     @keyframes summaryFadeUp { to { opacity: 1; transform: translateY(0); } }
-    .summary-hero-glow { animation: summaryGlowPulse 2.8s ease-in-out infinite; }
+    .summary-hero-glow.summary-fade-up { animation: summaryFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards, summaryGlowPulse 2.8s ease-in-out 0.5s infinite; }
     @keyframes summaryGlowPulse {
       0%, 100% { box-shadow: 0 0 24px rgba(45,212,191,0.08); }
       50% { box-shadow: 0 0 36px rgba(45,212,191,0.22); }
@@ -2886,8 +2886,8 @@
 
     window.openWeeklySummaryModal = () => {
       playSound('click');
-      renderSummaryModalContent();
       document.getElementById("weekly-summary-modal").style.display = "flex";
+      renderSummaryModalContent();
     };
     window.closeWeeklySummaryModal = () => {
       playSound('click');
