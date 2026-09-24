@@ -774,6 +774,11 @@
     </div>
   </div>
 
+  <div id="connection-warning-banner" style="display:none; position:sticky; top:0; z-index:50; background:linear-gradient(90deg,#F43F5E,#FF7A59); color:#fff; font-size:0.75rem; font-weight:700; text-align:center; padding:8px 12px;">
+    <span id="t-connection-warning-text">サーバーと接続できていません（拡張機能などが原因の可能性があります）</span>
+    <button onclick="location.reload()" style="margin-left:8px; background:rgba(0,0,0,0.25); border:none; color:#fff; padding:3px 10px; border-radius:8px; font-weight:800; font-size:0.72rem; cursor:pointer;" id="t-connection-reload-btn">再読み込み</button>
+  </div>
+
   <header>
     <div class="brand">
       <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1598,6 +1603,7 @@
         months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
         deletedLog: "Este registro fue eliminado",
         anonUser: "Anónimo", anonTime: "Privado", tapToSeeTime: "Toca para ver el tiempo",
+        connectionWarningText: "No hay conexión con el servidor (podría deberse a una extensión del navegador)", connectionReloadBtn: "Recargar",
         privacyTitle: "Privacidad", privName: "Mostrar mi nombre", privTime: "Mostrar mi tiempo", privRank: "Participar en Ranking", privFontsize: "Tamaño de texto",
         privSound: "Sonido",
         locHome: "Casa", locOther: "Fuera",
@@ -1683,6 +1689,7 @@
         months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
         deletedLog: "この投稿は削除されました",
         anonUser: "匿名ユーザー", anonTime: "非公開", tapToSeeTime: "タップで経過時間を見る",
+        connectionWarningText: "サーバーと接続できていません（拡張機能などが原因の可能性があります）", connectionReloadBtn: "再読み込み",
         privacyTitle: "プライバシー・公開設定", privName: "名前を公開する", privTime: "運動時間を公開する", privRank: "ランキングに参加する", privFontsize: "文字サイズ",
         privSound: "効果音",
         locHome: "家", locOther: "外",
@@ -2005,6 +2012,8 @@
       setT("t-import-title", t.importTitle);
       setT("t-import-btn", t.importBtn);
       setT("t-heatmap-title", t.heatmapTitle);
+      setT("t-connection-warning-text", t.connectionWarningText);
+      setT("t-connection-reload-btn", t.connectionReloadBtn);
       setT("t-timeheatmap-title", t.timeheatmapTitle);
       setT("t-hm-less", t.hmLess);
       setT("t-hm-more", t.hmMore);
@@ -2068,7 +2077,7 @@
       
       try { updateHomeStatusText(); } catch(e){}
       try { renderActiveUsersDetail(); } catch(e){}
-      try { renderTimeline(); } catch(e){}
+      try { renderTimeline(); } catch(e){ console.error("MyGym renderTimeline error:", e); }
       try { renderCalendar(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
       try { updateChampionBanner(); } catch(e){}
@@ -4095,7 +4104,7 @@
       // プライバシーが更新されたら再描画
       try { updateHomeStatusText(); } catch(e){}
       try { renderActiveUsersDetail(); } catch(e){}
-      try { renderTimeline(); } catch(e){}
+      try { renderTimeline(); } catch(e){ console.error("MyGym renderTimeline error:", e); }
       try { renderCalendar(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
       try { renderModalComments(); } catch(e){}
@@ -4112,10 +4121,30 @@
       try { checkForgottenTimer(); } catch(e){}
     });
 
+    // 🔌 接続状態の監視：拡張機能などの影響でFirebaseと繋がっていない時に警告を出す
+    let disconnectedSince = null;
+    onValue(ref(db, ".info/connected"), (snap) => {
+      const banner = document.getElementById("connection-warning-banner");
+      if (!banner) return;
+      const isConnected = snap.val() === true;
+      if (isConnected) {
+        disconnectedSince = null;
+        banner.style.display = "none";
+      } else {
+        if (!disconnectedSince) disconnectedSince = Date.now();
+        // 切断直後の一瞬（電波の切り替わり等）では出さず、5秒以上続いたら警告を出す
+        setTimeout(() => {
+          if (disconnectedSince && Date.now() - disconnectedSince >= 5000) {
+            banner.style.display = "block";
+          }
+        }, 5000);
+      }
+    });
+
     onValue(ref(db, "logs"), (snapshot) => {
       allLogsData = snapshot.val() || {};
       
-      try { renderTimeline(); } catch(e){}
+      try { renderTimeline(); } catch(e){ console.error("MyGym renderTimeline error:", e); }
       try { renderEnergyRace(); } catch(e){}
       try { updateStreakAndGoals(); } catch(e){}
       try { finalizeMonthIfNeeded(); } catch(e){}
@@ -4169,7 +4198,7 @@
       try { updateChampionBanner(); } catch(e){}
       try { renderEnergyRace(); } catch(e){}
       const timelineView = document.getElementById('view-timeline');
-      if (timelineView && timelineView.classList.contains('active')) { try { renderTimeline(); } catch(e){} }
+      if (timelineView && timelineView.classList.contains('active')) { try { renderTimeline(); } catch(e){ console.error("MyGym renderTimeline error:", e); } }
       if (activeCommentLogKey && activeCommentLogKey.startsWith('champ')) {
         const cModal = document.getElementById("comment-modal");
         if (cModal && cModal.style.display === "flex") { try { renderModalComments(); } catch(e){} }
