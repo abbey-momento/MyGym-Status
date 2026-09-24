@@ -4621,7 +4621,17 @@
     function buildCombinedTimelineArray() {
       const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key, isAnnouncement: false }));
       const combinedArray = logsArray.concat(buildChampionAnnouncements());
-      combinedArray.sort((a, b) => new Date(b.date) - new Date(a.date));
+      // 日付が壊れている(不正/空)な記録が1件でもあると並び替え全体が狂うことがあるため、
+      // 安全な数値に変換してから比較する(壊れたものは一番古い扱いにして、下に沈めるだけにする)
+      const safeTime = (item) => {
+        const time = new Date(item.date).getTime();
+        return isNaN(time) ? 0 : time;
+      };
+      const brokenItems = combinedArray.filter(item => isNaN(new Date(item.date).getTime()));
+      if (brokenItems.length > 0) {
+        console.warn("MyGym: 日付が壊れている記録が見つかりました", brokenItems);
+      }
+      combinedArray.sort((a, b) => safeTime(b) - safeTime(a));
       return combinedArray;
     }
 
