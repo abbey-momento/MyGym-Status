@@ -208,15 +208,15 @@
     .heatmap-cal-month-label { font-size: 0.62rem; color: var(--text-sub); white-space: nowrap; grid-row: 1; align-self: end; }
 
     .time-hm-outer { display: flex; gap: 6px; }
-    .time-hm-daylabels { display: grid; grid-template-rows: repeat(7, 20px); gap: 3px; flex-shrink: 0; }
+    .time-hm-daylabels { display: grid; grid-template-rows: 14px repeat(7, 20px); gap: 3px; flex-shrink: 0; }
     .time-hm-daylabel { font-size: 0.62rem; color: var(--text-sub); display: flex; align-items: center; height: 20px; }
-    .time-hm-grid { display: grid; grid-template-rows: repeat(7, 20px); grid-auto-flow: column; grid-auto-columns: 24px; gap: 3px; }
+    .time-hm-grid { display: grid; grid-template-rows: 14px repeat(7, 20px); grid-auto-flow: column; grid-auto-columns: 24px; gap: 3px; }
     .time-hm-cell { width: 24px; height: 20px; border-radius: 4px; background: rgba(255,255,255,0.05); }
     .time-hm-cell.level-1 { background: rgba(52,211,153,0.3); }
     .time-hm-cell.level-2 { background: rgba(52,211,153,0.55); }
     .time-hm-cell.level-3 { background: rgba(52,211,153,0.78); }
     .time-hm-cell.level-4 { background: var(--green); box-shadow: 0 0 4px rgba(52,211,153,0.5); }
-    .time-hm-hourlabel { width: 24px; flex-shrink: 0; font-size: 0.58rem; color: var(--text-sub); text-align: center; }
+    .time-hm-hourlabel { grid-row: 1; font-size: 0.58rem; color: var(--text-sub); white-space: nowrap; align-self: end; }
     .heatmap-day-cell { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.06); }
     .heatmap-day-cell.level-1 { background: rgba(52,211,153,0.3); }
     .heatmap-day-cell.level-2 { background: rgba(52,211,153,0.55); }
@@ -1135,7 +1135,6 @@
             <div id="time-heatmap-grid" class="time-hm-grid"></div>
           </div>
         </div>
-        <div id="time-heatmap-hourlabels" style="display:flex; gap:3px; margin-top:4px; padding-left:calc(2ch + 9px);"></div>
       </div>
 
 
@@ -1546,7 +1545,7 @@
       es: {
         modalTitle: "Bienvenido", modalName: "Tu nombre", modalAvatar: "Avatar", btnRegister: "Comenzar",
         editTitle: "Editar Perfil", editName: "Tu nombre", editAvatar: "Avatar", btnSave: "Guardar", btnCancel: "Cancelar", editBtn: "Editar Perfil",
-        homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando", activeStatusLabel: "Entrenando",
+        homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando", activeStatusLabel: "Entrenando", activeStatusLabelOutside: "Entrenando fuera",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak", calTodayBtn: "Hoy",
         calFilterAll: "Todos", calFilterMe: "Yo", calSelectedUserPrefix: "Viendo: ",
@@ -1631,7 +1630,7 @@
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる",
         editTitle: "プロフィール編集", editName: "あなたの名前", editAvatar: "アバター", btnSave: "保存する", btnCancel: "キャンセル", editBtn: "プロフィール編集",
-        homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中", activeStatusLabel: "トレーニング中",
+        homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中", activeStatusLabel: "トレーニング中", activeStatusLabelOutside: "外でトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続", calTodayBtn: "今日",
         calFilterAll: "全員", calFilterMe: "自分", calSelectedUserPrefix: "選択中：",
@@ -3530,15 +3529,13 @@
       const t = i18n[currentLang];
       const dayLabelsEl = document.getElementById("time-heatmap-daylabels");
       const gridEl = document.getElementById("time-heatmap-grid");
-      const hourLabelsEl = document.getElementById("time-heatmap-hourlabels");
-      if (!dayLabelsEl || !gridEl || !hourLabelsEl || !myUserName) return;
+      if (!dayLabelsEl || !gridEl || !myUserName) return;
 
       const dayLabels = currentLang === 'es' ? ['D', 'L', 'M', 'M', 'J', 'V', 'S'] : ['日', '月', '火', '水', '木', '金', '土'];
-      dayLabelsEl.innerHTML = dayLabels.map(l => `<div class="time-hm-daylabel">${l}</div>`).join("");
+      dayLabelsEl.innerHTML = `<div></div>` + dayLabels.map(l => `<div class="time-hm-daylabel">${l}</div>`).join("");
 
       const BLOCK_HOURS = 3;
       const blockCount = 24 / BLOCK_HOURS;
-      hourLabelsEl.innerHTML = Array.from({ length: blockCount }, (_, i) => `<div class="time-hm-hourlabel">${i * BLOCK_HOURS}</div>`).join("");
 
       // counts[dayOfWeek][block] = そのマスに該当するセッション数
       const counts = Array.from({ length: 7 }, () => new Array(blockCount).fill(0));
@@ -3552,8 +3549,10 @@
         if (counts[dow][block] > maxCount) maxCount = counts[dow][block];
       });
 
+      // 時間ラベルとマスを、ブロックごとに1つの列としてまとめて流し込む(ズレようがない構造にする)
       let html = "";
       for (let block = 0; block < blockCount; block++) {
+        html += `<div class="time-hm-hourlabel">${block * BLOCK_HOURS}</div>`;
         for (let dow = 0; dow < 7; dow++) {
           const c = counts[dow][block];
           const level = c === 0 ? 0 : Math.min(4, Math.ceil((c / maxCount) * 4));
@@ -3907,8 +3906,8 @@
           <div class="active-user-row${isPreviewing ? ' is-previewing' : ''}">
             <span class="active-user-avatar">${data.avatar || '👤'}</span>
             <div class="active-user-info"${nameClickAttr}>
-              <div class="active-user-name">${dName}${isOutside ? ` <span class="loc-tag">${t.locOther}</span>` : ''}</div>
-              <div class="active-user-status"><span class="pulse-dot"></span>${t.activeStatusLabel}</div>
+              <div class="active-user-name">${dName}</div>
+              <div class="active-user-status"><span class="pulse-dot"></span>${isOutside ? t.activeStatusLabelOutside : t.activeStatusLabel}</div>
             </div>
             ${cheerBtn}
           </div>
