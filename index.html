@@ -94,6 +94,20 @@
     .view.active { display: flex; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+    .summary-fade-up { opacity: 0; transform: translateY(14px); animation: summaryFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes summaryFadeUp { to { opacity: 1; transform: translateY(0); } }
+    .summary-hero-glow { animation: summaryGlowPulse 2.8s ease-in-out infinite; }
+    @keyframes summaryGlowPulse {
+      0%, 100% { box-shadow: 0 0 24px rgba(45,212,191,0.08); }
+      50% { box-shadow: 0 0 36px rgba(45,212,191,0.22); }
+    }
+    .summary-sparkle { position: absolute; pointer-events: none; opacity: 0; animation: summarySparkle 1.6s ease-out forwards; }
+    @keyframes summarySparkle {
+      0% { opacity: 0; transform: translateY(0) scale(0.4); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-30px) scale(1); }
+    }
+
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; overflow: hidden; width: 100%; }
     .card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
 
@@ -208,10 +222,10 @@
     .heatmap-cal-month-label { font-size: 0.62rem; color: var(--text-sub); white-space: nowrap; grid-row: 1; align-self: end; }
 
     .time-hm-outer { display: flex; gap: 6px; }
-    .time-hm-daylabels { display: grid; grid-template-rows: 14px repeat(7, 20px); gap: 2px; flex-shrink: 0; }
-    .time-hm-daylabel { font-size: 0.62rem; color: var(--text-sub); display: flex; align-items: center; height: 20px; }
-    .time-hm-grid { display: grid; grid-template-rows: 14px repeat(7, 20px); grid-auto-flow: column; grid-auto-columns: 20px; gap: 2px; }
-    .time-hm-cell { width: 20px; height: 20px; border-radius: 4px; background: rgba(255,255,255,0.05); }
+    .time-hm-daylabels { display: grid; grid-template-rows: 12px repeat(7, 13px); gap: 1.5px; flex-shrink: 0; }
+    .time-hm-daylabel { font-size: 0.58rem; color: var(--text-sub); display: flex; align-items: center; height: 13px; }
+    .time-hm-grid { display: grid; grid-template-rows: 12px repeat(7, 13px); grid-auto-flow: column; grid-auto-columns: 13px; gap: 1.5px; }
+    .time-hm-cell { width: 13px; height: 13px; border-radius: 3px; background: rgba(255,255,255,0.05); }
     .time-hm-cell.level-1 { background: rgba(52,211,153,0.3); }
     .time-hm-cell.level-2 { background: rgba(52,211,153,0.55); }
     .time-hm-cell.level-3 { background: rgba(52,211,153,0.78); }
@@ -1125,7 +1139,7 @@
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
         <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span id="t-timeheatmap-title">よくトレする時間帯</span>
+          <span id="t-timeheatmap-title">よくトレーニングする時間帯</span>
         </h3>
         <div class="time-hm-outer">
           <div id="time-heatmap-daylabels" class="time-hm-daylabels"></div>
@@ -1660,7 +1674,7 @@
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
         unitMin: "分", unitHour: "時間", unitCount: "回", btnDelete: "削除", btnEditLog: "編集",
-        timeheatmapTitle: "よくトレする時間帯",
+        timeheatmapTitle: "よくトレーニングする時間帯",
         alertName: "名前を入力してください", alertAlready: "既に利用中になっています！",
         nameExistsConfirm: "「{name}」という名前はすでに使われています。あなた自身の記録で間違いなければOKを押して続けてください。違う場合はキャンセルして別の名前にしてください。",
         alertManual: "日付と正しい開始・終了時間を入力してください", alertTimeOrder: "終了時間は開始時間より後にしてください", confirmDelete: "この記録を削除しますか？",
@@ -2974,10 +2988,10 @@
       }
 
       contentEl.innerHTML = `
-        <div style="background: linear-gradient(160deg, rgba(47,143,255,0.16), rgba(45,212,191,0.1)); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; text-align:center; box-shadow: 0 0 24px rgba(45,212,191,0.08);">
+        <div class="summary-hero-glow summary-fade-up" style="background: linear-gradient(160deg, rgba(47,143,255,0.16), rgba(45,212,191,0.1)); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; text-align:center; position:relative;">
           <div style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:10px;">${headline}</div>
           <div style="font-size:0.68rem; color:var(--text-sub); text-transform:uppercase; font-weight:700;">${periodLabel}</div>
-          <div style="font-size:2.2rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif; margin-top:2px;">${formatTimeFriendly(totalMin)}</div>
+          <div id="summary-total-num" style="font-size:2.2rem; font-weight:800; color:#fff; font-family:'LINE Seed JP', sans-serif; margin-top:2px;">0${currentLang === 'es' ? ' min' : '分'}</div>
           ${compareHtml}
 
           <div style="display:flex; justify-content:center; gap:24px; margin-top:18px;">
@@ -2988,17 +3002,17 @@
         </div>
 
         ${totalMin > 0 ? `
-          <div style="margin-top:16px;">
+          <div class="summary-fade-up" style="margin-top:16px; animation-delay:0.1s;">
             <div style="font-size:0.72rem; color:var(--text-sub); font-weight:700; margin-bottom:8px;">${periodLabel} ${t.summaryTrendLabel}</div>
-            <div class="weekly-bar-chart">${miniChartHtml}</div>
+            <div class="weekly-bar-chart" id="summary-mini-chart">${miniChartHtml}</div>
           </div>
 
-          <div style="margin-top:18px; background: rgba(255,255,255,0.03); border-radius:12px; padding:14px;">
-            <div style="display:flex; height:8px; border-radius:5px; overflow:hidden;">
+          <div class="summary-fade-up" style="margin-top:18px; background: rgba(255,255,255,0.03); border-radius:12px; padding:14px; animation-delay:0.2s;">
+            <div style="display:flex; height:8px; border-radius:5px; overflow:hidden;" id="summary-type-bar">
               ${Object.keys(EXERCISE_TYPE_META).map(type => {
                 const pct = (typeTotals[type] / grandTotal) * 100;
                 if (pct <= 0) return '';
-                return `<div style="width:${pct}%; background:${EXERCISE_TYPE_META[type].color};"></div>`;
+                return `<div data-final-width="${pct}" style="width:0%; background:${EXERCISE_TYPE_META[type].color}; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);"></div>`;
               }).join("")}
             </div>
             <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:10px 14px; margin-top:10px;">
@@ -3010,12 +3024,60 @@
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:14px;">
+          <div class="summary-fade-up" style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:14px; animation-delay:0.3s;">
             <div class="pb-card"><div class="pb-value">${formatTimeFriendly(bestDayMin)}</div><div class="pb-label">${t.summaryBestDay}</div></div>
             <div class="pb-card"><div class="pb-value">${formatTimeFriendly(Math.round(totalMin / Math.max(1, sessionCount)))}</div><div class="pb-label">${t.summaryAvgSession}</div></div>
           </div>
-        ` : `<div style="font-size:0.78rem; color:var(--text-sub); margin-top:16px; text-align:center;">${t.emptyData}</div>`}
+        ` : `<div class="summary-fade-up" style="font-size:0.78rem; color:var(--text-sub); margin-top:16px; text-align:center;">${t.emptyData}</div>`}
       `;
+
+      // 🔢 合計時間をカウントアップさせる
+      animateSummaryCountUp(totalMin, currentLang === 'es' ? ' min' : '分');
+
+      // 📊 種類別バーを、少し遅れてスッと伸ばす
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          document.querySelectorAll('#summary-type-bar [data-final-width]').forEach(el => {
+            el.style.width = el.dataset.finalWidth + '%';
+          });
+        }, 250);
+      });
+
+      // ✨ ヒーローカードに、ふわっと浮かぶ小さな光の粒を散らす（達成感の演出）
+      if (totalMin > 0) spawnSummarySparkles();
+    }
+
+    function animateSummaryCountUp(target, unit) {
+      const el = document.getElementById("summary-total-num");
+      if (!el) return;
+      if (target <= 0) { el.innerText = `0${unit}`; return; }
+      const duration = 700;
+      const start = performance.now();
+      function tick(now) {
+        const progress = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(target * eased);
+        el.innerText = formatTimeFriendly(current);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function spawnSummarySparkles() {
+      const hero = document.querySelector('.summary-hero-glow');
+      if (!hero) return;
+      const sparkles = ['✨', '⭐', '💫'];
+      for (let i = 0; i < 5; i++) {
+        const s = document.createElement('div');
+        s.className = 'summary-sparkle';
+        s.innerText = sparkles[Math.floor(Math.random() * sparkles.length)];
+        s.style.left = (10 + Math.random() * 80) + '%';
+        s.style.bottom = (10 + Math.random() * 20) + 'px';
+        s.style.fontSize = (12 + Math.random() * 10) + 'px';
+        s.style.animationDelay = (Math.random() * 1.2) + 's';
+        hero.appendChild(s);
+        setTimeout(() => s.remove(), 3000);
+      }
     }
 
     window.openHallOfFameModal = () => {
@@ -3532,7 +3594,7 @@
       const dayLabels = currentLang === 'es' ? ['D', 'L', 'M', 'M', 'J', 'V', 'S'] : ['日', '月', '火', '水', '木', '金', '土'];
       dayLabelsEl.innerHTML = `<div></div>` + dayLabels.map(l => `<div class="time-hm-daylabel">${l}</div>`).join("");
 
-      const BLOCK_HOURS = 2;
+      const BLOCK_HOURS = 1;
       const blockCount = 24 / BLOCK_HOURS;
 
       // counts[dayOfWeek][block] = そのマスに該当するセッション数
@@ -3550,7 +3612,8 @@
       // 時間ラベルとマスを、ブロックごとに1つの列としてまとめて流し込む(ズレようがない構造にする)
       let html = "";
       for (let block = 0; block < blockCount; block++) {
-        html += `<div class="time-hm-hourlabel">${block * BLOCK_HOURS}</div>`;
+        const showLabel = (block * BLOCK_HOURS) % 3 === 0;
+        html += `<div class="time-hm-hourlabel">${showLabel ? block * BLOCK_HOURS : ''}</div>`;
         for (let dow = 0; dow < 7; dow++) {
           const c = counts[dow][block];
           const level = c === 0 ? 0 : Math.min(4, Math.ceil((c / maxCount) * 4));
