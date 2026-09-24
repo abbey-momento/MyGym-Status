@@ -898,22 +898,20 @@
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
           <span id="t-race-title">Energy Race</span>
         </h2>
-        <div style="display:flex; gap:8px;">
-          <button onclick="openHallOfFameModal()" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); color:var(--text-sub); padding:6px 10px; border-radius:10px; font-weight:700; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V12h12v10"/><path d="M6 12 2 7l4-5h12l4 5-4 5"/><path d="M10 12V7"/><path d="M14 12V7"/></svg>
-            <span id="t-halloffame-btn">歴代チャンピオン</span>
-          </button>
-          <button onclick="openHistoryModal()" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); color:var(--text-sub); padding:6px 10px; border-radius:10px; font-weight:700; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span id="t-history-btn">Historial</span>
-          </button>
-        </div>
+        <button onclick="openHistoryModal()" style="background:rgba(255,255,255,0.05); border:1px solid var(--card-border); color:var(--text-sub); padding:6px 10px; border-radius:10px; font-weight:700; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="t-history-btn">Historial</span>
+        </button>
       </div>
       <div id="race-countdown" style="font-size:0.75rem; color:var(--text-sub); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:5px; font-family:'LINE Seed JP', sans-serif;"></div>
       <div id="race-podium-container"></div>
       <div id="race-list-container" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
       </div>
+      <button onclick="openHallOfFameModal()" style="width:100%; margin-top:14px; background:rgba(255,255,255,0.05); border:1px solid var(--card-border); color:var(--text-sub); padding:10px; border-radius:12px; font-weight:700; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V12h12v10"/><path d="M6 12 2 7l4-5h12l4 5-4 5"/><path d="M10 12V7"/><path d="M14 12V7"/></svg>
+        <span id="t-halloffame-btn">歴代チャンピオン</span>
+      </button>
     </div>
   </div>
 
