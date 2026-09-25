@@ -209,6 +209,44 @@
     @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 12px rgba(255,196,0,0.4); } 50% { box-shadow: 0 0 26px rgba(255,196,0,0.75); } }
 
     /* 📊 週間レポートのバーチャート */
+    /* ペースに合わせた声かけ */
+    .pace-card { display: flex; gap: 12px; align-items: flex-start; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-left: 3px solid var(--pace-color, var(--accent)); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
+    .pace-card .pace-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--pace-color, var(--accent)); background: rgba(255,255,255,0.04); }
+    .pace-card .pace-title { font-size: 0.9rem; font-weight: 800; color: #fff; line-height: 1.4; }
+    .pace-card .pace-body { font-size: 0.78rem; color: var(--text-sub); font-weight: 700; line-height: 1.5; margin-top: 3px; }
+    .pace-card .pace-facts { font-size: 0.66rem; color: var(--text-sub); opacity: 0.8; margin-top: 6px; font-family: 'LINE Seed JP', sans-serif; }
+
+    /* 通算の記録 */
+    .lifetime-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+    .lifetime-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .lifetime-title { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .lifetime-since { font-size: 0.66rem; color: var(--text-sub); font-weight: 700; font-family: 'LINE Seed JP', sans-serif; }
+    .lifetime-main { font-size: 1.9rem; font-weight: 800; color: #fff; font-family: 'LINE Seed JP', sans-serif; line-height: 1.2; }
+    .lifetime-fun { font-size: 0.72rem; color: var(--ring-inner); font-weight: 700; margin-top: 2px; }
+    .lifetime-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+    .lifetime-cell { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 10px 6px; text-align: center; }
+    .lifetime-cell .v { font-size: 1.05rem; font-weight: 800; color: #fff; font-family: 'LINE Seed JP', sans-serif; }
+    .lifetime-cell .l { font-size: 0.6rem; color: var(--text-sub); font-weight: 700; margin-top: 3px; }
+
+    /* 📈 レポートの累計トレンドグラフ */
+    .trend-chart { position: relative; padding-top: 46px; margin: 4px 0 2px; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; }
+    .trend-chart svg { display: block; width: 100%; height: 130px; overflow: visible; }
+    .trend-bubbles { position: absolute; top: 0; left: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; white-space: nowrap; transition: left 0.08s linear; }
+    .trend-bubble-row { display: flex; gap: 6px; }
+    .trend-pill { font-family: 'LINE Seed JP', sans-serif; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 999px; }
+    .trend-pill.last { color: var(--text-sub); border: 1px dashed rgba(139,147,167,0.6); background: rgba(11,15,25,0.6); }
+    .trend-pill.this { color: var(--ring-inner); background: #0B0F19; border: 1px solid rgba(45,212,191,0.5); box-shadow: 0 0 10px rgba(45,212,191,0.2); }
+    .trend-caption { font-size: 0.6rem; color: var(--text-sub); font-weight: 700; }
+    .trend-labels { display: flex; justify-content: space-between; gap: 4px; margin-top: 8px; }
+    .trend-label-pill { flex: 1; text-align: center; font-size: 0.62rem; font-weight: 700; color: var(--text-sub); padding: 4px 0; border-radius: 999px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); transition: 0.15s; }
+    .trend-label-pill.active { color: #fff; border-color: rgba(45,212,191,0.5); background: rgba(45,212,191,0.12); }
+    .trend-stats { display: flex; flex-direction: column; margin-top: 14px; }
+    .trend-stat-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.05); }
+    .trend-stat-label { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; margin-bottom: 3px; }
+    .trend-stat-value { font-size: 1.15rem; font-weight: 800; color: #fff; font-family: 'LINE Seed JP', sans-serif; }
+    .trend-stat-diff { font-size: 0.68rem; font-weight: 700; color: var(--text-sub); text-align: right; max-width: 55%; line-height: 1.35; }
+    .trend-stat-diff.up { color: var(--green); }
+    .trend-stat-diff.down { color: var(--neon-pink); }
     .weekly-bar-chart { display:flex; align-items:flex-end; gap:6px; height:70px; }
     .weekly-bar-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px; }
     .weekly-bar { width:100%; background: rgba(47, 143, 255, 0.35); border-radius: 4px 4px 0 0; min-height:3px; transition: height 0.3s; }
@@ -1017,6 +1055,12 @@
         </div>
       </div>
 
+      <!-- ペースに合わせた声かけ -->
+      <div id="pace-message-card" class="pace-card" style="display:none;"></div>
+
+      <!-- 通算の記録 -->
+      <div id="lifetime-card" class="lifetime-card" style="display:none;"></div>
+
       <!-- 🎯📊💪 目標・レポート・内訳（週/月/年で連動する1つのまとまりとして統合） -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
         <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:18px;">
@@ -1070,7 +1114,8 @@
                 </div>
                 <div id="weekly-compare-text" style="font-size:0.85rem; font-weight:800;"></div>
               </div>
-              <div id="weekly-bar-chart" class="weekly-bar-chart"></div>
+              <div id="trend-chart" class="trend-chart"></div>
+              <div id="trend-stats" class="trend-stats"></div>
             </div>
           </div>
         </div>
@@ -1657,7 +1702,7 @@
         milestoneTimeTitle: "¡Hito alcanzado!", milestoneCountTitle: "¡Hito alcanzado!", milestoneBestTitle: "¡Récord personal!", milestoneCloseBtn: "¡Genial!",
         statsGroupTitle: "Periodo",
         weeklyReportTitle: "Reporte", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada", reportSwipeHint: "Desliza para ver periodos anteriores",
-        thisMonthLabel: "Total este mes", vsLastMonth: "vs mes pasado",
+        thisMonthLabel: "Total este mes", vsLastMonth: "vs mes pasado", trendThis: { week: "Esta semana", month: "Este mes", year: "Este año" }, trendLast: { week: "Semana ant.", month: "Mes ant.", year: "Año ant." }, trendLastLong: { week: "la semana anterior", month: "el mes anterior", year: "el año anterior" }, trendStatSessions: "Sesiones", trendStatAvg: "Promedio por sesión", trendMore: "más que", trendLess: "menos que", trendSame: "Igual que", trendUnitSessions: "ses.", trendUntil: "hasta",
         thisYearLabel: "Total este año", vsLastYear: "vs año pasado",
         periodWeek: "Sem", periodMonth: "Mes", periodYear: "Año",
         exportTitle: "Exportar Datos",
@@ -1743,7 +1788,7 @@
         milestoneTimeTitle: "マイルストーン達成！", milestoneCountTitle: "マイルストーン達成！", milestoneBestTitle: "自己ベスト更新！", milestoneCloseBtn: "やったー！",
         statsGroupTitle: "期間の記録",
         weeklyReportTitle: "レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比", reportSwipeHint: "左右にスワイプで前後の期間",
-        thisMonthLabel: "今月の合計", vsLastMonth: "先月比",
+        thisMonthLabel: "今月の合計", vsLastMonth: "先月比", trendThis: { week: "今週", month: "今月", year: "今年" }, trendThisPast: { week: "この週", month: "この月", year: "この年" }, trendLast: { week: "先週", month: "先月", year: "昨年" }, trendLastPast: { week: "前の週", month: "前の月", year: "前の年" }, trendStatSessions: "回数", trendStatAvg: "1回あたりの平均", trendUnitSessions: "回", trendUntil: "まで",
         thisYearLabel: "今年の合計", vsLastYear: "昨年比",
         periodWeek: "週", periodMonth: "月", periodYear: "年",
         exportTitle: "データのエクスポート",
@@ -3222,6 +3267,8 @@
       try { renderTypeBreakdown(thisStart, thisEnd); } catch(e){}
       try { renderBadges(); } catch(e){}
       try { renderPersonalBests(); } catch(e){}
+      try { renderPaceMessage(); } catch(e){ console.error("MyGym pace:", e); }
+      try { renderLifetimeStats(); } catch(e){ console.error("MyGym lifetime:", e); }
 
       try { renderPeriodReport(); } catch(e){}
     }
@@ -3345,6 +3392,191 @@
     }
 
     // 🧮 目標達成に必要なペースを計算して表示する
+    // ---- 自分のトレーニング日（ローカル日付 "YYYY-MM-DD"）を集める ----
+    function getMyTrainingDays() {
+      const days = new Map(); // day -> 合計分
+      Object.values(allLogsData).forEach(log => {
+        if (log.user !== myUserName) return;
+        const d = log.startTime ? new Date(log.startTime) : (log.date ? new Date(log.date) : null);
+        if (!d || isNaN(d.getTime())) return;
+        const key = getLocalISOString(d).slice(0, 10);
+        days.set(key, (days.get(key) || 0) + (log.duration || 0));
+      });
+      return days;
+    }
+    function dayKeyOffset(offset) {
+      const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + offset);
+      return getLocalISOString(d).slice(0, 10);
+    }
+    function daysBetweenKeys(a, b) {
+      const pa = new Date(`${a}T12:00:00`), pb = new Date(`${b}T12:00:00`);
+      return Math.round((pb - pa) / 86400000);
+    }
+
+    const PACE_ICONS = {
+      rest: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+      care: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+      good: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>',
+      hello: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'
+    };
+
+    // 最近の頻度・連続日数・空いた日数から、その人のペースに合った一言を選ぶ
+    function renderPaceMessage() {
+      const el = document.getElementById("pace-message-card");
+      if (!el || !myUserName) return;
+      const es = currentLang === 'es';
+      const days = getMyTrainingDays();
+      const today = dayKeyOffset(0);
+
+      if (days.size === 0) {
+        el.style.display = "none";
+        return;
+      }
+
+      const sortedDays = [...days.keys()].sort();
+      const lastDay = sortedDays[sortedDays.length - 1];
+      const daysSinceLast = daysBetweenKeys(lastDay, today);
+
+      // 今日(または昨日)までの連続日数
+      let streak = 0;
+      if (daysSinceLast <= 1) {
+        let off = -daysSinceLast;
+        while (days.has(dayKeyOffset(off))) { streak++; off--; }
+      }
+      const countIn = (from, to) => { let c = 0; for (let o = from; o <= to; o++) if (days.has(dayKeyOffset(o))) c++; return c; };
+      const last7 = countIn(-6, 0);
+      // その人の「いつものペース」= 直近8週(今週を除く)の週あたり日数
+      const usualPerWeek = countIn(-62, -7) / 8;
+      const hasHistory = daysBetweenKeys(sortedDays[0], today) >= 21;
+      // 直前の空白(今日/昨日の記録の1つ前との間)
+      let gapBeforeReturn = 0;
+      if (daysSinceLast <= 1 && sortedDays.length >= 2) {
+        const idx = sortedDays.indexOf(lastDay);
+        let prevIdx = idx - 1;
+        // 連続している日はさかのぼる
+        while (prevIdx >= 0 && daysBetweenKeys(sortedDays[prevIdx], sortedDays[prevIdx + 1]) === 1) prevIdx--;
+        if (prevIdx >= 0) gapBeforeReturn = daysBetweenKeys(sortedDays[prevIdx], sortedDays[prevIdx + 1]) - 1;
+      }
+      const todayMin = days.get(today) || 0;
+
+      let kind, title, body;
+      const M = (ja, esText) => es ? esText : ja;
+
+      // 普段から毎日のように行く人(直近8週で週6日以上)は、それがその人のペースなので休めとは言わない
+      const isDailyHabit = hasHistory && usualPerWeek >= 6;
+
+      if (streak >= 14 && !isDailyHabit) {
+        kind = 'rest';
+        title = M(`${streak}日連続です`, `${streak} días seguidos`);
+        body = M('ここまで続けられるのは本当にすごいです。そのぶん疲れも溜まりやすいので、軽めの日や休む日もはさんでみてください。休むのもトレーニングのうちです。',
+                 'Es impresionante mantenerlo. Aun así, el cansancio se acumula: intenta meter algún día ligero o de descanso. Descansar también es entrenar.');
+      } else if (streak >= 7 && !isDailyHabit) {
+        kind = 'rest';
+        title = M('休みはとれていますか？', '¿Estás descansando?');
+        body = M(`${streak}日続けてトレーニングしています。体がだるい、眠りが浅いなどのサインがあれば、1日休むとまた調子よく動けます。`,
+                 `Llevas ${streak} días seguidos. Si notas cansancio o duermes peor, un día de descanso te ayudará a rendir mejor.`);
+      } else if (todayMin >= 150) {
+        kind = 'rest';
+        title = M('今日はたっぷり動きましたね', 'Hoy entrenaste bastante');
+        body = M('長めのトレーニングのあとは、水分と食事、睡眠でしっかり回復してください。',
+                 'Después de una sesión larga, recupérate bien: agua, comida y sueño.');
+      } else if (daysSinceLast <= 1 && gapBeforeReturn >= 7) {
+        kind = 'hello';
+        title = M('おかえりなさい', '¡Qué bueno verte de vuelta!');
+        body = M(`${gapBeforeReturn}日ぶりのトレーニング、お疲れさまでした。久しぶりのあとは体が驚きやすいので、最初の数回は軽めがおすすめです。`,
+                 `Volviste después de ${gapBeforeReturn} días. Las primeras sesiones tras una pausa, mejor tomarlas con calma.`);
+      } else if (daysSinceLast >= 14) {
+        kind = 'care';
+        title = M(`${daysSinceLast}日空いています`, `Han pasado ${daysSinceLast} días`);
+        body = M('忙しい時期や、体調がすぐれないときもありますよね。再開するなら、10分だけ、ストレッチだけでも十分です。',
+                 'A veces hay épocas ocupadas o no te sientes bien. Si quieres retomar, 10 minutos o solo estirar ya cuenta.');
+      } else if (daysSinceLast >= 7) {
+        kind = 'care';
+        title = M('大丈夫ですか？', '¿Todo bien?');
+        body = M(`最後のトレーニングから${daysSinceLast}日たちました。無理はせず、行けそうな日にまた記録してみてください。`,
+                 `Han pasado ${daysSinceLast} días desde tu último entrenamiento. Sin presión: vuelve cuando te sientas con ganas.`);
+      } else if (hasHistory && usualPerWeek >= 2 && daysSinceLast >= Math.max(4, Math.ceil(7 / usualPerWeek) * 2)) {
+        kind = 'care';
+        title = M('いつもより少し間が空いています', 'Un poco más de pausa de lo habitual');
+        body = M(`いつもは週${Math.round(usualPerWeek)}日くらいのペースです。休めているならそれで大丈夫。体を動かしたくなったら、また気軽にどうぞ。`,
+                 `Normalmente entrenas unos ${Math.round(usualPerWeek)} días por semana. Si estás descansando, está bien. Cuando quieras, aquí estamos.`);
+      } else if (streak >= 7) {
+        // 普段から毎日行く人には、責めずに軽く声をかける
+        kind = 'good';
+        title = M('毎日のペース、続いていますね', 'Tu ritmo diario sigue firme');
+        body = M('いつものペースで安定しています。疲れを感じた日は、軽めのメニューに切り替えても大丈夫です。',
+                 'Mantienes tu ritmo de siempre. Si algún día te sientes cansado, está bien hacer algo más ligero.');
+      } else if (last7 >= 3) {
+        kind = 'good';
+        title = M('いいペースです', 'Buen ritmo');
+        body = M(`この7日間で${last7}日トレーニングしています。休む日もちゃんとあって、バランスのいい流れです。`,
+                 `Entrenaste ${last7} días en la última semana, con descanso de por medio. Muy equilibrado.`);
+      } else {
+        kind = 'good';
+        title = M('自分のペースで', 'A tu ritmo');
+        body = M(`この7日間で${last7}日。続けていることがいちばん大事です。`,
+                 `${last7} ${last7 === 1 ? 'día' : 'días'} en la última semana. Lo importante es mantenerlo.`);
+      }
+
+      const colors = { rest: '#A78BFA', care: 'var(--accent)', good: 'var(--green)', hello: 'var(--ring-inner)' };
+      const lastText = daysSinceLast === 0 ? M('今日', 'hoy') : daysSinceLast === 1 ? M('昨日', 'ayer') : M(`${daysSinceLast}日前`, `hace ${daysSinceLast} días`);
+      const facts = M(`最後のトレーニング: ${lastText}　直近7日: ${last7}日`, `Último: ${lastText} · Últimos 7 días: ${last7}`);
+
+      el.style.setProperty('--pace-color', colors[kind]);
+      el.innerHTML = `
+        <div class="pace-icon">${PACE_ICONS[kind]}</div>
+        <div style="flex:1; min-width:0;">
+          <div class="pace-title">${title}</div>
+          <div class="pace-body">${body}</div>
+          <div class="pace-facts">${facts}</div>
+        </div>`;
+      el.style.display = "flex";
+    }
+
+    // 通算の記録
+    function renderLifetimeStats() {
+      const el = document.getElementById("lifetime-card");
+      if (!el || !myUserName) return;
+      const es = currentLang === 'es';
+      let totalMin = 0, sessions = 0, first = null;
+      Object.values(allLogsData).forEach(log => {
+        if (log.user !== myUserName) return;
+        totalMin += log.duration || 0;
+        sessions++;
+        const d = log.startTime ? new Date(log.startTime) : new Date(log.date);
+        if (!isNaN(d.getTime()) && (!first || d < first)) first = d;
+      });
+      if (sessions === 0) { el.style.display = "none"; return; }
+      const trainingDays = getMyTrainingDays().size;
+      const sinceDays = first ? Math.max(1, Math.round((Date.now() - first.getTime()) / 86400000)) : 0;
+      const hours = Math.floor(totalMin / 60), mins = totalMin % 60;
+      const mainText = es
+        ? `${hours} h${mins ? ` ${mins} min` : ''}`
+        : `${hours}時間${mins ? `${mins}分` : ''}`;
+      const sinceText = first
+        ? (es ? `Desde ${first.getDate()}/${first.getMonth() + 1}/${first.getFullYear()}` : `${first.getFullYear()}年${first.getMonth() + 1}月${first.getDate()}日から`)
+        : '';
+      // ちょっとした言い換え（映画1本=2時間）
+      const movies = Math.floor(totalMin / 120);
+      const funText = movies >= 1
+        ? (es ? `Equivale a unas ${movies} películas` : `映画およそ${movies}本分`)
+        : '';
+      const cell = (v, l) => `<div class="lifetime-cell"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+      el.innerHTML = `
+        <div class="lifetime-head">
+          <div class="lifetime-title">${es ? 'Total acumulado' : '通算トレーニング時間'}</div>
+          <div class="lifetime-since">${sinceText}</div>
+        </div>
+        <div class="lifetime-main">${mainText}</div>
+        ${funText ? `<div class="lifetime-fun">${funText}</div>` : ''}
+        <div class="lifetime-grid">
+          ${cell(es ? sessions : `${sessions}回`, es ? 'Sesiones' : '回数')}
+          ${cell(es ? trainingDays : `${trainingDays}日`, es ? 'Días entrenados' : 'トレーニングした日')}
+          ${cell(es ? sinceDays : `${sinceDays}日`, es ? 'Días desde el inicio' : '始めてから')}
+        </div>`;
+      el.style.display = "block";
+    }
+
     function renderGoalPaceMessage(totalSessions, goalCount, periodStart, periodEnd) {
       const el = document.getElementById("goal-pace-text");
       if (!el) return;
@@ -3460,6 +3692,7 @@
       document.addEventListener('touchstart', (e) => {
         const swipeArea = e.target.closest('#report-swipe-area');
         if (!swipeArea) return;
+        if (e.target.closest('.trend-chart')) return; // グラフ上ではなぞって値を見るので、期間スワイプは無効
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         dragging = true;
@@ -3524,7 +3757,7 @@
       if (!myUserName) return;
       const totalEl = document.getElementById("weekly-total-text");
       const compareEl = document.getElementById("weekly-compare-text");
-      const chartEl = document.getElementById("weekly-bar-chart");
+      const chartEl = document.getElementById("trend-chart");
       const labelEl = document.getElementById("t-this-week-label");
       if (!totalEl || !chartEl) return;
       const t = i18n[currentLang];
@@ -3612,21 +3845,218 @@
         }
       }
 
-      const maxBar = Math.max(...bars, 1);
-      const now = new Date();
-      const todayBarIdx = (now >= thisStart && now < thisEnd) ? getBarIndex(now) : -1;
+      // ---- 📈 累計トレンド（この期間 vs 前の期間）----
+      let bucketCount, idxOf, labelsAll, captionOf;
+      const jaDow = ['日','月','火','水','木','金','土'];
+      const esDow = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+      if (reportPeriod === 'month') {
+        bucketCount = new Date(thisStart.getFullYear(), thisStart.getMonth() + 1, 0).getDate();
+        idxOf = (d) => d.getDate() - 1;
+        labelsAll = Array.from({ length: bucketCount }, (_, i) => `${i + 1}`);
+        captionOf = (i) => currentLang === 'es' ? `${t.trendUntil} el ${i + 1}` : `${i + 1}日${t.trendUntil}`;
+      } else if (reportPeriod === 'year') {
+        bucketCount = 12;
+        idxOf = (d) => d.getMonth();
+        labelsAll = barLabels;
+        captionOf = (i) => currentLang === 'es' ? `${t.trendUntil} ${t.months[i]}` : `${i + 1}月${t.trendUntil}`;
+      } else {
+        bucketCount = 7;
+        idxOf = (d) => d.getDay();
+        labelsAll = barLabels;
+        captionOf = (i) => currentLang === 'es' ? `${t.trendUntil} ${esDow[i]}` : `${jaDow[i]}曜${t.trendUntil}`;
+      }
+      const thisBuckets = new Array(bucketCount).fill(0);
+      const lastBuckets = new Array(bucketCount).fill(0);
+      let thisSessions = 0, lastSessions = 0;
+      Object.values(allLogsData).forEach(log => {
+        if (log.user !== myUserName || !log.startTime) return;
+        const d = new Date(log.startTime);
+        const dur = log.duration || 0;
+        if (d >= thisStart && d < thisEnd) {
+          thisSessions++;
+          const i = idxOf(d); if (i >= 0 && i < bucketCount) thisBuckets[i] += dur;
+        } else if (d >= lastStart && d < lastEnd) {
+          lastSessions++;
+          // 前の期間の方が日数が多い場合(31日→30日など)は最終日にまとめる
+          const i = Math.min(idxOf(d), bucketCount - 1); if (i >= 0) lastBuckets[i] += dur;
+        }
+      });
+      const cum = (arr) => { let acc = 0; return arr.map(v => (acc += v)); };
+      const nowD = new Date();
+      const cutoffIdx = (nowD >= thisStart && nowD < thisEnd) ? idxOf(nowD) : bucketCount - 1;
 
-      chartEl.innerHTML = bars.map((min, idx) => {
-        const heightPct = Math.max(4, Math.round((min / maxBar) * 100));
-        const isToday = idx === todayBarIdx;
-        return `
-          <div class="weekly-bar-col">
-            <div class="weekly-bar${isToday ? ' is-today' : ''}" style="height:${heightPct}%;" title="${formatTimeFriendly(min)}"></div>
-            <div class="weekly-bar-label${isToday ? ' is-today' : ''}">${barLabels[idx]}</div>
-          </div>
-        `;
-      }).join("");
+      let pillIdxs;
+      if (reportPeriod === 'month') pillIdxs = [0, 7, 14, 21, 28].filter(i => i < bucketCount);
+      else if (reportPeriod === 'year') pillIdxs = [0, 2, 4, 6, 8, 10];
+      else pillIdxs = [0, 1, 2, 3, 4, 5, 6];
+
+      const isPast = reportPeriodOffset !== 0;
+      trendState = {
+        thisCum: cum(thisBuckets),
+        lastCum: cum(lastBuckets),
+        cutoffIdx,
+        labelsAll,
+        pillIdxs,
+        captionOf,
+        thisName: (isPast && t.trendThisPast ? t.trendThisPast : t.trendThis)[reportPeriod],
+        lastName: (isPast && t.trendLastPast ? t.trendLastPast : t.trendLast)[reportPeriod],
+        scrubIdx: cutoffIdx
+      };
+      renderTrendChart();
+
+      // ---- 回数・1回あたりの平均（前の期間との比較）----
+      const statsEl = document.getElementById("trend-stats");
+      if (statsEl) {
+        const lastNameLong = currentLang === 'es' ? t.trendLastLong[reportPeriod] : trendState.lastName;
+        const diffText = (diff, fmt) => {
+          if (diff === 0) return currentLang === 'es' ? `${t.trendSame} ${lastNameLong}` : `${lastNameLong}と同じ`;
+          const abs = fmt(Math.abs(diff));
+          if (currentLang === 'es') return `${abs} ${diff > 0 ? t.trendMore : t.trendLess} ${lastNameLong}`;
+          return `${lastNameLong}より${abs}${diff > 0 ? '多い' : '少ない'}`;
+        };
+        const sessFmt = (n) => currentLang === 'es' ? `${n} ${t.trendUnitSessions}` : `${n}${t.trendUnitSessions}`;
+        const thisAvg = thisSessions ? Math.round(thisTotal / thisSessions) : 0;
+        const lastAvg = lastSessions ? Math.round(lastTotal / lastSessions) : 0;
+        const row = (label, value, diff, fmt, hasLast) => `
+          <div class="trend-stat-row">
+            <div>
+              <div class="trend-stat-label">${label}</div>
+              <div class="trend-stat-value">${value}</div>
+            </div>
+            <div class="trend-stat-diff ${hasLast && diff > 0 ? 'up' : hasLast && diff < 0 ? 'down' : ''}">${hasLast ? diffText(diff, fmt) : ''}</div>
+          </div>`;
+        statsEl.innerHTML =
+          row(t.trendStatSessions, sessFmt(thisSessions), thisSessions - lastSessions, sessFmt, lastSessions > 0) +
+          row(t.trendStatAvg, thisSessions ? formatTimeFriendly(thisAvg) : '—', thisAvg - lastAvg, formatTimeFriendly, lastSessions > 0 && thisSessions > 0);
+      }
     }
+
+    let trendState = null;
+
+    // なめらかだけど行き過ぎない曲線（累計なので途中で下がって見えないように単調補間）
+    function monotonePath(pts) {
+      const n = pts.length;
+      if (n === 0) return "";
+      if (n === 1) return `M${pts[0][0]},${pts[0][1]}`;
+      const m = [], tg = new Array(n);
+      for (let i = 0; i < n - 1; i++) m.push((pts[i + 1][1] - pts[i][1]) / (pts[i + 1][0] - pts[i][0]));
+      tg[0] = m[0]; tg[n - 1] = m[n - 2];
+      for (let i = 1; i < n - 1; i++) tg[i] = (m[i - 1] * m[i] <= 0) ? 0 : (m[i - 1] + m[i]) / 2;
+      for (let i = 0; i < n - 1; i++) {
+        if (m[i] === 0) { tg[i] = 0; tg[i + 1] = 0; continue; }
+        const a = tg[i] / m[i], b = tg[i + 1] / m[i], sq = a * a + b * b;
+        if (sq > 9) { const tau = 3 / Math.sqrt(sq); tg[i] = tau * a * m[i]; tg[i + 1] = tau * b * m[i]; }
+      }
+      let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+      for (let i = 0; i < n - 1; i++) {
+        const dx = (pts[i + 1][0] - pts[i][0]) / 3;
+        d += ` C${(pts[i][0] + dx).toFixed(1)},${(pts[i][1] + tg[i] * dx).toFixed(1)} ${(pts[i + 1][0] - dx).toFixed(1)},${(pts[i + 1][1] - tg[i + 1] * dx).toFixed(1)} ${pts[i + 1][0].toFixed(1)},${pts[i + 1][1].toFixed(1)}`;
+      }
+      return d;
+    }
+
+    function renderTrendChart() {
+      const el = document.getElementById("trend-chart");
+      if (!el || !trendState) return;
+      const st = trendState;
+      const W = Math.max(200, Math.round(el.clientWidth || 300));
+      const H = 130, PAD_T = 10, PAD_B = 6;
+      const n = st.thisCum.length;
+      const maxY = Math.max(1, ...st.thisCum.slice(0, st.cutoffIdx + 1), ...st.lastCum) * 1.12;
+      const xAt = (i) => n === 1 ? W / 2 : (i / (n - 1)) * W;
+      const yAt = (v) => PAD_T + (H - PAD_T - PAD_B) * (1 - v / maxY);
+      st.W = W; st.xAt = xAt; st.yAt = yAt;
+
+      const thisPts = st.thisCum.slice(0, st.cutoffIdx + 1).map((v, i) => [xAt(i), yAt(v)]);
+      const lastPts = st.lastCum.map((v, i) => [xAt(i), yAt(v)]);
+      const thisLine = monotonePath(thisPts);
+      const lastLine = monotonePath(lastPts);
+      const areaPath = thisPts.length > 1
+        ? `${thisLine} L${thisPts[thisPts.length - 1][0].toFixed(1)},${H} L${thisPts[0][0].toFixed(1)},${H} Z` : "";
+
+      el.innerHTML = `
+        <div class="trend-bubbles" id="trend-bubbles"></div>
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="trendAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#2F8FFF" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="trendLineGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#2F8FFF"/>
+              <stop offset="100%" stop-color="#2DD4BF"/>
+            </linearGradient>
+          </defs>
+          ${areaPath ? `<path d="${areaPath}" fill="url(#trendAreaGrad)"/>` : ''}
+          <path d="${lastLine}" fill="none" stroke="rgba(139,147,167,0.75)" stroke-width="1.6" stroke-dasharray="3 4" stroke-linecap="round"/>
+          ${thisPts.length > 1 ? `<path d="${thisLine}" fill="none" stroke="url(#trendLineGrad)" stroke-width="2.6" stroke-linecap="round" style="filter: drop-shadow(0 0 6px rgba(45,212,191,0.45));"/>` : ''}
+          <line id="trend-scrub-line" x1="0" x2="0" y1="0" y2="${H}" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+          <circle id="trend-scrub-last" r="3.5" fill="#0B0F19" stroke="rgba(139,147,167,0.9)" stroke-width="1.5"/>
+          <circle id="trend-scrub-this" r="5" fill="#fff" stroke="#2DD4BF" stroke-width="2.5"/>
+        </svg>
+        <div class="trend-labels">${st.pillIdxs.map(i => `<div class="trend-label-pill" data-idx="${i}">${st.labelsAll[i]}</div>`).join("")}</div>
+      `;
+      updateTrendScrub(st.scrubIdx);
+      setupTrendChartEvents(el);
+    }
+
+    function updateTrendScrub(idx) {
+      const st = trendState;
+      if (!st || !st.xAt) return;
+      const n = st.thisCum.length;
+      idx = Math.max(0, Math.min(n - 1, idx));
+      st.scrubIdx = idx;
+      const x = st.xAt(idx);
+      const hasThis = idx <= st.cutoffIdx;
+      const line = document.getElementById("trend-scrub-line");
+      const cThis = document.getElementById("trend-scrub-this");
+      const cLast = document.getElementById("trend-scrub-last");
+      if (line) { line.setAttribute("x1", x); line.setAttribute("x2", x); }
+      if (cLast) { cLast.setAttribute("cx", x); cLast.setAttribute("cy", st.yAt(st.lastCum[idx])); }
+      if (cThis) { cThis.setAttribute("cx", x); cThis.setAttribute("cy", st.yAt(hasThis ? st.thisCum[idx] : 0)); cThis.style.display = hasThis ? "" : "none"; }
+
+      const bubbles = document.getElementById("trend-bubbles");
+      if (bubbles) {
+        bubbles.innerHTML = `
+          <div class="trend-bubble-row">
+            <span class="trend-pill last">${st.lastName} ${formatTimeFriendly(st.lastCum[idx])}</span>
+            ${hasThis ? `<span class="trend-pill this">${st.thisName} ${formatTimeFriendly(st.thisCum[idx])}</span>` : ''}
+          </div>
+          <div class="trend-caption">${st.captionOf(idx)}</div>`;
+        const bw = bubbles.offsetWidth;
+        bubbles.style.left = `${Math.max(0, Math.min(st.W - bw, x - bw / 2))}px`;
+      }
+      // 下のラベルは、なぞっている位置に一番近いものを光らせる
+      let nearest = st.pillIdxs[0];
+      st.pillIdxs.forEach(i => { if (i <= idx) nearest = i; });
+      document.querySelectorAll("#trend-chart .trend-label-pill").forEach(p => {
+        p.classList.toggle("active", Number(p.dataset.idx) === nearest);
+      });
+    }
+
+    function setupTrendChartEvents(el) {
+      if (el.dataset.bound) return;
+      el.dataset.bound = "1";
+      let active = false, lastIdx = -1;
+      const idxFromEvent = (clientX) => {
+        const st = trendState; if (!st) return 0;
+        const rect = el.getBoundingClientRect();
+        const ratio = (clientX - rect.left) / rect.width;
+        return Math.round(ratio * (st.thisCum.length - 1));
+      };
+      const move = (clientX) => {
+        const i = idxFromEvent(clientX);
+        if (i !== lastIdx) { lastIdx = i; updateTrendScrub(i); try { playSound('tick'); } catch (e) {} }
+      };
+      el.addEventListener("pointerdown", (e) => { active = true; lastIdx = -1; move(e.clientX); });
+      el.addEventListener("pointermove", (e) => { if (active || e.pointerType === "mouse") move(e.clientX); });
+      const end = () => { active = false; };
+      el.addEventListener("pointerup", end);
+      el.addEventListener("pointercancel", end);
+      el.addEventListener("pointerleave", end);
+    }
+
+    window.addEventListener("resize", () => { try { renderTrendChart(); } catch (e) {} });
 
     function t_vsLastWeekLabel() {
       return i18n[currentLang].vsLastWeek;
