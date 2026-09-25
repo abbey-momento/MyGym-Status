@@ -343,6 +343,12 @@
     .notif-item { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; transition: 0.2s; }
     .notif-item:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
 
+    .race-metric-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 3px; margin-bottom: 6px; overflow-x: auto; scrollbar-width: none; }
+    .race-metric-tabs::-webkit-scrollbar { display: none; }
+    .race-metric-tabs button { flex: 1 0 auto; background: transparent; border: none; color: var(--text-sub); font-weight: 700; font-size: 0.72rem; padding: 7px 8px; border-radius: 9px; cursor: pointer; font-family: inherit; white-space: nowrap; transition: 0.2s; }
+    .race-metric-tabs button.active { background: var(--accent-gradient); color: #0B0F19; }
+    .race-metric-note { font-size: 0.68rem; color: var(--text-sub); font-weight: 700; min-height: 0; margin-bottom: 8px; }
+    .race-metric-note:empty { display: none; }
     .race-card-item { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 9px 12px; margin-bottom: 8px; position: relative; overflow: hidden; transition: 0.2s; }
     .race-card-item.is-me { border-color: var(--ring-inner); box-shadow: 0 0 10px rgba(45, 212, 191, 0.1); }
     .race-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; position: relative; z-index: 2; }
@@ -929,6 +935,14 @@
         </button>
       </div>
       <div id="race-countdown" style="font-size:0.75rem; color:var(--text-sub); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:5px; font-family:'LINE Seed JP', sans-serif;"></div>
+      <div class="race-metric-tabs" id="race-metric-tabs">
+        <button data-metric="total" onclick="setRaceMetric('total')" id="t-race-m-total">総時間</button>
+        <button data-metric="strength" onclick="setRaceMetric('strength')" id="t-race-m-strength">筋トレ</button>
+        <button data-metric="cardio" onclick="setRaceMetric('cardio')" id="t-race-m-cardio">有酸素</button>
+        <button data-metric="days" onclick="setRaceMetric('days')" id="t-race-m-days">日数</button>
+        <button data-metric="goal" onclick="setRaceMetric('goal')" id="t-race-m-goal">達成率</button>
+      </div>
+      <div class="race-metric-note" id="race-metric-note"></div>
       <div id="race-podium-container"></div>
       <div id="race-list-container" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
@@ -1572,7 +1586,7 @@
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak", calTodayBtn: "Hoy",
         calFilterAll: "Todos", calFilterMe: "Yo", calSelectedUserPrefix: "Viendo: ",
-        raceTitle: "Energy Race", timelineTitle: "Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
+        raceTitle: "Energy Race", raceMTotal: "Total", raceMStrength: "Fuerza", raceMCardio: "Cardio", raceMDays: "Días", raceMGoal: "Meta %", raceNoteDays: "Cuenta los días que entrenaste (máx. 1 por día)", raceNoteGoal: "% de tu meta mensual de sesiones (máx. 100%)", raceNoGoal: "Sin meta", raceUnitDays: "días", raceSessions: "sesiones", timelineTitle: "Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
         myTitle: "Mi Perfil", manualTitle: "Añadir registro manual", manualTitleShort: "Añadir", btnAdd: "Añadir", historyTitle: "Historial Reciente", logout: "Cerrar sesión",
         deleteAccountBtn: "Eliminar cuenta",
         aboutLink: "Acerca de esta app",
@@ -1658,7 +1672,7 @@
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続", calTodayBtn: "今日",
         calFilterAll: "全員", calFilterMe: "自分", calSelectedUserPrefix: "選択中：",
-        raceTitle: "エネルギーレース", timelineTitle: "アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
+        raceTitle: "エネルギーレース", raceMTotal: "総時間", raceMStrength: "筋トレ", raceMCardio: "有酸素", raceMDays: "日数", raceMGoal: "達成率", raceNoteDays: "トレーニングした日数（1日何回でも1日）", raceNoteGoal: "各自の今月の回数目標に対する達成率（100%で頭打ち）", raceNoGoal: "目標未設定", raceUnitDays: "日", raceSessions: "回", timelineTitle: "アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
         myTitle: "マイページ", manualTitle: "過去の記録を手動追加", manualTitleShort: "追加", btnAdd: "追加", historyTitle: "最近の履歴", logout: "ログアウト",
         deleteAccountBtn: "アカウントを削除",
         aboutLink: "このアプリについて",
@@ -1749,6 +1763,11 @@
     let allLogsData = {};
     let allNotifications = {};
     let usersPrivacyData = {}; 
+    let usersGoalData = {};
+    let raceMetric = (() => {
+      try { const v = localStorage.getItem("gym_race_metric"); if (["total","strength","cardio","days","goal"].includes(v)) return v; } catch (e) {}
+      return "total";
+    })();
     let allMonthlyResults = {};
     let allHalfYearResults = {};
     let allYearResults = {};
@@ -1980,6 +1999,11 @@
       setT("t-stat-time", t.statTime);
       setT("t-stat-streak", t.statStreak);
       setT("t-race-title", t.raceTitle);
+      setT("t-race-m-total", t.raceMTotal);
+      setT("t-race-m-strength", t.raceMStrength);
+      setT("t-race-m-cardio", t.raceMCardio);
+      setT("t-race-m-days", t.raceMDays);
+      setT("t-race-m-goal", t.raceMGoal);
       setT("t-timeline-title", t.timelineTitle);
       setT("t-load-more", t.loadMore);
       setT("t-my-logs-load-more", t.loadMore);
@@ -2303,6 +2327,7 @@
             set(ref(db, `users/${newName}/milestoneProgress`), mSnap.val());
           }
         } catch (e) {}
+        set(ref(db, `users/${newName}/goalCounts`), goalCounts);
 
         // 古い名前のノードを丸ごと削除（放置すると後で同じ名前を使った人にデータが引き継がれてしまうため）
         remove(ref(db, `users/${oldName}`));
@@ -3749,8 +3774,16 @@
         goalCounts[reportPeriod] = val;
         localStorage.setItem("gym_goal_counts", JSON.stringify(goalCounts));
         updateStreakAndGoals();
+        try { syncMyGoalToDb(); } catch(e){}
       }
     };
+
+    function syncMyGoalToDb() {
+      if (!myUserName) return;
+      const current = usersGoalData[myUserName];
+      if (current && JSON.stringify(current) === JSON.stringify(goalCounts)) return;
+      set(ref(db, `users/${myUserName}/goalCounts`), goalCounts);
+    }
 
     // 💬 いいね・コメントの対象を「通常のログ」と「チャンピオン発表（月/半期/年）」の両方に対応させるヘルパー
     function getChampResultsMeta(key) {
@@ -4137,9 +4170,13 @@
     onValue(ref(db, "users"), (snapshot) => {
       const data = snapshot.val() || {};
       usersPrivacyData = {};
+      usersGoalData = {};
       Object.entries(data).forEach(([u, obj]) => {
         if(obj.privacy) usersPrivacyData[u] = obj.privacy;
+        if(obj.goalCounts) usersGoalData[u] = obj.goalCounts;
       });
+      // 自分の目標は端末(localStorage)にあるので、家族の達成率ランキング用にFirebaseにも同期しておく
+      try { syncMyGoalToDb(); } catch(e){}
       // プライバシーが更新されたら再描画
       try { updateHomeStatusText(); } catch(e){}
       try { renderActiveUsersDetail(); } catch(e){}
@@ -5061,9 +5098,11 @@
       selectCalendarDay(selectedDateStr, null, false);
     }
 
-    function buildPodiumHtml(top3) {
+    function buildPodiumHtml(top3, opts = {}) {
       const t = i18n[currentLang];
-      const leaderMin = top3[0] ? top3[0][1].totalMin : 0;
+      const valueOf = opts.valueOf || ((d) => d.totalMin);
+      const fmt = opts.format || formatTimeFriendly;
+      const leaderMin = top3[0] ? valueOf(top3[0][1]) : 0;
       const slotOrder = [1, 0, 2]; // render 2nd, 1st, 3rd left-to-right
       let podiumHtml = '<div class="podium-wrap">';
       const titleHolder = getTitleHolder();
@@ -5074,7 +5113,7 @@
         const isMe = user === myUserName;
         const dName = (isMe || data.showName) ? user : t.anonUser;
         const medalEmoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : '🥉';
-        const gap = leaderMin - data.totalMin;
+        const gap = leaderMin - valueOf(data);
         const isTitleHolder = titleHolder && titleHolder.user === user;
 
         podiumHtml += `
@@ -5082,8 +5121,8 @@
             ${rank === 1 ? '<div class="p-crown">👑<span class="p-sparkle s1">✨</span><span class="p-sparkle s2">✨</span></div>' : ''}
             <div class="podium-avatar rank${rank}-avatar${isMe ? ' is-me-avatar' : ''}">${data.avatar}</div>
             <div class="podium-name${isTitleHolder ? ' is-title-holder' : ''}">${dName}${isTitleHolder ? ' <span class="title-crown-badge">👑</span>' : ''}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
-            <div class="podium-score">${formatTimeFriendly(data.totalMin)}</div>
-            ${rank !== 1 && gap > 0 ? `<div class="podium-gap">-${formatTimeFriendly(gap)}</div>` : ''}
+            <div class="podium-score">${fmt(valueOf(data), data)}</div>
+            ${rank !== 1 && gap > 0 ? `<div class="podium-gap">-${fmt(gap)}</div>` : ''}
             <div class="podium-base base-${rank}">${medalEmoji}</div>
           </div>
         `;
@@ -5140,10 +5179,23 @@
       el.innerHTML = `${CALENDAR_ICON_SVG}<span>${text}</span>`;
     }
 
+    window.setRaceMetric = (metric) => {
+      playSound('click');
+      raceMetric = metric;
+      try { localStorage.setItem("gym_race_metric", metric); } catch (e) {}
+      renderEnergyRace();
+    };
+
     function renderEnergyRace() {
       const t = i18n[currentLang];
       const currentMonth = getLocalISOString(new Date()).slice(0, 7);
       const userTotals = {}; 
+
+      document.querySelectorAll("#race-metric-tabs button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.metric === raceMetric);
+      });
+      const noteEl = document.getElementById("race-metric-note");
+      if (noteEl) noteEl.textContent = raceMetric === 'days' ? t.raceNoteDays : raceMetric === 'goal' ? t.raceNoteGoal : "";
 
       Object.values(allLogsData).forEach(log => {
         const p = getPrivacy(log.user);
@@ -5153,49 +5205,87 @@
 
         if (log.month === currentMonth) {
           if (!userTotals[log.user]) {
-            userTotals[log.user] = { totalMin: 0, avatar: log.avatar || "👤", showName: p.showName };
+            userTotals[log.user] = { totalMin: 0, strengthMin: 0, cardioMin: 0, sessions: 0, daySet: new Set(), avatar: log.avatar || "👤", showName: p.showName };
           }
-          userTotals[log.user].totalMin += log.duration;
-          userTotals[log.user].avatar = log.avatar || userTotals[log.user].avatar;
+          const u = userTotals[log.user];
+          const dur = log.duration || 0;
+          u.totalMin += dur;
+          u.sessions++;
+          if (log.date) u.daySet.add(log.date.slice(0, 10));
+          if (log.typeSplit) {
+            u.strengthMin += log.typeSplit.strength || 0;
+            u.cardioMin += log.typeSplit.cardio || 0;
+          } else {
+            // 種類の分け方が入る前の古い記録は、他の画面と同じく筋トレ扱い
+            const legacy = log.type || 'strength';
+            if (legacy === 'strength') u.strengthMin += dur;
+            else if (legacy === 'cardio') u.cardioMin += dur;
+          }
+          u.avatar = log.avatar || u.avatar;
         }
       });
 
-      const sorted = Object.entries(userTotals).sort((a, b) => b[1].totalMin - a[1].totalMin);
+      Object.entries(userTotals).forEach(([user, u]) => {
+        u.days = u.daySet.size;
+        const g = usersGoalData[user] || (user === myUserName ? goalCounts : null);
+        u.goalCount = g && g.month > 0 ? g.month : 0;
+        u.goalPct = u.goalCount ? Math.min(100, Math.round((u.sessions / u.goalCount) * 100)) : null;
+      });
+
+      const unitDays = (n) => currentLang === 'es' ? `${n} ${t.raceUnitDays}` : `${n}${t.raceUnitDays}`;
+      const METRICS = {
+        total:    { valueOf: d => d.totalMin,    format: (v) => formatTimeFriendly(v) },
+        strength: { valueOf: d => d.strengthMin, format: (v) => formatTimeFriendly(v) },
+        cardio:   { valueOf: d => d.cardioMin,   format: (v) => formatTimeFriendly(v) },
+        days:     { valueOf: d => d.days,        format: (v) => unitDays(v) },
+        goal:     { valueOf: d => d.goalPct || 0, format: (v) => `${v}%` }
+      };
+      const m = METRICS[raceMetric] || METRICS.total;
+
+      let entries = Object.entries(userTotals);
+      let noGoalEntries = [];
+      if (raceMetric === 'goal') {
+        noGoalEntries = entries.filter(([, d]) => d.goalPct === null);
+        entries = entries.filter(([, d]) => d.goalPct !== null);
+      }
+      // 同点のときは行った日数→回数の順で比べる（時間では比べない）
+      const sorted = entries.sort((a, b) =>
+        (m.valueOf(b[1]) - m.valueOf(a[1])) || (b[1].days - a[1].days) || (b[1].sessions - a[1].sessions));
+
       const podiumEl = document.getElementById("race-podium-container");
       const listEl = document.getElementById("race-list-container");
       if(!listEl) return;
 
       renderCountdown();
       
-      if (sorted.length === 0) { 
+      if (sorted.length === 0 && noGoalEntries.length === 0) { 
         if(podiumEl) podiumEl.innerHTML = "";
         listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`; 
         return; 
       }
 
-      const maxMin = sorted[0][1].totalMin || 1;
-      const leaderMin = sorted[0][1].totalMin;
+      const leaderVal = sorted.length ? m.valueOf(sorted[0][1]) : 0;
+      const maxVal = raceMetric === 'goal' ? 100 : (leaderVal || 1);
 
       const top3 = sorted.slice(0, 3);
       const rest = sorted.slice(3);
 
-      if (podiumEl) podiumEl.innerHTML = buildPodiumHtml(top3);
-
-      if (rest.length === 0) {
-        listEl.innerHTML = "";
-        return;
-      }
+      if (podiumEl) podiumEl.innerHTML = top3.length ? buildPodiumHtml(top3, { valueOf: m.valueOf, format: m.format }) : "";
 
       const titleHolderRest = getTitleHolder();
-      listEl.innerHTML = rest.map(([user, data], idx) => {
-        const rank = idx + 4;
+      const buildCard = (user, data, rank) => {
         const isMe = user === myUserName;
         const dName = (isMe || data.showName) ? user : t.anonUser;
-        const percentage = Math.min(100, Math.max(8, Math.round((data.totalMin / maxMin) * 100)));
-        const gapMin = leaderMin - data.totalMin;
-        const gapText = gapMin > 0 
-          ? (currentLang === 'es' ? `${formatTimeFriendly(gapMin)} para el líder` : `首位まであと${formatTimeFriendly(gapMin)}`) 
-          : (currentLang === 'es' ? 'Total Energy' : 'Total Energy');
+        const val = m.valueOf(data);
+        const hasScore = !(raceMetric === 'goal' && data.goalPct === null);
+        const percentage = hasScore ? Math.min(100, Math.max(8, Math.round((val / maxVal) * 100))) : 0;
+        const gap = leaderVal - val;
+        let subText;
+        if (!hasScore) subText = t.raceNoGoal;
+        else if (raceMetric === 'goal') subText = currentLang === 'es' ? `${data.sessions}/${data.goalCount} ${t.raceSessions}` : `${data.sessions}/${data.goalCount}${t.raceSessions}`;
+        else if (gap > 0) subText = currentLang === 'es' ? `${m.format(gap)} para el líder` : `首位まであと${m.format(gap)}`;
+        else subText = 'Total Energy';
+        const mainText = hasScore ? m.format(val) : '—';
 
         let cardClass = "race-card-item";
         if (isMe) cardClass += " is-me";
@@ -5210,12 +5300,12 @@
                   <div class="race-name${isTitleHolder ? ' is-title-holder' : ''}">
                     ${dName}${isTitleHolder ? ' <span class="title-crown-badge">👑</span>' : ''} ${isMe ? '<span class="you-tag">YOU</span>' : ''}
                   </div>
-                  <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">#${rank}</div>
+                  <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">${rank ? `#${rank}` : ''}</div>
                 </div>
               </div>
               <div class="race-score-wrap">
-                <div class="race-score-main">${formatTimeFriendly(data.totalMin)}</div>
-                <div class="race-score-sub">${gapText}</div>
+                <div class="race-score-main">${mainText}</div>
+                <div class="race-score-sub">${subText}</div>
               </div>
             </div>
             <div class="race-bar-container">
@@ -5223,7 +5313,11 @@
             </div>
           </div>
         `;
-      }).join("");
+      };
+
+      listEl.innerHTML =
+        rest.map(([user, data], idx) => buildCard(user, data, idx + 4)).join("") +
+        noGoalEntries.map(([user, data]) => buildCard(user, data, null)).join("");
     }
 
     window.renderMyLogs = () => {
