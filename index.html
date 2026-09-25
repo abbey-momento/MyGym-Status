@@ -152,12 +152,16 @@
     .avatar-option.selected { border-color: var(--accent); background: rgba(47, 143, 255,0.2); transform: scale(1.05); }
     
     .btn-primary { width: 100%; background: var(--accent-gradient); color: #0B0F19; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(47, 143, 255,0.3); }
+    .text-link-discard { display: block; margin: 14px auto 2px; background: none; border: none; padding: 6px 10px; color: var(--text-sub); font-size: 0.8rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-family: inherit; transition: color 0.2s; }
+    .text-link-discard:hover, .text-link-discard:active { color: var(--red); }
     .btn-secondary { width: 100%; background: rgba(47, 143, 255,0.1); color: var(--accent); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; margin-top: 8px; }
     
     .home-status-box { background: rgba(0,0,0,0.3); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 10px; border: 1px solid var(--card-border); }
     .home-status-title { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
     .home-status-text { font-size: 1rem; font-weight: 700; color: white; }
     .status-free { color: var(--green); text-shadow: 0 0 8px rgba(52,211,153,0.4); }
+    .status-outside { color: var(--ring-inner); text-shadow: 0 0 8px rgba(45,212,191,0.35); }
+    .home-status-sub { display: block; margin-top: 4px; font-size: 0.72rem; font-weight: 700; color: var(--green); text-shadow: none; }
 
     /* 🏆 称号バナー（現チャンピオン） */
     .champion-banner {
@@ -574,6 +578,7 @@
         <span id="t-btn-save-log">Guardar Registro</span>
       </button>
       <button class="btn-secondary" onclick="cancelStopTimer()" id="t-btn-cancel-stop">Seguir entrenando</button>
+      <button class="text-link-discard" onclick="discardTrainingLog()" id="t-btn-discard-log">No guardar</button>
     </div>
   </div>
 
@@ -1563,7 +1568,7 @@
       es: {
         modalTitle: "Bienvenido", modalName: "Tu nombre", modalAvatar: "Avatar", btnRegister: "Comenzar",
         editTitle: "Editar Perfil", editName: "Tu nombre", editAvatar: "Avatar", btnSave: "Guardar", btnCancel: "Cancelar", editBtn: "Editar Perfil",
-        homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusy: "está entrenando", statusMulti: "personas entrenando", activeStatusLabel: "Entrenando", activeStatusLabelOutside: "Entrenando fuera",
+        homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusyOutside: "está entrenando fuera", statusMultiOutside: "personas entrenando fuera", statusHomeFreeSub: "El gimnasio de casa está libre", statusBusy: "está entrenando", statusMulti: "personas entrenando", activeStatusLabel: "Entrenando", activeStatusLabelOutside: "Entrenando fuera",
         btnStart: "EMPEZAR", btnStop: "TERMINAR",
         statDays: "Días", statTime: "Total", statStreak: "Streak", calTodayBtn: "Hoy",
         calFilterAll: "Todos", calFilterMe: "Yo", calSelectedUserPrefix: "Viendo: ",
@@ -1591,7 +1596,7 @@
         paceAchieved: "¡Meta ya cumplida este mes!",
         pacePerDay: "Necesitas entrenar {count} veces al día para llegar a la meta",
         paceInterval: "Quedan {daysLeft} días para {remaining} sesiones — entrena cada {interval} día(s) para lograrlo",
-        memoTitle: "¡Buen trabajo!", btnSaveLog: "Guardar", btnCancelStop: "Seguir entrenando",
+        memoTitle: "¡Buen trabajo!", btnSaveLog: "Guardar", btnCancelStop: "Seguir entrenando", btnDiscardLog: "Descartar sin guardar", confirmDiscardLog: "¿Descartar este entrenamiento sin guardarlo? No se podrá recuperar.",
         editLogTitle: "Editar Registro", btnSaveEditLog: "Guardar Cambios", btnCancelEditLog: "Cancelar",
         labelFrom: "Desde", labelTo: "Hasta", editLabelFrom: "Desde", editLabelTo: "Hasta",
         unitMin: "min", unitHour: "h", unitCount: " veces", btnDelete: "Borrar", btnEditLog: "Editar",
@@ -1649,7 +1654,7 @@
       ja: {
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる",
         editTitle: "プロフィール編集", editName: "あなたの名前", editAvatar: "アバター", btnSave: "保存する", btnCancel: "キャンセル", editBtn: "プロフィール編集",
-        homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中", activeStatusLabel: "トレーニング中", activeStatusLabelOutside: "外でトレーニング中",
+        homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusyOutside: "さんが外でトレーニング中", statusMultiOutside: "人が外でトレーニング中", statusHomeFreeSub: "家のジムは空いています", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中", activeStatusLabel: "トレーニング中", activeStatusLabelOutside: "外でトレーニング中",
         btnStart: "スタート", btnStop: "ストップ",
         statDays: "日数", statTime: "合計", statStreak: "連続", calTodayBtn: "今日",
         calFilterAll: "全員", calFilterMe: "自分", calSelectedUserPrefix: "選択中：",
@@ -1677,7 +1682,7 @@
         paceAchieved: "今月の目標はもう達成しています！",
         pacePerDay: "目標達成には1日に{count}回以上のペースが必要です",
         paceInterval: "残り{daysLeft}日で{remaining}回。{interval}日に1回のペースで行けば達成できます",
-        memoTitle: "お疲れ様でした！", btnSaveLog: "保存", btnCancelStop: "やっぱり続ける",
+        memoTitle: "お疲れ様でした！", btnSaveLog: "保存", btnCancelStop: "やっぱり続ける", btnDiscardLog: "保存せずに破棄", confirmDiscardLog: "この記録を保存せずに破棄しますか？元に戻せません。",
         editLogTitle: "記録を編集", btnSaveEditLog: "変更を保存", btnCancelEditLog: "キャンセル",
         labelFrom: "開始時間", labelTo: "終了時間", editLabelFrom: "開始時間", editLabelTo: "終了時間",
         unitMin: "分", unitHour: "時間", unitCount: "回", btnDelete: "削除", btnEditLog: "編集",
@@ -1987,6 +1992,7 @@
       setT("t-memo-title", t.memoTitle);
       setT("t-btn-save-log", t.btnSaveLog);
       setT("t-btn-cancel-stop", t.btnCancelStop);
+      setT("t-btn-discard-log", t.btnDiscardLog);
       setT("t-edit-log-title", t.editLogTitle);
       setT("t-btn-save-edit-log", t.btnSaveEditLog);
       setT("t-btn-cancel-edit-log", t.btnCancelEditLog);
@@ -2682,6 +2688,23 @@
       document.querySelectorAll("#memo-type-toggle .exercise-type-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.type === "strength");
       });
+    };
+
+    // 記録を残さずにタイマーだけ終了する（押し間違い・計測ミス用）
+    window.discardTrainingLog = () => {
+      if (!myUserName) return;
+      if (!confirm(i18n[currentLang].confirmDiscardLog)) return;
+      playSound('click');
+      remove(ref(db, `current/${myUserName}`));
+      document.getElementById("memo-modal").style.display = "none";
+      document.getElementById("trainingMemoInput").value = "";
+      pendingTimerStartTime = null;
+      pendingMemoDurationMin = 0;
+      selectedExerciseTypes = new Set(["strength"]);
+      document.querySelectorAll("#memo-type-toggle .exercise-type-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.type === "strength");
+      });
+      renderTypeSplitInputs("memo-type-split", selectedExerciseTypes, null, 0);
     };
 
     window.submitTrainingLog = (skipMemo = false) => {
@@ -3887,20 +3910,36 @@
       const statusEl = document.getElementById("home-status-text");
       if(!statusEl) return;
 
-      const users = Object.keys(activeUsersData).filter(u => (activeUsersData[u].location || 'home') === 'home');
-      
-      if (users.length === 0) {
-        statusEl.innerText = t.statusFree;
+      const allActive = Object.keys(activeUsersData);
+      const users = allActive.filter(u => (activeUsersData[u].location || 'home') === 'home');
+      const outsideUsers = allActive.filter(u => (activeUsersData[u].location || 'home') !== 'home');
+      const displayNameOf = (u) => (u === myUserName || getPrivacy(u).showName) ? u : t.anonUser;
+      const join = (a, b) => currentLang === 'es' ? `${a} ${b}` : `${a}${b}`;
+
+      // 前の状態のインライン色が残らないように毎回リセット
+      statusEl.style.color = "";
+      statusEl.textContent = "";
+
+      if (users.length === 0 && outsideUsers.length > 0) {
+        // 家のジムは空いているが、誰かが外でトレーニング中
+        const main = outsideUsers.length === 1
+          ? join(displayNameOf(outsideUsers[0]), t.statusBusyOutside)
+          : join(outsideUsers.length, t.statusMultiOutside);
+        statusEl.appendChild(document.createTextNode(main));
+        const sub = document.createElement("span");
+        sub.className = "home-status-sub";
+        sub.textContent = t.statusHomeFreeSub;
+        statusEl.appendChild(sub);
+        statusEl.className = "home-status-text status-outside";
+      } else if (users.length === 0) {
+        statusEl.textContent = t.statusFree;
         statusEl.className = "home-status-text status-free";
       } else if (users.length === 1) {
-        const u = users[0];
-        const priv = getPrivacy(u);
-        const dName = (u === myUserName || priv.showName) ? u : t.anonUser;
-        statusEl.innerText = currentLang === 'es' ? `${dName} ${t.statusBusy}` : `${dName}${t.statusBusy}`;
+        statusEl.textContent = join(displayNameOf(users[0]), t.statusBusy);
         statusEl.className = "home-status-text";
         statusEl.style.color = "var(--ring-outer)";
       } else {
-        statusEl.innerText = currentLang === 'es' ? `${users.length} ${t.statusMulti}` : `${users.length}${t.statusMulti}`;
+        statusEl.textContent = join(users.length, t.statusMulti);
         statusEl.className = "home-status-text";
         statusEl.style.color = "var(--ring-outer)";
       }
