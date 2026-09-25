@@ -4624,6 +4624,8 @@
       // 日付が壊れている(不正/空)な記録が1件でもあると並び替え全体が狂うことがあるため、
       // 安全な数値に変換してから比較する(壊れたものは一番古い扱いにして、下に沈めるだけにする)
       const safeTime = (item) => {
+        // startTime(絶対時刻)を優先。date文字列は保存した端末のタイムゾーンや古い編集の影響でずれることがある
+        if (typeof item.startTime === 'number' && !isNaN(item.startTime)) return item.startTime;
         const time = new Date(item.date).getTime();
         return isNaN(time) ? 0 : time;
       };
@@ -4716,7 +4718,10 @@
           const sD = new Date(log.startTime);
           const eD = new Date(log.startTime + log.duration * 60000);
           const fmt = (x) => `${x.getHours().toString().padStart(2,'0')}:${x.getMinutes().toString().padStart(2,'0')}`;
-          timeRangeStr = `${dateOnlyStr} ${fmt(sD)} - ${fmt(eD)}`;
+          const startDateStr = currentLang === 'es'
+            ? `${sD.getDate()}/${sD.getMonth()+1}`
+            : `${sD.getMonth()+1}月${sD.getDate()}日`;
+          timeRangeStr = `${startDateStr} ${fmt(sD)} - ${fmt(eD)}`;
         }
 
         if (log.isAnnouncement) {
