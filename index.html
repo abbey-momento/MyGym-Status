@@ -347,6 +347,14 @@
     .cal-day.empty { background: transparent; border: none; cursor: default; }
     .cal-day.has-activity { background: linear-gradient(135deg, rgba(47, 143, 255,0.25), rgba(45, 212, 191,0.25)); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(47, 143, 255,0.3); }
     .cal-day.selected { border: 2px solid #FFF; transform: scale(1.05); }
+    /* 全員表示: その日トレーニングした人のアバター */
+    .cal-day.has-avatars { justify-content: space-between; padding: 5px 2px 5px; }
+    .cal-day.has-avatars .cal-day-num { font-size: 0.72rem; line-height: 1; }
+    .cal-avatars { display: flex; align-items: center; justify-content: center; }
+    .cal-av { width: 17px; height: 17px; border-radius: 50%; background: #141B2B; border: 1px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; line-height: 1; margin-left: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+    .cal-av:first-child { margin-left: 0; }
+    .cal-av.is-me { border-color: var(--ring-inner); }
+    .cal-av-more { font-family: 'LINE Seed JP', sans-serif; font-size: 0.5rem; font-weight: 800; color: #0B0F19; background: var(--ring-inner); border-color: transparent; }
 
     .cal-detail-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .cal-detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
@@ -5509,6 +5517,20 @@
         }
       });
 
+      // 全員表示用: 日ごとにトレーニングした人と、各自の最新アバター
+      const usersByDay = {};
+      const latestAvatar = {};
+      Object.values(allLogsData).forEach(log => {
+        if (!log.user) return;
+        const ts = log.startTime || new Date(log.date).getTime() || 0;
+        if (!latestAvatar[log.user] || ts > latestAvatar[log.user].ts) latestAvatar[log.user] = { ts, avatar: log.avatar || "👤" };
+        if (log.date && log.date.startsWith(monthStr)) {
+          const k = log.date.slice(0, 10);
+          (usersByDay[k] = usersByDay[k] || new Set()).add(log.user);
+        }
+      });
+      const avatarOf = (u) => (u === myUserName && myUserAvatar) ? myUserAvatar : (latestAvatar[u] ? latestAvatar[u].avatar : "👤");
+
       const statsRowEl = document.getElementById("cal-stats-row");
       if (statsRowEl) statsRowEl.style.display = (calendarFilterMode === 'all') ? "none" : "grid";
 
@@ -5566,7 +5588,20 @@
         if (activeDaysSet.has(dateKey)) cell.classList.add("has-activity");
         if (dateKey === selectedDateStr) cell.classList.add("selected");
 
-        cell.innerText = day;
+        const dayUsers = usersByDay[dateKey];
+        if (calendarFilterMode === 'all' && dayUsers && dayUsers.size > 0) {
+          // 自分を先頭に、あとは名前順。4人以上は3人+残り人数
+          const list = [...dayUsers].sort((a, b) => (a === myUserName ? -1 : b === myUserName ? 1 : a.localeCompare(b)));
+          const MAX = 3;
+          const shown = list.length > MAX ? list.slice(0, MAX - 1) : list;
+          const more = list.length - shown.length;
+          cell.classList.add("has-avatars");
+          cell.innerHTML = `<span class="cal-day-num">${day}</span><span class="cal-avatars">${
+            shown.map(u => `<span class="cal-av${u === myUserName ? ' is-me' : ''}">${avatarOf(u)}</span>`).join("")
+          }${more > 0 ? `<span class="cal-av cal-av-more">+${more}</span>` : ''}</span>`;
+        } else {
+          cell.innerText = day;
+        }
         cell.onclick = (e) => {
           playSound('click');
           selectCalendarDay(dateKey, e.currentTarget);
