@@ -194,6 +194,14 @@
     .champion-banner-name { font-size: 0.9rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .champion-banner-crown { font-size: 1.2rem; flex-shrink: 0; }
 
+    /* 部門別チャンピオン一覧 */
+    .cat-champ-list { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+    .cat-champ-row { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 9px 12px; }
+    .cat-champ-row.is-me { border-color: rgba(255,196,0,0.45); background: rgba(255,196,0,0.06); }
+    .cat-champ-label { width: 52px; flex-shrink: 0; font-size: 0.68rem; font-weight: 800; color: #FFC400; }
+    .cat-champ-avatar { font-size: 1.1rem; flex-shrink: 0; }
+    .cat-champ-name { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-champ-value { font-size: 0.78rem; font-weight: 700; color: var(--ring-inner); font-family: 'LINE Seed JP', sans-serif; white-space: nowrap; }
     /* 称号保持者バッジ（ランキング表示内） */
     .title-crown-badge { display: inline-block; margin-left: 3px; filter: drop-shadow(0 0 4px rgba(255,196,0,0.7)); }
     .race-name.is-title-holder, .podium-name.is-title-holder { color: #FFC400; text-shadow: 0 0 8px rgba(255,196,0,0.4); }
@@ -1698,7 +1706,7 @@
         resultAnnounceTitle: "¡Resultados del mes pasado!", resultAnnounceClose: "¡Genial!",
         historyBtn: "Historial", resultsHistoryTitle: "Resultados anteriores", historyEmpty: "Aún no hay resultados cerrados",
         winnerLabel: "Ganador/a de",
-        championLabel: "Campeón Actual", championYouMessage: "¡Eres el campeón de este mes!",
+        championLabel: "Campeón Actual", championYouMessage: "¡Eres el campeón de este mes!", championYouCategories: "¡Eres campeón/a en: {cats}!",
         milestoneTimeTitle: "¡Hito alcanzado!", milestoneCountTitle: "¡Hito alcanzado!", milestoneBestTitle: "¡Récord personal!", milestoneCloseBtn: "¡Genial!",
         statsGroupTitle: "Periodo",
         weeklyReportTitle: "Reporte", thisWeekLabel: "Total esta semana", vsLastWeek: "vs semana pasada", reportSwipeHint: "Desliza para ver periodos anteriores",
@@ -1784,7 +1792,7 @@
         resultAnnounceTitle: "先月の結果発表！", resultAnnounceClose: "やったー！",
         historyBtn: "過去の結果", resultsHistoryTitle: "過去の結果一覧", historyEmpty: "まだ確定した結果がありません",
         winnerLabel: "の優勝者",
-        championLabel: "現チャンピオン", championYouMessage: "あなたが今月のチャンピオンです！",
+        championLabel: "現チャンピオン", championYouMessage: "あなたが今月のチャンピオンです！", championYouCategories: "あなたは{cats}部門のチャンピオンです！",
         milestoneTimeTitle: "マイルストーン達成！", milestoneCountTitle: "マイルストーン達成！", milestoneBestTitle: "自己ベスト更新！", milestoneCloseBtn: "やったー！",
         statsGroupTitle: "期間の記録",
         weeklyReportTitle: "レポート", thisWeekLabel: "今週の合計", vsLastWeek: "先週比", reportSwipeHint: "左右にスワイプで前後の期間",
@@ -2884,7 +2892,7 @@
         if (l.typeSplit) Object.keys(l.typeSplit).forEach(ty => typesUsed.add(ty));
         else typesUsed.add(l.type || 'strength');
       });
-      const isChampion = Object.values(allMonthlyResults).some(r => r && r.ranking && r.ranking[0] && r.ranking[0].user === myUserName);
+      const isChampion = Object.values(allMonthlyResults).some(r => getCategoryChampions(r).some(c => c.user === myUserName));
       const isHalfYearChampion = Object.values(allHalfYearResults).some(r => r && r.ranking && r.ranking[0] && r.ranking[0].user === myUserName);
       const isYearChampion = Object.values(allYearResults).some(r => r && r.ranking && r.ranking[0] && r.ranking[0].user === myUserName);
 
@@ -3211,6 +3219,12 @@
         } else {
           keys.forEach(k => {
             const r = sec.results[k];
+            if (sec.results === allMonthlyResults && r.categories) {
+              const champs = getCategoryChampions(r);
+              const namesHtml = champs.map(c => `<span style="display:block; font-size:0.78rem;"><span style="color:var(--text-sub); font-weight:700; margin-right:6px;">${categoryLabel(c.cat)}</span>${c.avatar || '👤'} ${champDisplayName(c)}</span>`).join("");
+              html += rowHtml(sec.keyFn(k), "", namesHtml);
+              return;
+            }
             if (!r.ranking || !r.ranking[0]) return;
             const winner = r.ranking[0];
             const displayName = winner.showName === false ? t.anonUser : winner.user;
@@ -4763,6 +4777,20 @@
         }))
       };
 
+      // 部門別（総時間・筋トレ・有酸素・日数・達成率）の上位も保存する
+      const monthStats = computeMonthStats(prevMonthStr);
+      const categories = {};
+      RACE_CATEGORIES.forEach(cat => {
+        const ranked = rankCategory(monthStats, cat);
+        if (ranked.length === 0) return;
+        categories[cat] = ranked.slice(0, 5).map(([user, d], idx) => {
+          const entry = { user, value: categoryValue(cat, d), avatar: d.avatar, showName: d.showName, rank: idx + 1 };
+          if (cat === 'goal') { entry.sessions = d.sessions; entry.goalCount = d.goalCount; }
+          return entry;
+        });
+      });
+      resultData.categories = categories;
+
       set(ref(db, `monthly_results/${prevMonthStr}`), resultData).then(() => {
         maybeShowResultModal(prevMonthStr);
       });
@@ -4885,12 +4913,20 @@
       const t = i18n[currentLang];
       const label = kind === 'half' ? getHalfYearLabel(periodKey) : kind === 'year' ? getYearLabel(periodKey) : getMonthLabel(periodKey);
       document.getElementById("result-announce-month").innerText = label;
-      document.getElementById("result-announce-podium").innerHTML = buildPodiumHtml(resultToTop3(resultData));
-
-      const isChampion = resultData.ranking.length > 0 && resultData.ranking[0].user === myUserName;
+      const useCategories = kind === 'month' && resultData.categories;
+      let isChampion, youMessage = t.championYouMessage;
+      if (useCategories) {
+        document.getElementById("result-announce-podium").innerHTML = buildCategoryChampionsHtml(resultData);
+        const myCats = getCategoryChampions(resultData).filter(c => c.user === myUserName).map(c => categoryLabel(c.cat));
+        isChampion = myCats.length > 0;
+        youMessage = t.championYouCategories.replace("{cats}", myCats.join(currentLang === 'es' ? ', ' : '・'));
+      } else {
+        document.getElementById("result-announce-podium").innerHTML = buildPodiumHtml(resultToTop3(resultData));
+        isChampion = resultData.ranking.length > 0 && resultData.ranking[0].user === myUserName;
+      }
       const youBannerEl = document.getElementById("result-announce-you-banner");
       if (youBannerEl) {
-        youBannerEl.innerHTML = isChampion ? `<div class="champion-you-banner">${t.championYouMessage}</div>` : "";
+        youBannerEl.innerHTML = isChampion ? `<div class="champion-you-banner">${youMessage}</div>` : "";
       }
 
       document.getElementById("result-announce-modal").style.display = "flex";
@@ -4930,6 +4966,15 @@
 
       container.innerHTML = months.map(monthStr => {
         const resultData = allMonthlyResults[monthStr];
+        if (resultData.categories) {
+          return `
+          <div class="history-month-card">
+            <div class="history-month-header">
+              <div class="history-month-label">${getMonthLabel(monthStr)}</div>
+            </div>
+            ${buildCategoryChampionsHtml(resultData)}
+          </div>`;
+        }
         const rows = resultData.ranking.slice(0, 5).map(r => {
           const isMe = r.user === myUserName;
           const dName = (isMe || r.showName) ? r.user : t.anonUser;
@@ -5157,7 +5202,7 @@
           const displayName = showName ? top.user : t.anonUser;
           const postDate = resultData.finalizedAt ? new Date(resultData.finalizedAt) : periodDefaultDate(periodKey);
           const label = periodLabelFn(periodKey);
-          const message = currentLang === 'es' ? msgEs(displayName, label, top) : msgJa(displayName, label, top);
+          const message = currentLang === 'es' ? msgEs(displayName, label, top, resultData) : msgJa(displayName, label, top, resultData);
           return {
             isAnnouncement: true,
             key: `${keyPrefix}${periodKey}`,
@@ -5172,8 +5217,12 @@
 
       const monthAnnouncements = buildOne('champ-', allMonthlyResults, getMonthLabel,
         (k) => new Date(`${k}-01`),
-        (name, label, top) => `¡${name} fue el campeón/a de ${label} con ${formatTimeFriendly(top.totalMin)}!`,
-        (name, label, top) => `${label}のチャンピオンは${name}（合計${formatTimeFriendly(top.totalMin)}）でした！`);
+        (name, label, top, r) => r && r.categories
+          ? `¡Campeones de ${label}! ` + getCategoryChampions(r).map(c => `${categoryLabel(c.cat)}: ${champDisplayName(c)} (${formatCategoryValue(c.cat, c.value)})`).join(' / ')
+          : `¡${name} fue el campeón/a de ${label} con ${formatTimeFriendly(top.totalMin)}!`,
+        (name, label, top, r) => r && r.categories
+          ? `${label}の部門別チャンピオンが決まりました！ ` + getCategoryChampions(r).map(c => `${categoryLabel(c.cat)}: ${champDisplayName(c)}（${formatCategoryValue(c.cat, c.value)}）`).join(' / ')
+          : `${label}のチャンピオンは${name}（合計${formatTimeFriendly(top.totalMin)}）でした！`);
 
       const halfYearAnnouncements = buildOne('champh-', allHalfYearResults,
         (k) => { const [y, h] = k.split('-H'); return currentLang === 'es' ? `${y} ${h === '1' ? '1er' : '2do'} semestre` : `${y}年${h === '1' ? '上' : '下'}半期`; },
@@ -5535,7 +5584,6 @@
       const leaderMin = top3[0] ? valueOf(top3[0][1]) : 0;
       const slotOrder = [1, 0, 2]; // render 2nd, 1st, 3rd left-to-right
       let podiumHtml = '<div class="podium-wrap">';
-      const titleHolder = getTitleHolder();
       slotOrder.forEach(i => {
         const rank = i + 1;
         if (!top3[i]) { podiumHtml += `<div class="podium-slot podium-empty slot-${rank}"></div>`; return; }
@@ -5544,13 +5592,12 @@
         const dName = (isMe || data.showName) ? user : t.anonUser;
         const medalEmoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : '🥉';
         const gap = leaderMin - valueOf(data);
-        const isTitleHolder = titleHolder && titleHolder.user === user;
 
         podiumHtml += `
           <div class="podium-slot slot-${rank}">
             ${rank === 1 ? '<div class="p-crown">👑<span class="p-sparkle s1">✨</span><span class="p-sparkle s2">✨</span></div>' : ''}
             <div class="podium-avatar rank${rank}-avatar${isMe ? ' is-me-avatar' : ''}">${data.avatar}</div>
-            <div class="podium-name${isTitleHolder ? ' is-title-holder' : ''}">${dName}${isTitleHolder ? ' <span class="title-crown-badge">👑</span>' : ''}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
+            <div class="podium-name">${dName}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</div>
             <div class="podium-score">${fmt(valueOf(data), data)}</div>
             ${rank !== 1 && gap > 0 ? `<div class="podium-gap">-${fmt(gap)}</div>` : ''}
             <div class="podium-base base-${rank}">${medalEmoji}</div>
@@ -5609,31 +5656,18 @@
       el.innerHTML = `${CALENDAR_ICON_SVG}<span>${text}</span>`;
     }
 
-    window.setRaceMetric = (metric) => {
-      playSound('click');
-      raceMetric = metric;
-      try { localStorage.setItem("gym_race_metric", metric); } catch (e) {}
-      renderEnergyRace();
-    };
+    // ---- 月ごとの部門別集計（エネルギーレースと月間チャンピオン確定で共通）----
+    const RACE_CATEGORIES = ['total', 'strength', 'cardio', 'days', 'goal'];
 
-    function renderEnergyRace() {
-      const t = i18n[currentLang];
-      const currentMonth = getLocalISOString(new Date()).slice(0, 7);
-      const userTotals = {}; 
-
-      document.querySelectorAll("#race-metric-tabs button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.metric === raceMetric);
-      });
-      const noteEl = document.getElementById("race-metric-note");
-      if (noteEl) noteEl.textContent = raceMetric === 'days' ? t.raceNoteDays : raceMetric === 'goal' ? t.raceNoteGoal : "";
-
+    function computeMonthStats(monthStr) {
+      const userTotals = {};
       Object.values(allLogsData).forEach(log => {
         const p = getPrivacy(log.user);
         const isMe = log.user === myUserName;
         // ランキング非参加の人は除外（自分以外）
         if (!isMe && !p.inRanking) return;
 
-        if (log.month === currentMonth) {
+        if (log.month === monthStr) {
           if (!userTotals[log.user]) {
             userTotals[log.user] = { totalMin: 0, strengthMin: 0, cardioMin: 0, sessions: 0, daySet: new Set(), avatar: log.avatar || "👤", showName: p.showName };
           }
@@ -5661,6 +5695,90 @@
         u.goalCount = g && g.month > 0 ? g.month : 0;
         u.goalPct = u.goalCount ? Math.min(100, Math.round((u.sessions / u.goalCount) * 100)) : null;
       });
+
+      return userTotals;
+    }
+
+    function categoryValue(cat, d) {
+      if (cat === 'strength') return d.strengthMin;
+      if (cat === 'cardio') return d.cardioMin;
+      if (cat === 'days') return d.days;
+      if (cat === 'goal') return d.goalPct || 0;
+      return d.totalMin;
+    }
+
+    // 部門ごとの順位（0の人は入れない。同点は日数→回数で比べる）
+    function rankCategory(userTotals, cat) {
+      return Object.entries(userTotals)
+        .filter(([, d]) => cat === 'goal' ? (d.goalPct !== null && d.goalPct > 0) : categoryValue(cat, d) > 0)
+        .sort((a, b) => (categoryValue(cat, b[1]) - categoryValue(cat, a[1])) || (b[1].days - a[1].days) || (b[1].sessions - a[1].sessions));
+    }
+
+    function categoryLabel(cat) {
+      const t = i18n[currentLang];
+      return { total: t.raceMTotal, strength: t.raceMStrength, cardio: t.raceMCardio, days: t.raceMDays, goal: t.raceMGoal }[cat] || cat;
+    }
+
+    function formatCategoryValue(cat, v) {
+      const t = i18n[currentLang];
+      if (cat === 'days') return currentLang === 'es' ? `${v} ${t.raceUnitDays}` : `${v}${t.raceUnitDays}`;
+      if (cat === 'goal') return `${v}%`;
+      return formatTimeFriendly(v || 0);
+    }
+
+    // 確定済みの月の結果から、部門ごとの1位だけを取り出す（古い結果は総時間のみ）
+    function getCategoryChampions(resultData) {
+      if (!resultData) return [];
+      if (resultData.categories) {
+        return RACE_CATEGORIES
+          .filter(cat => resultData.categories[cat] && resultData.categories[cat][0])
+          .map(cat => ({ cat, ...resultData.categories[cat][0] }));
+      }
+      if (resultData.ranking && resultData.ranking[0]) {
+        const r = resultData.ranking[0];
+        return [{ cat: 'total', user: r.user, value: r.totalMin, avatar: r.avatar, showName: r.showName, rank: 1 }];
+      }
+      return [];
+    }
+
+    function champDisplayName(c) {
+      const t = i18n[currentLang];
+      const isMe = c.user === myUserName;
+      const showName = isMe || (c.showName !== undefined ? c.showName : getPrivacy(c.user).showName);
+      return showName ? c.user : t.anonUser;
+    }
+
+    function buildCategoryChampionsHtml(resultData) {
+      return `<div class="cat-champ-list">${getCategoryChampions(resultData).map(c => {
+        const isMe = c.user === myUserName;
+        return `
+          <div class="cat-champ-row${isMe ? ' is-me' : ''}">
+            <span class="cat-champ-label">${categoryLabel(c.cat)}</span>
+            <span class="cat-champ-avatar">${c.avatar || '👤'}</span>
+            <span class="cat-champ-name">${champDisplayName(c)}${isMe ? ' <span class="you-tag">YOU</span>' : ''}</span>
+            <span class="cat-champ-value">${formatCategoryValue(c.cat, c.value)}</span>
+          </div>`;
+      }).join("")}</div>`;
+    }
+
+    window.setRaceMetric = (metric) => {
+      playSound('click');
+      raceMetric = metric;
+      try { localStorage.setItem("gym_race_metric", metric); } catch (e) {}
+      renderEnergyRace();
+    };
+
+    function renderEnergyRace() {
+      const t = i18n[currentLang];
+      const currentMonth = getLocalISOString(new Date()).slice(0, 7);
+
+      document.querySelectorAll("#race-metric-tabs button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.metric === raceMetric);
+      });
+      const noteEl = document.getElementById("race-metric-note");
+      if (noteEl) noteEl.textContent = raceMetric === 'days' ? t.raceNoteDays : raceMetric === 'goal' ? t.raceNoteGoal : "";
+
+      const userTotals = computeMonthStats(currentMonth);
 
       const unitDays = (n) => currentLang === 'es' ? `${n} ${t.raceUnitDays}` : `${n}${t.raceUnitDays}`;
       const METRICS = {
@@ -5702,7 +5820,6 @@
 
       if (podiumEl) podiumEl.innerHTML = top3.length ? buildPodiumHtml(top3, { valueOf: m.valueOf, format: m.format }) : "";
 
-      const titleHolderRest = getTitleHolder();
       const buildCard = (user, data, rank) => {
         const isMe = user === myUserName;
         const dName = (isMe || data.showName) ? user : t.anonUser;
@@ -5719,7 +5836,6 @@
 
         let cardClass = "race-card-item";
         if (isMe) cardClass += " is-me";
-        const isTitleHolder = titleHolderRest && titleHolderRest.user === user;
 
         return `
           <div class="${cardClass}">
@@ -5727,8 +5843,8 @@
               <div class="race-user-info">
                 <div class="race-avatar-box">${data.avatar}</div>
                 <div>
-                  <div class="race-name${isTitleHolder ? ' is-title-holder' : ''}">
-                    ${dName}${isTitleHolder ? ' <span class="title-crown-badge">👑</span>' : ''} ${isMe ? '<span class="you-tag">YOU</span>' : ''}
+                  <div class="race-name">
+                    ${dName} ${isMe ? '<span class="you-tag">YOU</span>' : ''}
                   </div>
                   <div style="font-size:0.75rem; color:var(--text-sub); font-weight:700;">${rank ? `#${rank}` : ''}</div>
                 </div>
