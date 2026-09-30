@@ -337,24 +337,27 @@
     .cal-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
     .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .stats-row.cal-stats-below { grid-template-columns: 1fr 1.45fr 1fr; margin-top: -4px; margin-bottom: 14px; }
+    .cal-stats-below .stat-num { white-space: nowrap; letter-spacing: -0.03em; }
     .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px 8px; text-align: center; }
     .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--ring-inner); text-shadow: 0 0 8px rgba(45, 212, 191,0.3); margin-top: 4px; line-height: 1; }
     .stat-label { font-size: 0.65rem; color: var(--text-sub); font-weight: 700; text-transform: uppercase; }
 
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 20px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 20px; }
     .cal-weekday { text-align: center; font-size: 0.75rem; color: var(--text-sub); font-weight: 700; padding-bottom: 4px; }
     .cal-day { aspect-ratio: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: 0.2s; position: relative; font-family: 'LINE Seed JP', sans-serif; }
     .cal-day.empty { background: transparent; border: none; cursor: default; }
     .cal-day.has-activity { background: linear-gradient(135deg, rgba(47, 143, 255,0.25), rgba(45, 212, 191,0.25)); border-color: var(--accent); color: #FFF; box-shadow: 0 0 8px rgba(47, 143, 255,0.3); }
     .cal-day.selected { border: 2px solid #FFF; transform: scale(1.05); }
-    /* 全員表示: その日トレーニングした人のアバター */
-    .cal-day.has-avatars { justify-content: space-between; padding: 5px 2px 5px; }
-    .cal-day.has-avatars .cal-day-num { font-size: 0.72rem; line-height: 1; }
-    .cal-avatars { display: flex; align-items: center; justify-content: center; }
-    .cal-av { width: 17px; height: 17px; border-radius: 50%; background: #141B2B; border: 1px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; line-height: 1; margin-left: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-    .cal-av:first-child { margin-left: 0; }
-    .cal-av.is-me { border-color: var(--ring-inner); }
-    .cal-av-more { font-family: 'LINE Seed JP', sans-serif; font-size: 0.5rem; font-weight: 800; color: #0B0F19; background: var(--ring-inner); border-color: transparent; }
+    /* 全員表示: その日トレーニングした人のアバター（1人は大きく、2人は横並び、3〜4人は2×2） */
+    .cal-day.has-avatars { position: relative; padding: 0; }
+    .cal-day.has-avatars .cal-day-num { position: absolute; top: 3px; left: 5px; font-size: 0.58rem; line-height: 1; }
+    .cal-avatars { position: absolute; inset: 13px 2px 2px; display: grid; place-items: center; }
+    .cal-avatars.n1 { font-size: 1.45rem; }
+    .cal-avatars.n2 { grid-template-columns: 1fr 1fr; font-size: 1.05rem; }
+    .cal-avatars.n4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; font-size: 0.85rem; }
+    .cal-av { line-height: 1; }
+    .cal-av-more { font-family: 'LINE Seed JP', sans-serif; font-size: 0.58rem; font-weight: 800; color: #0B0F19; background: var(--ring-inner); border-radius: 999px; padding: 2px 4px; line-height: 1; }
 
     .cal-detail-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .cal-detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
@@ -938,7 +941,19 @@
         </button>
       </div>
 
-      <div class="stats-row" id="cal-stats-row">
+      <div class="calendar-grid" style="margin-bottom: 6px;">
+        <div class="cal-weekday">D</div>
+        <div class="cal-weekday">L</div>
+        <div class="cal-weekday">M</div>
+        <div class="cal-weekday">M</div>
+        <div class="cal-weekday">J</div>
+        <div class="cal-weekday">V</div>
+        <div class="cal-weekday">S</div>
+      </div>
+
+      <div class="calendar-grid" id="calendar-days-container"></div>
+
+      <div class="stats-row cal-stats-below" id="cal-stats-row">
         <div class="stat-box">
           <div class="stat-label" id="t-stat-days">Días</div>
           <div class="stat-num" id="stat-days-val">0</div>
@@ -953,17 +968,6 @@
         </div>
       </div>
 
-      <div class="calendar-grid" style="margin-bottom: 6px;">
-        <div class="cal-weekday">D</div>
-        <div class="cal-weekday">L</div>
-        <div class="cal-weekday">M</div>
-        <div class="cal-weekday">M</div>
-        <div class="cal-weekday">J</div>
-        <div class="cal-weekday">V</div>
-        <div class="cal-weekday">S</div>
-      </div>
-
-      <div class="calendar-grid" id="calendar-days-container"></div>
 
       <div class="cal-detail-card" id="cal-selected-detail">
         <div class="cal-detail-header">
@@ -5526,7 +5530,8 @@
         if (!latestAvatar[log.user] || ts > latestAvatar[log.user].ts) latestAvatar[log.user] = { ts, avatar: log.avatar || "👤" };
         if (log.date && log.date.startsWith(monthStr)) {
           const k = log.date.slice(0, 10);
-          (usersByDay[k] = usersByDay[k] || new Set()).add(log.user);
+          const m = (usersByDay[k] = usersByDay[k] || new Map());
+          m.set(log.user, (m.get(log.user) || 0) + (log.duration || 0));
         }
       });
       const avatarOf = (u) => (u === myUserName && myUserAvatar) ? myUserAvatar : (latestAvatar[u] ? latestAvatar[u].avatar : "👤");
@@ -5558,7 +5563,8 @@
       if(dVal) dVal.innerText = targetTrainedDays.size;
       
       const tVal = document.getElementById("stat-time-val");
-      if(tVal) tVal.innerText = (isTgtMe || tgtPriv.showTime) ? formatTimeFriendly(targetMonthMin) : t.anonTime;
+      const compactHM = (min) => { const h = Math.floor(min / 60), m = min % 60; return h ? (m ? `${h}h ${m}m` : `${h}h`) : `${m}m`; };
+      if(tVal) tVal.innerText = (isTgtMe || tgtPriv.showTime) ? compactHM(targetMonthMin) : t.anonTime;
       
       const sVal = document.getElementById("stat-streak-val");
       if(sVal) sVal.innerHTML = `${targetStreak}<span style="display:inline-flex; align-items:center; vertical-align:middle; margin-left:2px;"><svg width="14" height="19" viewBox="0 0 24 24" style="filter: drop-shadow(0 0 3px #22D3EE); transform: scaleY(1.3); transform-origin: center;"><defs><linearGradient id="flameGradCal" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0B5FFF"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#E0FCFF"/></linearGradient></defs><path fill="url(#flameGradCal)" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.545 3.75 3.75 0 0 1 3.255 3.717Z"/></svg></span>`;
@@ -5590,15 +5596,17 @@
 
         const dayUsers = usersByDay[dateKey];
         if (calendarFilterMode === 'all' && dayUsers && dayUsers.size > 0) {
-          // 自分を先頭に、あとは名前順。4人以上は3人+残り人数
-          const list = [...dayUsers].sort((a, b) => (a === myUserName ? -1 : b === myUserName ? 1 : a.localeCompare(b)));
-          const MAX = 3;
-          const shown = list.length > MAX ? list.slice(0, MAX - 1) : list;
-          const more = list.length - shown.length;
+          // 自分を先頭に、あとはその日長くトレーニングした順。5人以上は3人+残り人数
+          const list = [...dayUsers.keys()].sort((a, b) =>
+            (a === myUserName ? -1 : b === myUserName ? 1 : (dayUsers.get(b) - dayUsers.get(a))));
+          const n = list.length;
+          const shown = n > 4 ? list.slice(0, 3) : list;
+          const more = n - shown.length;
+          const sizeClass = n === 1 ? 'n1' : n === 2 ? 'n2' : 'n4';
           cell.classList.add("has-avatars");
-          cell.innerHTML = `<span class="cal-day-num">${day}</span><span class="cal-avatars">${
-            shown.map(u => `<span class="cal-av${u === myUserName ? ' is-me' : ''}">${avatarOf(u)}</span>`).join("")
-          }${more > 0 ? `<span class="cal-av cal-av-more">+${more}</span>` : ''}</span>`;
+          cell.innerHTML = `<span class="cal-day-num">${day}</span><span class="cal-avatars ${sizeClass}">${
+            shown.map(u => `<span class="cal-av">${avatarOf(u)}</span>`).join("")
+          }${more > 0 ? `<span class="cal-av-more">+${more}</span>` : ''}</span>`;
         } else {
           cell.innerText = day;
         }
