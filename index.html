@@ -4149,54 +4149,75 @@
       return new THREE.Color(stops[stops.length - 1][1]);
     }
 
-    // ---- 自然な人体の形：複数のふくらみをなめらかにつないだ「一枚の表面」を計算で作る ----
+    // ---- 自然な人体の形：胴体は断面をなめらかにつないだ形、手足は丸い棒をなめらかに接続 ----
     function buildBodyModel(THREE) {
       const V = (x, y, z) => [x, y, z];
       const prims = [];
-      // g: 'C'=体の中心、'L'/'R'=左右の手足。左右の脚どうし・腕と脚はくっつけない
-      let G = 'C';
+      let G = 'C'; // 'C'=体の中心、'L'/'R'=左右の手足。左右どうしはくっつけない
       const ell = (c, r, region) => prims.push({ t: 0, c, r, region, g: G });
       const cap = (a, b, ra, rb, region) => prims.push({ t: 1, a, b, ra, rb, region, g: G });
       const none = () => null;
       const frontBack = (front, back, zAxis = 0) => (p) => p[2] >= zAxis ? front : back;
 
-      // 男女どちらにも見える中間的な体型（肩幅・胸板・骨盤をどれも控えめに）
+      // 胴体：高さごとの横幅・お腹側・背中側の厚みを決めて、なめらかにつなぐ（段差やでっぱりが出ない）
+      const TY = [0.80, 0.86, 0.92, 0.98, 1.04, 1.10, 1.17, 1.24, 1.31, 1.37, 1.42, 1.46, 1.50, 1.535];
+      const TW = [0.100, 0.126, 0.134, 0.130, 0.123, 0.119, 0.121, 0.128, 0.136, 0.142, 0.143, 0.134, 0.105, 0.055];
+      const TF = [0.055, 0.072, 0.078, 0.080, 0.083, 0.086, 0.088, 0.092, 0.100, 0.097, 0.084, 0.068, 0.052, 0.034];
+      const TB = [0.075, 0.098, 0.104, 0.086, 0.070, 0.071, 0.077, 0.084, 0.090, 0.091, 0.088, 0.078, 0.058, 0.038];
+      const spline = (arr, y) => {
+        const n = TY.length;
+        if (y <= TY[0]) return arr[0];
+        if (y >= TY[n - 1]) return arr[n - 1];
+        let i = 0; while (y > TY[i + 1]) i++;
+        const t = (y - TY[i]) / (TY[i + 1] - TY[i]);
+        const p0 = arr[Math.max(0, i - 1)], p1 = arr[i], p2 = arr[i + 1], p3 = arr[Math.min(n - 1, i + 2)];
+        const t2 = t * t, t3 = t2 * t;
+        return 0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+      };
+      const torsoDist = (x, y, z) => {
+        const yc = Math.max(TY[0], Math.min(TY[TY.length - 1], y));
+        const a = spline(TW, yc), f = spline(TF, yc), bk = spline(TB, yc);
+        const c = (f - bk) / 2, b = (f + bk) / 2;
+        const q = Math.hypot(x / a, (z - c) / b);
+        const dxz = (q - 1) * Math.min(a, b);
+        const dy = Math.max(TY[0] - y, y - TY[TY.length - 1], 0);
+        return dy > 0 ? Math.hypot(Math.max(dxz, 0), dy) : dxz;
+      };
+      prims.push({ t: 2, fn: torsoDist, g: 'C', region: (p) => {
+        const [x, y, z] = p;
+        const yc = Math.max(TY[0], Math.min(TY[TY.length - 1], y));
+        const c = (spline(TF, yc) - spline(TB, yc)) / 2;
+        const side = Math.abs(x) / spline(TW, yc);
+        const front = z - c > 0.02 && side < 0.85, back = z - c < -0.02 && side < 0.85;
+        if (y > 1.49) return null;
+        if (front) return y > 1.235 ? 'chest' : (y > 0.96 ? (Math.abs(x) < 0.058 ? 'abs' : 'obliques') : null);
+        if (back) return y > 1.13 ? 'upperback' : (y > 0.975 ? 'lowerback' : 'glutes');
+        return y > 1.24 ? 'upperback' : (y > 0.97 ? 'obliques' : null);
+      } });
+
       // 頭・首
       ell(V(0, 1.645, 0.0), V(0.071, 0.096, 0.086), none);
       ell(V(0, 1.577, 0.026), V(0.048, 0.042, 0.052), none);
       cap(V(0, 1.47, -0.008), V(0, 1.575, 0.0), 0.042, 0.039, none);
-      // 胴体
-      ell(V(0, 1.325, 0.0), V(0.138, 0.16, 0.098), (p) => p[2] > 0.035 && p[1] > 1.23 ? 'chest' : (p[2] < 0 ? 'upperback' : (p[1] > 1.25 ? 'upperback' : 'obliques')));
-      [-1, 1].forEach(s => ell(V(s * 0.062, 1.335, 0.05), V(0.062, 0.05, 0.04), () => 'chest'));
-      [-1, 1].forEach(s => ell(V(s * 0.085, 1.27, -0.032), V(0.058, 0.11, 0.045), (p) => p[2] < 0 ? 'upperback' : 'obliques'));
-      cap(V(-0.135, 1.44, -0.02), V(0.135, 1.44, -0.02), 0.042, 0.042, () => 'upperback');
-      ell(V(0, 1.14, 0.006), V(0.125, 0.17, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.058 ? 'abs' : 'obliques') : (p[2] < -0.02 ? 'lowerback' : 'obliques'));
-      ell(V(0, 1.02, 0.004), V(0.124, 0.09, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.058 ? 'abs' : null) : (p[2] < -0.02 ? 'lowerback' : null));
-      ell(V(0, 0.95, -0.006), V(0.136, 0.08, 0.092), (p) => p[2] < -0.035 ? 'glutes' : null);
-      [-1, 1].forEach(s => ell(V(s * 0.066, 0.915, -0.05), V(0.07, 0.075, 0.057), (p) => p[2] < -0.03 ? 'glutes' : null));
 
       [-1, 1].forEach(s => {
         G = s < 0 ? 'L' : 'R';
         // 肩・腕（少し開いた自然な立ち姿）
-        ell(V(s * 0.178, 1.405, -0.005), V(0.054, 0.064, 0.054), () => 'shoulders');
-        cap(V(s * 0.19, 1.385, -0.005), V(s * 0.265, 1.13, -0.02), 0.041, 0.034, frontBack('biceps', 'triceps', -0.012));
-        ell(V(s * 0.225, 1.265, 0.017), V(0.029, 0.065, 0.029), () => 'biceps');
-        ell(V(s * 0.23, 1.275, -0.03), V(0.031, 0.072, 0.029), () => 'triceps');
-        cap(V(s * 0.265, 1.13, -0.02), V(s * 0.325, 0.9, 0.015), 0.034, 0.024, () => 'forearms');
-        ell(V(s * 0.28, 1.07, -0.008), V(0.031, 0.06, 0.03), () => 'forearms');
-        ell(V(s * 0.34, 0.82, 0.02), V(0.02, 0.058, 0.04), none);
-        // 脚（左右の間にすき間ができるよう、付け根を少し外に）
-        cap(V(s * 0.1, 0.91, 0.0), V(s * 0.104, 0.52, 0.01), 0.079, 0.055, frontBack('quads', 'hamstrings', 0.0));
-        ell(V(s * 0.106, 0.72, 0.03), V(0.06, 0.14, 0.05), () => 'quads');
-        ell(V(s * 0.104, 0.72, -0.028), V(0.057, 0.13, 0.048), () => 'hamstrings');
-        cap(V(s * 0.104, 0.52, 0.01), V(s * 0.107, 0.085, -0.008), 0.052, 0.031, (p) => p[2] < -0.012 ? 'calves' : null);
-        ell(V(s * 0.107, 0.36, -0.03), V(0.047, 0.105, 0.046), (p) => p[2] < -0.015 ? 'calves' : null);
+        ell(V(s * 0.172, 1.405, -0.004), V(0.056, 0.062, 0.054), () => 'shoulders');
+        cap(V(s * 0.188, 1.385, -0.005), V(s * 0.262, 1.13, -0.02), 0.042, 0.034, frontBack('biceps', 'triceps', -0.012));
+        cap(V(s * 0.262, 1.13, -0.02), V(s * 0.322, 0.9, 0.015), 0.035, 0.025, () => 'forearms');
+        ell(V(s * 0.337, 0.82, 0.02), V(0.02, 0.058, 0.04), none);
+        // 脚
+        cap(V(s * 0.098, 0.9, 0.0), V(s * 0.104, 0.52, 0.012), 0.078, 0.054, frontBack('quads', 'hamstrings', 0.004));
+        cap(V(s * 0.104, 0.52, 0.012), V(s * 0.107, 0.085, -0.006), 0.051, 0.031, (p) => p[2] < -0.008 ? 'calves' : null);
+        ell(V(s * 0.107, 0.36, -0.024), V(0.045, 0.1, 0.042), (p) => p[2] < -0.012 ? 'calves' : null);
         ell(V(s * 0.108, 0.035, 0.045), V(0.036, 0.028, 0.092), none);
       });
       G = 'C';
 
       const len = (x, y, z) => Math.sqrt(x * x + y * y + z * z);
       const distPrim = (pr, x, y, z) => {
+        if (pr.t === 2) return pr.fn(x, y, z);
         if (pr.t === 0) {
           const [cx, cy, cz] = pr.c, [rx, ry, rz] = pr.r;
           const px = x - cx, py = y - cy, pz = z - cz;
@@ -4208,11 +4229,10 @@
         const h = Math.max(0, Math.min(1, (pax * bax + pay * bay + paz * baz) / (bax * bax + bay * bay + baz * baz)));
         return len(pax - bax * h, pay - bay * h, paz - baz * h) - (pr.ra + (pr.rb - pr.ra) * h);
       };
-      const K = 0.028;
+      const K = 0.03;
       const smin = (a, b) => { const h = Math.max(K - Math.abs(a - b), 0) / K; return Math.min(a, b) - h * h * K * 0.25; };
       const groups = { C: prims.filter(p => p.g === 'C'), L: prims.filter(p => p.g === 'L'), R: prims.filter(p => p.g === 'R') };
       const groupDist = (list, x, y, z) => { let d = 1e9; for (let i = 0; i < list.length; i++) d = smin(d, distPrim(list[i], x, y, z)); return d; };
-      // 胴体と左右それぞれの手足はなめらかにつなぎ、左右どうしはつなげない（太ももの間がくっつかないように）
       const field = (x, y, z) => {
         const dC = groupDist(groups.C, x, y, z);
         const dL = x < 0.03 ? groupDist(groups.L, x, y, z) : 1e9;
@@ -4225,22 +4245,19 @@
         return best.region([x, y, z]);
       };
 
-      // Surface Nets で表面を三角形にする。網目が方眼にそろわないよう、格子を斜めに傾けて取る
+      // Surface Nets で表面を三角形にする（格子は斜めに傾け、方眼の模様が出ないように）
       const S = 0.03;
       const R = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0.43, 0.61, 0.27));
       const Re = R.elements;
       const toWorld = (gx, gy, gz) => [Re[0] * gx + Re[4] * gy + Re[8] * gz, Re[1] * gx + Re[5] * gy + Re[9] * gz + 0.88, Re[2] * gx + Re[6] * gy + Re[10] * gz];
       const HALF = 0.98;
-      const x0 = -HALF, y0 = -HALF, z0 = -HALF;
       const nx = Math.ceil((2 * HALF) / S) + 1, ny = nx, nz = nx;
       const idx = (i, j, k) => i + nx * (j + ny * k);
       const f = new Float32Array(nx * ny * nz);
       for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
-        const [wx, wy, wz] = toWorld(x0 + i * S, y0 + j * S, z0 + k * S);
-        // 体から十分離れた場所は計算を省く
+        const [wx, wy, wz] = toWorld(-HALF + i * S, -HALF + j * S, -HALF + k * S);
         f[idx(i, j, k)] = (Math.abs(wx) > 0.5 || wz > 0.25 || wz < -0.25 || wy < -0.05 || wy > 1.8) ? 1 : field(wx, wy, wz);
       }
-
       const cellVert = new Int32Array(nx * ny * nz).fill(-1);
       const positions = [];
       const corners = [[0,0,0],[1,0,0],[0,1,0],[1,1,0],[0,0,1],[1,0,1],[0,1,1],[1,1,1]];
@@ -4257,13 +4274,12 @@
           sx += c0[0] + (c1[0] - c0[0]) * t; sy += c0[1] + (c1[1] - c0[1]) * t; sz += c0[2] + (c1[2] - c0[2]) * t; n++;
         });
         cellVert[idx(i, j, k)] = positions.length / 3;
-        positions.push(...toWorld(x0 + (i + sx / n) * S, y0 + (j + sy / n) * S, z0 + (k + sz / n) * S));
+        positions.push(...toWorld(-HALF + (i + sx / n) * S, -HALF + (j + sy / n) * S, -HALF + (k + sz / n) * S));
       }
       const tris = [];
       const d2 = (u, w) => { const dx = positions[u * 3] - positions[w * 3], dy = positions[u * 3 + 1] - positions[w * 3 + 1], dz = positions[u * 3 + 2] - positions[w * 3 + 2]; return dx * dx + dy * dy + dz * dz; };
       const quad = (a, b, c, d, flip) => {
         if (a < 0 || b < 0 || c < 0 || d < 0) return;
-        // 四角形は短いほうの対角線で割ると、細長い三角形ができにくい
         if (d2(a, c) <= d2(b, d)) { if (flip) tris.push(a, c, b, a, d, c); else tris.push(a, b, c, a, c, d); }
         else { if (flip) tris.push(a, d, b, b, d, c); else tris.push(a, b, d, b, c, d); }
       };
@@ -4274,7 +4290,7 @@
         if (p !== (f[idx(i, j, k + 1)] < 0)) quad(cellVert[idx(i, j, k)], cellVert[idx(i - 1, j, k)], cellVert[idx(i - 1, j - 1, k)], cellVert[idx(i, j - 1, k)], p);
       }
 
-      // 頂点を体の表面に沿って均等にならし、毎回ぴったり表面に戻す（網目が曲面に沿うように）
+      // 頂点を表面に沿って均等にならし、毎回ぴったり表面に戻す
       const nV = positions.length / 3;
       const nbr = Array.from({ length: nV }, () => new Set());
       for (let t = 0; t < tris.length; t += 3) {
@@ -4282,118 +4298,148 @@
         nbr[a].add(b); nbr[a].add(c); nbr[b].add(a); nbr[b].add(c); nbr[c].add(a); nbr[c].add(b);
       }
       const E = 0.0015;
-      const gradAt = (x, y, z, f0) => [(field(x + E, y, z) - f0) / E, (field(x, y + E, z) - f0) / E, (field(x, y, z + E) - f0) / E];
       const project = (x, y, z) => {
         for (let it = 0; it < 2; it++) {
           const f0 = field(x, y, z);
-          const [gx, gy, gz] = gradAt(x, y, z, f0);
-          const g2 = gx * gx + gy * gy + gz * gz || 1;
+          const gx = (field(x + E, y, z) - f0) / E, gy = (field(x, y + E, z) - f0) / E, gz = (field(x, y, z + E) - f0) / E;
+          const g2 = gx * gx + gy * gy + gz * gz;
+          if (!(g2 > 1e-8)) break;
           x -= f0 * gx / g2; y -= f0 * gy / g2; z -= f0 * gz / g2;
         }
         return [x, y, z];
       };
       for (let iter = 0; iter < 4; iter++) {
-        const next = new Float32Array(positions.length);
+        const next = new Array(positions.length);
         for (let v = 0; v < nV; v++) {
           let ax = 0, ay = 0, az = 0; const n = nbr[v].size || 1;
           nbr[v].forEach(w => { ax += positions[w * 3]; ay += positions[w * 3 + 1]; az += positions[w * 3 + 2]; });
           const px = positions[v * 3], py = positions[v * 3 + 1], pz = positions[v * 3 + 2];
-          const [qx, qy, qz] = project(px + (ax / n - px) * 0.6, py + (ay / n - py) * 0.6, pz + (az / n - pz) * 0.6);
-          next[v * 3] = qx; next[v * 3 + 1] = qy; next[v * 3 + 2] = qz;
+          const q = project(px + (ax / n - px) * 0.6, py + (ay / n - py) * 0.6, pz + (az / n - pz) * 0.6);
+          const ok = q.every(Number.isFinite);
+          next[v * 3] = ok ? q[0] : px; next[v * 3 + 1] = ok ? q[1] : py; next[v * 3 + 2] = ok ? q[2] : pz;
         }
         for (let i = 0; i < positions.length; i++) positions[i] = next[i];
       }
 
-      const geo = new THREE.BufferGeometry();
-      const posAttr = new THREE.Float32BufferAttribute(positions, 3);
-      const colAttr = new THREE.Float32BufferAttribute(new Float32Array(positions.length), 3);
-      geo.setAttribute('position', posAttr);
-      geo.setAttribute('color', colAttr);
-      geo.setIndex(tris);
-      geo.computeVertexNormals();
-      // 面の向きが内側を向いていたら全体を裏返す（法線が外を向くように）
-      {
-        let dotSum = 0; const nrm = geo.attributes.normal;
-        for (let v = 0; v < posAttr.count; v += 7) {
-          const x = posAttr.getX(v), y = posAttr.getY(v), z = posAttr.getZ(v), e = 0.004;
-          const gx = field(x + e, y, z) - field(x - e, y, z), gy = field(x, y + e, z) - field(x, y - e, z), gz = field(x, y, z + e) - field(x, y, z - e);
-          dotSum += gx * nrm.getX(v) + gy * nrm.getY(v) + gz * nrm.getZ(v);
-        }
-        if (dotSum < 0) {
-          const ix = geo.index.array;
-          for (let t = 0; t < ix.length; t += 3) { const tmp = ix[t + 1]; ix[t + 1] = ix[t + 2]; ix[t + 2] = tmp; }
-          geo.index.needsUpdate = true;
-          geo.computeVertexNormals();
-        }
+      // 面の向きを1枚ずつ外向きにそろえる（体の表面の外向き＝距離が増える向きと比べる）
+      const grads = new Float32Array(nV * 3);
+      for (let v = 0; v < nV; v++) {
+        const x = positions[v * 3], y = positions[v * 3 + 1], z = positions[v * 3 + 2], e = 0.003;
+        grads[v * 3] = field(x + e, y, z) - field(x - e, y, z);
+        grads[v * 3 + 1] = field(x, y + e, z) - field(x, y - e, z);
+        grads[v * 3 + 2] = field(x, y, z + e) - field(x, y, z - e);
       }
-      // 陰影は網目ではなく体の本来の曲面から計算する（なめらかに見えるように）
-      {
-        const nrm = geo.attributes.normal;
-        for (let v = 0; v < posAttr.count; v++) {
-          const x = posAttr.getX(v), y = posAttr.getY(v), z = posAttr.getZ(v);
-          const [gx, gy, gz] = gradAt(x, y, z, field(x, y, z));
-          const l = Math.hypot(gx, gy, gz) || 1;
-          nrm.setXYZ(v, gx / l, gy / l, gz / l);
-        }
-        nrm.needsUpdate = true;
+      for (let t = 0; t < tris.length; t += 3) {
+        const a = tris[t], b = tris[t + 1], c = tris[t + 2];
+        const ux = positions[b * 3] - positions[a * 3], uy = positions[b * 3 + 1] - positions[a * 3 + 1], uz = positions[b * 3 + 2] - positions[a * 3 + 2];
+        const wx = positions[c * 3] - positions[a * 3], wy = positions[c * 3 + 1] - positions[a * 3 + 1], wz = positions[c * 3 + 2] - positions[a * 3 + 2];
+        const nx_ = uy * wz - uz * wy, ny_ = uz * wx - ux * wz, nz_ = ux * wy - uy * wx;
+        const gx = grads[a * 3] + grads[b * 3] + grads[c * 3], gy = grads[a * 3 + 1] + grads[b * 3 + 1] + grads[c * 3 + 1], gz = grads[a * 3 + 2] + grads[b * 3 + 2] + grads[c * 3 + 2];
+        if (nx_ * gx + ny_ * gy + nz_ * gz < 0) { tris[t + 1] = c; tris[t + 2] = b; }
       }
+      const idxGeo = new THREE.BufferGeometry();
+      idxGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      idxGeo.setIndex(tris);
+      idxGeo.computeVertexNormals();
       const vertexRegions = [];
-      for (let v = 0; v < posAttr.count; v++) vertexRegions.push(regionAt(posAttr.getX(v), posAttr.getY(v), posAttr.getZ(v)));
+      for (let v = 0; v < nV; v++) vertexRegions.push(regionAt(positions[v * 3], positions[v * 3 + 1], positions[v * 3 + 2]));
 
-      // 表面：ふちほど明るく光るホログラム風
-      const fillMat = new THREE.ShaderMaterial({
-        vertexColors: true, transparent: true, depthWrite: true,
-        polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1,
-        vertexShader: `varying vec3 vColor; varying vec3 vN; varying vec3 vV;
-          void main(){ vColor = color; vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`,
-        fragmentShader: `varying vec3 vColor; varying vec3 vN; varying vec3 vV;
-          void main(){ float fr = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.2);
-            vec3 c = vColor * (0.28 + 1.1 * fr) + vec3(0.02,0.05,0.1);
-            gl_FragColor = vec4(c, 0.55 + 0.4 * fr); }`
-      });
-      const fill = new THREE.Mesh(geo, fillMat);
-
-      // 網目の線と、頂点の光る点（位置と色は表面と共有）
-      const edgeSet = new Set(), lineIdx = [];
-      const ix = geo.index.array;
-      for (let t = 0; t < ix.length; t += 3) {
-        for (let e = 0; e < 3; e++) {
-          const a = ix[t + e], b = ix[t + (e + 1) % 3];
-          const key = a < b ? a * 1e6 + b : b * 1e6 + a;
-          if (!edgeSet.has(key)) { edgeSet.add(key); lineIdx.push(a, b); }
+      // 網目の線と点は、面の上にシェーダーで描く。太さは体に対する大きさで決めるので、ズームしても見え方が変わらない
+      const triCount = tris.length / 3;
+      const pos = new Float32Array(triCount * 9), nor = new Float32Array(triCount * 9), bary = new Float32Array(triCount * 9), hgt = new Float32Array(triCount * 9);
+      const col = new Float32Array(triCount * 9);
+      const cornerVertex = new Int32Array(triCount * 3);
+      const srcN = idxGeo.attributes.normal;
+      for (let t = 0; t < triCount; t++) {
+        const ids = [tris[t * 3], tris[t * 3 + 1], tris[t * 3 + 2]];
+        const P = ids.map(v => [positions[v * 3], positions[v * 3 + 1], positions[v * 3 + 2]]);
+        const el = (a, b) => Math.hypot(P[a][0] - P[b][0], P[a][1] - P[b][1], P[a][2] - P[b][2]);
+        const l0 = el(1, 2), l1 = el(0, 2), l2 = el(0, 1); // 各頂点の向かいの辺
+        const sp = (l0 + l1 + l2) / 2;
+        const area = Math.sqrt(Math.max(sp * (sp - l0) * (sp - l1) * (sp - l2), 1e-12));
+        const h = [2 * area / Math.max(l0, 1e-6), 2 * area / Math.max(l1, 1e-6), 2 * area / Math.max(l2, 1e-6)];
+        for (let k = 0; k < 3; k++) {
+          const o = (t * 3 + k) * 3;
+          pos[o] = P[k][0]; pos[o + 1] = P[k][1]; pos[o + 2] = P[k][2];
+          nor[o] = srcN.getX(ids[k]); nor[o + 1] = srcN.getY(ids[k]); nor[o + 2] = srcN.getZ(ids[k]);
+          bary[o + k] = 1;
+          hgt[o] = h[0]; hgt[o + 1] = h[1]; hgt[o + 2] = h[2];
+          cornerVertex[t * 3 + k] = ids[k];
         }
       }
-      const lineGeo = new THREE.BufferGeometry();
-      lineGeo.setAttribute('position', posAttr);
-      lineGeo.setAttribute('color', colAttr);
-      lineGeo.setIndex(lineIdx);
-      const lines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }));
-      const ptGeo = new THREE.BufferGeometry();
-      ptGeo.setAttribute('position', posAttr);
-      ptGeo.setAttribute('color', colAttr);
-      const points = new THREE.Points(ptGeo, new THREE.PointsMaterial({ vertexColors: true, size: 2.6, sizeAttenuation: false, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false }));
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+      geo.setAttribute('bary', new THREE.BufferAttribute(bary, 3));
+      geo.setAttribute('hgt', new THREE.BufferAttribute(hgt, 3));
+      const colAttr = new THREE.BufferAttribute(col, 3);
+      geo.setAttribute('color', colAttr);
 
+      const mat = new THREE.ShaderMaterial({
+        vertexColors: true, transparent: true, side: THREE.DoubleSide,
+        extensions: { derivatives: true },
+        uniforms: { lineW: { value: 0.0013 }, dotR: { value: 0.0031 } },
+        vertexShader: `
+          attribute vec3 bary; attribute vec3 hgt;
+          varying vec3 vColor; varying vec3 vN; varying vec3 vV; varying vec3 vB; varying vec3 vH;
+          void main(){
+            vColor = color; vB = bary; vH = hgt;
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz);
+            gl_Position = projectionMatrix * mv;
+          }`,
+        fragmentShader: `
+          uniform float lineW; uniform float dotR;
+          varying vec3 vColor; varying vec3 vN; varying vec3 vV; varying vec3 vB; varying vec3 vH;
+          void main(){
+            vec3 n = normalize(vN);
+            float facing = dot(n, normalize(vV));
+            if (!gl_FrontFacing) facing = -facing;
+            float fr = pow(1.0 - clamp(abs(facing), 0.0, 1.0), 2.0);
+            // 辺までの距離（体の大きさの単位）
+            vec3 dEdge = vB * vH;
+            float d = min(dEdge.x, min(dEdge.y, dEdge.z));
+            float px = max(fwidth(d), 1e-6);
+            float line = clamp((lineW - d) / px + 0.5, 0.0, 1.0) * clamp(lineW / px, 0.0, 1.0);
+            // 頂点の点
+            float bm = max(vB.x, max(vB.y, vB.z));
+            float hv = vB.x == bm ? vH.x : (vB.y == bm ? vH.y : vH.z);
+            float dv = (1.0 - bm) * hv;
+            float pxv = max(fwidth(dv), 1e-6);
+            float dotA = clamp((dotR - dv) / pxv + 0.5, 0.0, 1.0) * clamp(dotR / pxv, 0.0, 1.0);
+            vec3 base = vColor * (0.10 + 0.65 * fr);
+            vec3 c = base + vColor * 1.35 * line + mix(vColor, vec3(1.0), 0.35) * 1.35 * dotA;
+            float a = 0.82 + 0.18 * max(line, dotA);
+            if (!gl_FrontFacing) { c *= 0.35; }
+            gl_FragColor = vec4(c, a);
+            #include <colorspace_fragment>
+          }`
+      });
+      const fill = new THREE.Mesh(geo, mat);
       const inner = new THREE.Group();
-      inner.add(fill); inner.add(lines); inner.add(points);
-      return { inner, meshes: [fill], colAttr, vertexRegions, index: ix };
+      inner.add(fill);
+      return { inner, meshes: [fill], colAttr, vertexRegions, cornerVertex };
     }
 
     function recolorBody3D() {
       if (!body3d) return;
-      const { THREE, colAttr, vertexRegions } = body3d;
+      const { THREE, colAttr, vertexRegions, cornerVertex } = body3d;
       const { heat } = computeBodyHeat(body3dPeriod);
-      const neutral = new THREE.Color(0x1A3F80);
+      const neutral = new THREE.Color(0x2250A8);
       const gold = new THREE.Color(0xFFC400);
       const cache = {};
-      for (let v = 0; v < vertexRegions.length; v++) {
-        const r = vertexRegions[v];
+      const colorOf = (r) => {
         const key = r || '_';
         if (!cache[key]) {
           let c = r ? heatColor(THREE, heat[r] || 0) : neutral;
           if (r && r === body3dSelected) c = c.clone().lerp(gold, 0.65);
           cache[key] = c;
         }
-        colAttr.setXYZ(v, cache[key].r, cache[key].g, cache[key].b);
+        return cache[key];
+      };
+      for (let i = 0; i < cornerVertex.length; i++) {
+        const c = colorOf(vertexRegions[cornerVertex[i]]);
+        colAttr.setXYZ(i, c.r, c.g, c.b);
       }
       colAttr.needsUpdate = true;
       body3d.requestRender();
@@ -4477,7 +4523,7 @@
       inner.add(floor);
 
       const state = {
-        THREE, renderer, scene, camera, pivot, inner, meshes, colAttr: model.colAttr, vertexRegions: model.vertexRegions,
+        THREE, renderer, scene, camera, pivot, inner, meshes, colAttr: model.colAttr, vertexRegions: model.vertexRegions, cornerVertex: model.cornerVertex,
         rotY: 0.5, rotX: 0.05, velY: 0, targetY: null, autoRotate: true, dragging: false,
         dist: 3.9, ty: 0.88,
         visible: true, frame: null
@@ -4507,9 +4553,10 @@
         camera.position.set(0, state.ty + 0.1 * (state.dist / 3.9), state.dist);
         camera.lookAt(0, state.ty, 0);
         renderer.render(scene, camera);
-        if ((moving || state.dragging) && state.visible) state.frame = requestAnimationFrame(tick);
+        if (state.dragging || pointers.size > 0 || (moving && (state.visible || !state.autoRotate))) state.frame = requestAnimationFrame(tick);
       };
-      state.requestRender = () => { if (!state.frame && state.visible) state.frame = requestAnimationFrame(tick); };
+      // 画面外では自動回転だけ止める。触っているときは必ず描画する
+      state.requestRender = (force) => { if (!state.frame && (state.visible || force || state.dragging || pointers.size > 0)) state.frame = requestAnimationFrame(tick); };
 
       // 1本指ドラッグで回転、2本指でズーム（ピンチ）と上下移動、動かさずに離したらタップとして部位を選ぶ
       const el = renderer.domElement;
@@ -4553,6 +4600,7 @@
         moved += Math.abs(dx) + Math.abs(dy);
         state.rotY += dx * 0.012; state.velY = dx * 0.012;
         state.rotX = Math.max(-0.6, Math.min(0.6, state.rotX + dy * 0.006));
+        state.requestRender(true);
       });
       const endPointer = (e) => {
         if (!pointers.has(e.pointerId)) return;
@@ -4570,7 +4618,7 @@
           const hit = ray.intersectObjects(meshes, false)[0];
           let region = null;
           if (hit && hit.face) {
-            const rs = [hit.face.a, hit.face.b, hit.face.c].map(v => model.vertexRegions[v]).filter(Boolean);
+            const rs = [hit.face.a, hit.face.b, hit.face.c].map(v => model.vertexRegions[model.cornerVertex[v]]).filter(Boolean);
             region = rs.length ? rs.sort((x, y) => rs.filter(v => v === y).length - rs.filter(v => v === x).length)[0] : null;
           }
           body3dSelected = region && region !== body3dSelected ? region : null;
