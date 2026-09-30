@@ -229,7 +229,7 @@
     /* 部位ごとの最後のトレーニング */
     .parts-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
     .parts-card-title { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; margin-bottom: 10px; }
-    .parts-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .parts-grid { display: grid; grid-template-columns: repeat(var(--parts-cols, 3), minmax(0, 1fr)); gap: 6px; }
     .parts-cell { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 8px 4px; text-align: center; border: 1px solid transparent; }
     .parts-cell .p { font-size: 0.78rem; font-weight: 800; color: #fff; }
     .parts-cell .d { font-size: 0.62rem; font-weight: 700; color: var(--text-sub); margin-top: 3px; font-family: 'LINE Seed JP', sans-serif; white-space: nowrap; }
@@ -837,6 +837,12 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
         <span style="font-size:0.9rem; font-weight:700;" id="t-priv-sound">効果音</span>
         <input type="checkbox" class="toggle-switch" id="pref-sound" onchange="setSoundEnabled(this.checked)">
+      </div>
+
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:0.9rem; font-weight:700;" id="t-parts-setting-title">記録画面に出す部位</div>
+        <div style="font-size:0.72rem; color:var(--text-sub); margin:4px 0 10px; line-height:1.5;" id="t-parts-setting-desc">よく使う部位だけ選んでおくと、トレーニング後の画面がすっきりします。</div>
+        <div class="chip-row" id="parts-setting-chips"></div>
       </div>
 
       <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
@@ -2175,6 +2181,7 @@
       setT("t-btn-cancel-stop", t.btnCancelStop);
       setT("t-btn-discard-log", t.btnDiscardLog);
       try { renderMemoExtras(); } catch (e) {}
+      try { renderPartsSetting(); } catch (e) {}
       setT("t-edit-log-title", t.editLogTitle);
       setT("t-btn-save-edit-log", t.btnSaveEditLog);
       setT("t-btn-cancel-edit-log", t.btnCancelEditLog);
@@ -2878,12 +2885,55 @@
     const BODY_PARTS = [
       { id: 'chest', ja: '胸', es: 'Pecho' },
       { id: 'back', ja: '背中', es: 'Espalda' },
-      { id: 'legs', ja: '脚', es: 'Pierna' },
       { id: 'shoulders', ja: '肩', es: 'Hombro' },
       { id: 'arms', ja: '腕', es: 'Brazos' },
+      { id: 'biceps', ja: '二頭', es: 'Bíceps' },
+      { id: 'triceps', ja: '三頭', es: 'Tríceps' },
+      { id: 'forearms', ja: '前腕', es: 'Antebrazo' },
+      { id: 'abs', ja: '腹筋', es: 'Abs' },
       { id: 'core', ja: '体幹', es: 'Core' },
-      { id: 'full', ja: '全身', es: 'Todo' }
+      { id: 'lowerback', ja: '腰', es: 'Lumbar' },
+      { id: 'glutes', ja: 'お尻', es: 'Glúteo' },
+      { id: 'legs', ja: '脚', es: 'Pierna' },
+      { id: 'quads', ja: '太もも前', es: 'Cuádriceps' },
+      { id: 'hamstrings', ja: '太もも裏', es: 'Femoral' },
+      { id: 'calves', ja: 'ふくらはぎ', es: 'Pantorrilla' },
+      { id: 'full', ja: '全身', es: 'Full body' }
     ];
+    const DEFAULT_VISIBLE_PARTS = ['chest', 'back', 'shoulders', 'arms', 'abs', 'glutes', 'legs', 'full'];
+    let visibleParts = (() => {
+      try {
+        const v = JSON.parse(localStorage.getItem("gym_visible_parts") || "null");
+        if (Array.isArray(v) && v.length) return v.filter(id => BODY_PARTS.some(p => p.id === id));
+      } catch (e) {}
+      return [...DEFAULT_VISIBLE_PARTS];
+    })();
+    const orderedVisibleParts = () => BODY_PARTS.filter(p => visibleParts.includes(p.id));
+
+    function renderPartsSetting() {
+      const es = currentLang === 'es';
+      const title = document.getElementById("t-parts-setting-title");
+      const desc = document.getElementById("t-parts-setting-desc");
+      if (title) title.textContent = es ? "Partes en la pantalla de registro" : "記録画面に出す部位";
+      if (desc) desc.textContent = es ? "Elige solo las que usas y la pantalla tras entrenar quedará más limpia." : "よく使う部位だけ選んでおくと、トレーニング後の画面がすっきりします。";
+      const el = document.getElementById("parts-setting-chips");
+      if (el) el.innerHTML = BODY_PARTS.map(p =>
+        `<button type="button" class="${visibleParts.includes(p.id) ? 'active' : ''}" onclick="toggleVisiblePart('${p.id}')">${es ? p.es : p.ja}</button>`).join("");
+    }
+    window.toggleVisiblePart = (id) => {
+      playSound('click');
+      if (visibleParts.includes(id)) {
+        if (visibleParts.length <= 1) return; // 1つは残す
+        visibleParts = visibleParts.filter(x => x !== id);
+      } else {
+        visibleParts = [...visibleParts, id];
+      }
+      try { localStorage.setItem("gym_visible_parts", JSON.stringify(visibleParts)); } catch (e) {}
+      if (myUserName) set(ref(db, `users/${myUserName}/visibleParts`), visibleParts);
+      renderPartsSetting();
+      renderMemoExtras();
+      try { renderPartsCard(); } catch (e) {}
+    };
     const partLabel = (id) => { const p = BODY_PARTS.find(x => x.id === id); return p ? (currentLang === 'es' ? p.es : p.ja) : id; };
     let selectedParts = new Set();
 
@@ -2892,7 +2942,7 @@
       const pl = document.getElementById("t-memo-parts-label");
       if (pl) pl.textContent = es ? "Partes trabajadas (opcional)" : "鍛えた部位（任意）";
       const chips = document.getElementById("memo-parts-chips");
-      if (chips) chips.innerHTML = BODY_PARTS.map(p =>
+      if (chips) chips.innerHTML = orderedVisibleParts().map(p =>
         `<button type="button" class="${selectedParts.has(p.id) ? 'active' : ''}" onclick="toggleMemoPart('${p.id}')">${es ? p.es : p.ja}</button>`).join("");
     }
     window.toggleMemoPart = (id) => {
@@ -3787,7 +3837,9 @@
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const daysAgo = (ts) => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return Math.round((today - d) / 86400000); };
       let stalest = null;
-      const cells = BODY_PARTS.filter(p => p.id !== 'full').map(p => {
+      const shownParts = BODY_PARTS.filter(p => p.id !== 'full' && (visibleParts.includes(p.id) || lastByPart[p.id]));
+      el.style.setProperty('--parts-cols', shownParts.length > 9 ? 4 : 3);
+      const cells = shownParts.map(p => {
         const ts = lastByPart[p.id];
         if (!ts) return `<div class="parts-cell never"><div class="p">${es ? p.es : p.ja}</div><div class="d">—</div></div>`;
         const n = daysAgo(ts);
@@ -5050,6 +5102,16 @@
         if(obj.privacy) usersPrivacyData[u] = obj.privacy;
         if(obj.goalCounts) usersGoalData[u] = obj.goalCounts;
       });
+      // 別の端末で選んだ表示部位を反映
+      try {
+        const mine = data[myUserName];
+        if (mine && Array.isArray(mine.visibleParts) && mine.visibleParts.length &&
+            JSON.stringify(mine.visibleParts) !== JSON.stringify(visibleParts)) {
+          visibleParts = mine.visibleParts.filter(id => BODY_PARTS.some(p => p.id === id));
+          localStorage.setItem("gym_visible_parts", JSON.stringify(visibleParts));
+          renderMemoExtras(); renderPartsSetting();
+        }
+      } catch (e) {}
       // 自分の目標は端末(localStorage)にあるので、家族の達成率ランキング用にFirebaseにも同期しておく
       try { syncMyGoalToDb(); } catch(e){}
       // プライバシーが更新されたら再描画
@@ -5470,6 +5532,7 @@
       playSound('click');
       document.getElementById("settings-modal").style.display = "flex";
       initPrivacyToggles();
+      try { renderPartsSetting(); } catch (e) {}
       const weightInput = document.getElementById("pref-weight-kg");
       if (weightInput) weightInput.value = localStorage.getItem("gym_weight_kg") || "";
     };
