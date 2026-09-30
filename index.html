@@ -4124,13 +4124,15 @@
       ell(V(0, 1.645, 0.0), V(0.074, 0.098, 0.088), none);
       ell(V(0, 1.575, 0.028), V(0.052, 0.045, 0.055), none);
       cap(V(0, 1.47, -0.008), V(0, 1.575, 0.0), 0.047, 0.043, none);
-      // 胴体
-      ell(V(0, 1.325, 0.0), V(0.15, 0.165, 0.105), (p) => p[2] > 0.035 && p[1] > 1.23 ? 'chest' : (p[2] < 0 ? 'upperback' : (p[1] > 1.25 ? 'upperback' : 'obliques')));
-      [-1, 1].forEach(s => ell(V(s * 0.068, 1.345, 0.055), V(0.072, 0.052, 0.045), () => 'chest'));
-      cap(V(-0.15, 1.44, -0.02), V(0.15, 1.44, -0.02), 0.048, 0.048, () => 'upperback');
-      ell(V(0, 1.14, 0.008), V(0.125, 0.15, 0.092), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.065 ? 'abs' : 'obliques') : (p[2] < -0.02 ? 'lowerback' : 'obliques'));
-      ell(V(0, 0.965, 0.0), V(0.15, 0.105, 0.098), (p) => p[2] < -0.035 ? 'glutes' : null);
-      [-1, 1].forEach(s => ell(V(s * 0.068, 0.925, -0.058), V(0.078, 0.085, 0.062), (p) => p[2] < -0.03 ? 'glutes' : null));
+      // 胴体（肩幅は広く、腰はくびれすぎず、骨盤は控えめにして男女どちらにも見える自然な体型に）
+      ell(V(0, 1.325, 0.0), V(0.148, 0.165, 0.102), (p) => p[2] > 0.035 && p[1] > 1.23 ? 'chest' : (p[2] < 0 ? 'upperback' : (p[1] > 1.25 ? 'upperback' : 'obliques')));
+      [-1, 1].forEach(s => ell(V(s * 0.066, 1.345, 0.052), V(0.07, 0.05, 0.043), () => 'chest'));
+      [-1, 1].forEach(s => ell(V(s * 0.095, 1.27, -0.035), V(0.07, 0.12, 0.05), (p) => p[2] < 0 ? 'upperback' : 'obliques'));
+      cap(V(-0.15, 1.44, -0.02), V(0.15, 1.44, -0.02), 0.046, 0.046, () => 'upperback');
+      ell(V(0, 1.14, 0.006), V(0.128, 0.17, 0.09), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.062 ? 'abs' : 'obliques') : (p[2] < -0.02 ? 'lowerback' : 'obliques'));
+      ell(V(0, 1.02, 0.004), V(0.125, 0.09, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.06 ? 'abs' : null) : (p[2] < -0.02 ? 'lowerback' : null));
+      ell(V(0, 0.945, -0.006), V(0.132, 0.085, 0.088), (p) => p[2] < -0.035 ? 'glutes' : null);
+      [-1, 1].forEach(s => ell(V(s * 0.06, 0.915, -0.048), V(0.066, 0.074, 0.052), (p) => p[2] < -0.03 ? 'glutes' : null));
 
       [-1, 1].forEach(s => {
         // 肩・腕（少し開いた自然な立ち姿）
@@ -4142,9 +4144,9 @@
         ell(V(s * 0.3, 1.07, -0.008), V(0.035, 0.065, 0.034), () => 'forearms');
         ell(V(s * 0.36, 0.82, 0.02), V(0.022, 0.06, 0.042), none);
         // 脚
-        cap(V(s * 0.088, 0.94, 0.0), V(s * 0.1, 0.52, 0.01), 0.083, 0.052, frontBack('quads', 'hamstrings', 0.0));
-        ell(V(s * 0.095, 0.73, 0.035), V(0.058, 0.14, 0.05), () => 'quads');
-        ell(V(s * 0.092, 0.73, -0.03), V(0.055, 0.13, 0.048), () => 'hamstrings');
+        cap(V(s * 0.082, 0.92, 0.0), V(s * 0.098, 0.52, 0.01), 0.074, 0.05, frontBack('quads', 'hamstrings', 0.0));
+        ell(V(s * 0.092, 0.72, 0.03), V(0.055, 0.14, 0.046), () => 'quads');
+        ell(V(s * 0.09, 0.72, -0.028), V(0.052, 0.13, 0.044), () => 'hamstrings');
         cap(V(s * 0.1, 0.52, 0.01), V(s * 0.105, 0.085, -0.008), 0.049, 0.029, (p) => p[2] < -0.012 ? 'calves' : null);
         ell(V(s * 0.104, 0.36, -0.03), V(0.043, 0.1, 0.042), (p) => p[2] < -0.015 ? 'calves' : null);
         ell(V(s * 0.108, 0.035, 0.045), V(0.038, 0.03, 0.095), none);
@@ -4180,7 +4182,7 @@
       };
 
       // Surface Nets で表面を三角形にする。網目が方眼にそろわないよう、格子を斜めに傾けて取る
-      const S = 0.025;
+      const S = 0.033;
       const R = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0.43, 0.61, 0.27));
       const Re = R.elements;
       const toWorld = (gx, gy, gz) => [Re[0] * gx + Re[4] * gy + Re[8] * gz, Re[1] * gx + Re[5] * gy + Re[9] * gz + 0.88, Re[2] * gx + Re[6] * gy + Re[10] * gz];
@@ -4314,7 +4316,7 @@
       if (!el) return;
       const es = currentLang === 'es';
       if (!body3dSelected) {
-        el.innerHTML = `<div class="body3d-hint">${es ? 'Arrastra para girar y toca una parte para ver cuándo la entrenaste.' : 'ドラッグで回転、部位をタップすると最後にトレーニングした日が見られます。'}</div>`;
+        el.innerHTML = `<div class="body3d-hint">${es ? 'Arrastra para girar, pellizca con dos dedos para acercar y toca una parte para ver cuándo la entrenaste.' : 'ドラッグで回転、2本指でズームと上下移動。部位をタップすると最後にトレーニングした日が見られます。'}</div>`;
         return;
       }
       const { count, last } = computeBodyHeat(body3dPeriod);
@@ -4348,6 +4350,7 @@
       if (!body3d) return;
       body3d.targetY = side === 'back' ? Math.PI : 0;
       body3d.autoRotate = false;
+      body3d.dist = 3.9; body3d.ty = 0.88; body3d.rotX = 0.05; // ズームも元に戻す
       body3d.requestRender();
     };
 
@@ -4372,8 +4375,7 @@
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
-      camera.position.set(0, 0.98, 3.9);
-      camera.lookAt(0, 0.88, 0);
+
       
       const pivot = new THREE.Group();
       pivot.position.y = 0.92;
@@ -4389,6 +4391,7 @@
       const state = {
         THREE, renderer, scene, camera, pivot, inner, meshes, colAttr: model.colAttr, vertexRegions: model.vertexRegions,
         rotY: 0.5, rotX: 0.05, velY: 0, targetY: null, autoRotate: true, dragging: false,
+        dist: 3.9, ty: 0.88,
         visible: true, frame: null
       };
       const resize = () => {
@@ -4413,32 +4416,65 @@
           else if (state.autoRotate) { state.rotY += 0.006; moving = true; }
         }
         pivot.rotation.set(state.rotX, state.rotY, 0);
+        camera.position.set(0, state.ty + 0.1 * (state.dist / 3.9), state.dist);
+        camera.lookAt(0, state.ty, 0);
         renderer.render(scene, camera);
         if ((moving || state.dragging) && state.visible) state.frame = requestAnimationFrame(tick);
       };
       state.requestRender = () => { if (!state.frame && state.visible) state.frame = requestAnimationFrame(tick); };
 
-      // ドラッグで回転、動かさずに離したらタップとして部位を選ぶ
+      // 1本指ドラッグで回転、2本指でズーム（ピンチ）と上下移動、動かさずに離したらタップとして部位を選ぶ
       const el = renderer.domElement;
-      let startX = 0, startY = 0, lastX = 0, lastY = 0, moved = 0;
+      const pointers = new Map();
+      let lastX = 0, lastY = 0, moved = 0, multi = false;
+      let pinch = null;
+      const DIST_MIN = 1.2, DIST_MAX = 4.8;
+      const clampDist = (d) => Math.max(DIST_MIN, Math.min(DIST_MAX, d));
+      const clampTy = (y) => Math.max(0.15, Math.min(1.65, y));
+      const pinchInfo = () => {
+        const [a, b] = [...pointers.values()];
+        return { d: Math.hypot(a.x - b.x, a.y - b.y), my: (a.y + b.y) / 2 };
+      };
       el.addEventListener('pointerdown', (e) => {
-        state.dragging = true; state.autoRotate = false; state.targetY = null; state.velY = 0;
-        startX = lastX = e.clientX; startY = lastY = e.clientY; moved = 0;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
         el.setPointerCapture(e.pointerId);
+        state.autoRotate = false; state.targetY = null; state.velY = 0;
+        if (pointers.size === 1) {
+          state.dragging = true; multi = false; moved = 0;
+          lastX = e.clientX; lastY = e.clientY;
+        } else if (pointers.size === 2) {
+          multi = true;
+          const pi = pinchInfo();
+          pinch = { d: pi.d, my: pi.my, dist: state.dist, ty: state.ty };
+        }
         state.requestRender();
       });
       el.addEventListener('pointermove', (e) => {
-        if (!state.dragging) return;
+        if (!pointers.has(e.pointerId)) return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pointers.size >= 2 && pinch) {
+          const pi = pinchInfo();
+          state.dist = clampDist(pinch.dist * (pinch.d / Math.max(10, pi.d)));
+          state.ty = clampTy(pinch.ty + (pi.my - pinch.my) * 0.0022 * (state.dist / 3.9));
+          state.requestRender();
+          return;
+        }
+        if (!state.dragging || multi) return;
         const dx = e.clientX - lastX, dy = e.clientY - lastY;
         lastX = e.clientX; lastY = e.clientY;
         moved += Math.abs(dx) + Math.abs(dy);
         state.rotY += dx * 0.012; state.velY = dx * 0.012;
         state.rotX = Math.max(-0.6, Math.min(0.6, state.rotX + dy * 0.006));
       });
-      const endDrag = (e) => {
-        if (!state.dragging) return;
+      const endPointer = (e) => {
+        if (!pointers.has(e.pointerId)) return;
+        pointers.delete(e.pointerId);
+        if (pointers.size >= 1) { pinch = null; return; } // 2本指のうち1本が離れただけ
+        pinch = null;
+        const wasTap = state.dragging && !multi && moved < 8;
         state.dragging = false;
-        if (moved < 8) {
+        if (multi) state.velY = 0;
+        if (wasTap) {
           state.velY = 0;
           const rect = el.getBoundingClientRect();
           const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
@@ -4456,8 +4492,15 @@
         }
         state.requestRender();
       };
-      el.addEventListener('pointerup', endDrag);
-      el.addEventListener('pointercancel', endDrag);
+      el.addEventListener('pointerup', endPointer);
+      el.addEventListener('pointercancel', endPointer);
+      // パソコンではマウスホイールでズーム
+      el.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        state.autoRotate = false;
+        state.dist = clampDist(state.dist * (1 + e.deltaY * 0.0012));
+        state.requestRender();
+      }, { passive: false });
 
       // 画面外にあるときは描画を止める
       new IntersectionObserver((entries) => {
