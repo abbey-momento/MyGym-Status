@@ -4170,10 +4170,10 @@
       [-1, 1].forEach(s => ell(V(s * 0.062, 1.335, 0.05), V(0.062, 0.05, 0.04), () => 'chest'));
       [-1, 1].forEach(s => ell(V(s * 0.085, 1.27, -0.032), V(0.058, 0.11, 0.045), (p) => p[2] < 0 ? 'upperback' : 'obliques'));
       cap(V(-0.135, 1.44, -0.02), V(0.135, 1.44, -0.02), 0.042, 0.042, () => 'upperback');
-      ell(V(0, 1.14, 0.006), V(0.118, 0.17, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.058 ? 'abs' : 'obliques') : (p[2] < -0.02 ? 'lowerback' : 'obliques'));
+      ell(V(0, 1.14, 0.006), V(0.125, 0.17, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.058 ? 'abs' : 'obliques') : (p[2] < -0.02 ? 'lowerback' : 'obliques'));
       ell(V(0, 1.02, 0.004), V(0.124, 0.09, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.058 ? 'abs' : null) : (p[2] < -0.02 ? 'lowerback' : null));
-      ell(V(0, 0.95, -0.006), V(0.138, 0.08, 0.09), (p) => p[2] < -0.035 ? 'glutes' : null);
-      [-1, 1].forEach(s => ell(V(s * 0.062, 0.915, -0.05), V(0.066, 0.072, 0.054), (p) => p[2] < -0.03 ? 'glutes' : null));
+      ell(V(0, 0.95, -0.006), V(0.136, 0.08, 0.092), (p) => p[2] < -0.035 ? 'glutes' : null);
+      [-1, 1].forEach(s => ell(V(s * 0.066, 0.915, -0.05), V(0.07, 0.075, 0.057), (p) => p[2] < -0.03 ? 'glutes' : null));
 
       [-1, 1].forEach(s => {
         G = s < 0 ? 'L' : 'R';
@@ -4186,11 +4186,11 @@
         ell(V(s * 0.28, 1.07, -0.008), V(0.031, 0.06, 0.03), () => 'forearms');
         ell(V(s * 0.34, 0.82, 0.02), V(0.02, 0.058, 0.04), none);
         // 脚（左右の間にすき間ができるよう、付け根を少し外に）
-        cap(V(s * 0.09, 0.91, 0.0), V(s * 0.1, 0.52, 0.01), 0.07, 0.049, frontBack('quads', 'hamstrings', 0.0));
-        ell(V(s * 0.098, 0.72, 0.028), V(0.052, 0.135, 0.044), () => 'quads');
-        ell(V(s * 0.096, 0.72, -0.026), V(0.05, 0.125, 0.042), () => 'hamstrings');
-        cap(V(s * 0.1, 0.52, 0.01), V(s * 0.105, 0.085, -0.008), 0.047, 0.028, (p) => p[2] < -0.012 ? 'calves' : null);
-        ell(V(s * 0.104, 0.36, -0.028), V(0.041, 0.098, 0.04), (p) => p[2] < -0.015 ? 'calves' : null);
+        cap(V(s * 0.1, 0.91, 0.0), V(s * 0.104, 0.52, 0.01), 0.079, 0.055, frontBack('quads', 'hamstrings', 0.0));
+        ell(V(s * 0.106, 0.72, 0.03), V(0.06, 0.14, 0.05), () => 'quads');
+        ell(V(s * 0.104, 0.72, -0.028), V(0.057, 0.13, 0.048), () => 'hamstrings');
+        cap(V(s * 0.104, 0.52, 0.01), V(s * 0.107, 0.085, -0.008), 0.052, 0.031, (p) => p[2] < -0.012 ? 'calves' : null);
+        ell(V(s * 0.107, 0.36, -0.03), V(0.047, 0.105, 0.046), (p) => p[2] < -0.015 ? 'calves' : null);
         ell(V(s * 0.108, 0.035, 0.045), V(0.036, 0.028, 0.092), none);
       });
       G = 'C';
@@ -4226,7 +4226,7 @@
       };
 
       // Surface Nets で表面を三角形にする。網目が方眼にそろわないよう、格子を斜めに傾けて取る
-      const S = 0.033;
+      const S = 0.03;
       const R = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0.43, 0.61, 0.27));
       const Re = R.elements;
       const toWorld = (gx, gy, gz) => [Re[0] * gx + Re[4] * gy + Re[8] * gz, Re[1] * gx + Re[5] * gy + Re[9] * gz + 0.88, Re[2] * gx + Re[6] * gy + Re[10] * gz];
@@ -4260,15 +4260,48 @@
         positions.push(...toWorld(x0 + (i + sx / n) * S, y0 + (j + sy / n) * S, z0 + (k + sz / n) * S));
       }
       const tris = [];
+      const d2 = (u, w) => { const dx = positions[u * 3] - positions[w * 3], dy = positions[u * 3 + 1] - positions[w * 3 + 1], dz = positions[u * 3 + 2] - positions[w * 3 + 2]; return dx * dx + dy * dy + dz * dz; };
       const quad = (a, b, c, d, flip) => {
         if (a < 0 || b < 0 || c < 0 || d < 0) return;
-        if (flip) tris.push(a, c, b, a, d, c); else tris.push(a, b, c, a, c, d);
+        // 四角形は短いほうの対角線で割ると、細長い三角形ができにくい
+        if (d2(a, c) <= d2(b, d)) { if (flip) tris.push(a, c, b, a, d, c); else tris.push(a, b, c, a, c, d); }
+        else { if (flip) tris.push(a, d, b, b, d, c); else tris.push(a, b, d, b, c, d); }
       };
       for (let k = 1; k < nz - 1; k++) for (let j = 1; j < ny - 1; j++) for (let i = 1; i < nx - 1; i++) {
         const p = f[idx(i, j, k)] < 0;
         if (p !== (f[idx(i + 1, j, k)] < 0)) quad(cellVert[idx(i, j, k)], cellVert[idx(i, j - 1, k)], cellVert[idx(i, j - 1, k - 1)], cellVert[idx(i, j, k - 1)], p);
         if (p !== (f[idx(i, j + 1, k)] < 0)) quad(cellVert[idx(i, j, k)], cellVert[idx(i, j, k - 1)], cellVert[idx(i - 1, j, k - 1)], cellVert[idx(i - 1, j, k)], p);
         if (p !== (f[idx(i, j, k + 1)] < 0)) quad(cellVert[idx(i, j, k)], cellVert[idx(i - 1, j, k)], cellVert[idx(i - 1, j - 1, k)], cellVert[idx(i, j - 1, k)], p);
+      }
+
+      // 頂点を体の表面に沿って均等にならし、毎回ぴったり表面に戻す（網目が曲面に沿うように）
+      const nV = positions.length / 3;
+      const nbr = Array.from({ length: nV }, () => new Set());
+      for (let t = 0; t < tris.length; t += 3) {
+        const a = tris[t], b = tris[t + 1], c = tris[t + 2];
+        nbr[a].add(b); nbr[a].add(c); nbr[b].add(a); nbr[b].add(c); nbr[c].add(a); nbr[c].add(b);
+      }
+      const E = 0.0015;
+      const gradAt = (x, y, z, f0) => [(field(x + E, y, z) - f0) / E, (field(x, y + E, z) - f0) / E, (field(x, y, z + E) - f0) / E];
+      const project = (x, y, z) => {
+        for (let it = 0; it < 2; it++) {
+          const f0 = field(x, y, z);
+          const [gx, gy, gz] = gradAt(x, y, z, f0);
+          const g2 = gx * gx + gy * gy + gz * gz || 1;
+          x -= f0 * gx / g2; y -= f0 * gy / g2; z -= f0 * gz / g2;
+        }
+        return [x, y, z];
+      };
+      for (let iter = 0; iter < 4; iter++) {
+        const next = new Float32Array(positions.length);
+        for (let v = 0; v < nV; v++) {
+          let ax = 0, ay = 0, az = 0; const n = nbr[v].size || 1;
+          nbr[v].forEach(w => { ax += positions[w * 3]; ay += positions[w * 3 + 1]; az += positions[w * 3 + 2]; });
+          const px = positions[v * 3], py = positions[v * 3 + 1], pz = positions[v * 3 + 2];
+          const [qx, qy, qz] = project(px + (ax / n - px) * 0.6, py + (ay / n - py) * 0.6, pz + (az / n - pz) * 0.6);
+          next[v * 3] = qx; next[v * 3 + 1] = qy; next[v * 3 + 2] = qz;
+        }
+        for (let i = 0; i < positions.length; i++) positions[i] = next[i];
       }
 
       const geo = new THREE.BufferGeometry();
@@ -4292,6 +4325,17 @@
           geo.index.needsUpdate = true;
           geo.computeVertexNormals();
         }
+      }
+      // 陰影は網目ではなく体の本来の曲面から計算する（なめらかに見えるように）
+      {
+        const nrm = geo.attributes.normal;
+        for (let v = 0; v < posAttr.count; v++) {
+          const x = posAttr.getX(v), y = posAttr.getY(v), z = posAttr.getZ(v);
+          const [gx, gy, gz] = gradAt(x, y, z, field(x, y, z));
+          const l = Math.hypot(gx, gy, gz) || 1;
+          nrm.setXYZ(v, gx / l, gy / l, gz / l);
+        }
+        nrm.needsUpdate = true;
       }
       const vertexRegions = [];
       for (let v = 0; v < posAttr.count; v++) vertexRegions.push(regionAt(posAttr.getX(v), posAttr.getY(v), posAttr.getZ(v)));
