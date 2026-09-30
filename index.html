@@ -280,6 +280,26 @@
     .wrapped-slide.s5 { background: radial-gradient(circle at 30% 30%, rgba(52,211,153,0.45), transparent 60%), #06231A; }
     .wrapped-slide.s6 { background: radial-gradient(circle at 60% 20%, rgba(255,61,186,0.35), transparent 60%), #25081C; }
 
+    /* 3D 人体ヒートマップ */
+    .body3d-card { background: radial-gradient(circle at 50% 38%, rgba(47,143,255,0.16), transparent 62%), rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 18px; padding: 14px 14px 12px; margin-bottom: 14px; }
+    .body3d-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .body3d-title { font-size: 0.85rem; font-weight: 800; color: #fff; }
+    .body3d-period { display: flex; gap: 2px; background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 10px; padding: 2px; }
+    .body3d-period button { background: none; border: none; color: var(--text-sub); font-size: 0.66rem; font-weight: 700; padding: 5px 8px; border-radius: 8px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .body3d-period button.active { background: var(--accent-gradient); color: #0B0F19; }
+    .body3d-canvas-wrap { position: relative; height: 380px; margin: 4px -6px 0; touch-action: none; cursor: grab; }
+    .body3d-canvas-wrap:active { cursor: grabbing; }
+    .body3d-canvas-wrap canvas { display: block; outline: none; }
+    .body3d-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+    .body3d-controls > button { background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); color: var(--text-sub); border-radius: 999px; padding: 6px 14px; font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .body3d-legend { flex: 1; display: flex; align-items: center; gap: 6px; font-size: 0.6rem; color: var(--text-sub); font-weight: 700; justify-content: center; }
+    .body3d-legend i { width: 70px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #2A3550, #1F5FBF 30%, #2DD4BF 65%, #C8FFF4); }
+    .body3d-info { margin-top: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px 14px; min-height: 58px; }
+    .body3d-hint { font-size: 0.74rem; color: var(--text-sub); font-weight: 700; line-height: 1.5; }
+    .body3d-sel-name { font-size: 1.05rem; font-weight: 800; color: #FFC400; }
+    .body3d-sel-last { font-size: 0.82rem; font-weight: 700; color: #fff; margin-top: 3px; }
+    .body3d-sel-count { font-size: 0.72rem; font-weight: 700; color: var(--text-sub); margin-top: 2px; font-family: 'LINE Seed JP', sans-serif; }
+
     /* ペースに合わせた声かけ */
     .pace-card { display: flex; gap: 12px; align-items: flex-start; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-left: 3px solid var(--pace-color, var(--accent)); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
     .pace-card .pace-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--pace-color, var(--accent)); background: rgba(255,255,255,0.04); }
@@ -1173,6 +1193,9 @@
       <div id="wrapped-entry" style="display:none;"></div>
 
       <div id="lifetime-card" class="lifetime-card" style="display:none;"></div>
+
+      <!-- 3D 人体ヒートマップ -->
+      <div id="body3d-card" class="body3d-card"></div>
 
       <!-- 部位ごとの最後のトレーニング -->
       <div id="parts-card" class="parts-card" style="display:none;"></div>
@@ -3557,6 +3580,7 @@
       try { renderPersonalBests(); } catch(e){}
       try { renderPaceMessage(); } catch(e){ console.error("MyGym pace:", e); }
       try { renderLifetimeStats(); } catch(e){ console.error("MyGym lifetime:", e); }
+      try { renderBody3DCard(); } catch(e){ console.error("MyGym body3d:", e); }
       try { renderPartsCard(); } catch(e){ console.error("MyGym parts:", e); }
       try { renderWrappedEntry(); } catch(e){ console.error("MyGym wrapped:", e); }
 
@@ -4029,6 +4053,342 @@
       try { playSound('click'); } catch (e) {}
       document.getElementById("wrapped-modal").style.display = "none";
     };
+
+    // ===================== 3D 人体ヒートマップ =====================
+    // 重いので、マイページで表示されたときに初めて three.js を読み込む
+    const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
+    const BODY_REGIONS = {
+      chest:      { ja: '胸',       es: 'Pecho',       parts: ['chest'] },
+      shoulders:  { ja: '肩',       es: 'Hombro',      parts: ['shoulders'] },
+      biceps:     { ja: '二頭',     es: 'Bíceps',      parts: ['biceps', 'arms'] },
+      triceps:    { ja: '三頭',     es: 'Tríceps',     parts: ['triceps', 'arms'] },
+      forearms:   { ja: '前腕',     es: 'Antebrazo',   parts: ['forearms', 'arms'] },
+      abs:        { ja: '腹筋',     es: 'Abs',         parts: ['abs', 'core'] },
+      obliques:   { ja: '脇腹',     es: 'Oblicuos',    parts: ['core', 'abs'] },
+      upperback:  { ja: '背中',     es: 'Espalda',     parts: ['back'] },
+      lowerback:  { ja: '腰',       es: 'Lumbar',      parts: ['lowerback', 'core', 'back'] },
+      glutes:     { ja: 'お尻',     es: 'Glúteo',      parts: ['glutes', 'legs'] },
+      quads:      { ja: '太もも前', es: 'Cuádriceps',  parts: ['quads', 'legs'] },
+      hamstrings: { ja: '太もも裏', es: 'Femoral',     parts: ['hamstrings', 'legs'] },
+      calves:     { ja: 'ふくらはぎ', es: 'Pantorrilla', parts: ['calves', 'legs'] }
+    };
+    let body3d = null;
+    let body3dLoading = false;
+    let body3dPeriod = 30;
+    let body3dSelected = null;
+
+    // 期間内の部位ごとの回数（全身は半分として数える）と、最後にやった日時
+    function computeBodyHeat(days) {
+      const since = days ? Date.now() - days * 86400000 : 0;
+      const score = {}, count = {}, last = {};
+      Object.keys(BODY_REGIONS).forEach(r => { score[r] = 0; count[r] = 0; last[r] = 0; });
+      Object.values(allLogsData).forEach(l => {
+        if (l.user !== myUserName || !l.startTime || !Array.isArray(l.parts) || l.parts.length === 0) return;
+        const hit = {};
+        Object.entries(BODY_REGIONS).forEach(([r, def]) => {
+          if (l.parts.some(p => def.parts.includes(p))) hit[r] = 1;
+          else if (l.parts.includes('full')) hit[r] = Math.max(hit[r] || 0, 0.5);
+        });
+        Object.entries(hit).forEach(([r, w]) => {
+          if (l.startTime > last[r]) last[r] = l.startTime;
+          if (l.startTime >= since) { score[r] += w; count[r] += 1; }
+        });
+      });
+      const max = Math.max(2, ...Object.values(score));
+      const heat = {};
+      Object.keys(score).forEach(r => { heat[r] = Math.min(1, score[r] / max); });
+      return { heat, count, last };
+    }
+
+    function heatColor(THREE, v) {
+      const stops = [[0, 0x2A3550], [0.3, 0x1F5FBF], [0.65, 0x2DD4BF], [1, 0xC8FFF4]];
+      for (let i = 1; i < stops.length; i++) {
+        if (v <= stops[i][0]) {
+          const t = (v - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0]);
+          return new THREE.Color(stops[i - 1][1]).lerp(new THREE.Color(stops[i][1]), t);
+        }
+      }
+      return new THREE.Color(stops[stops.length - 1][1]);
+    }
+
+    function buildBodyModel(THREE) {
+      const inner = new THREE.Group();
+      const meshes = [];
+      const dummy = new THREE.Object3D();
+      const place = (geo, pos, rot = [0, 0, 0], scl = [1, 1, 1]) => {
+        dummy.position.set(...pos); dummy.rotation.set(...rot); dummy.scale.set(...scl); dummy.updateMatrix();
+        geo.applyMatrix4(dummy.matrix);
+        return geo;
+      };
+      const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.08 });
+      const add = (geo, regionAt) => {
+        geo.computeVertexNormals(); // なめらかな陰影のため、頂点を分ける前に法線を計算
+        geo = geo.index ? geo.toNonIndexed() : geo; // 領域の境目をはっきりさせるため頂点を分ける
+        geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(geo.attributes.position.count * 3), 3));
+        const mesh = new THREE.Mesh(geo, material);
+        mesh.userData.regionAt = regionAt;
+        // 面ごとに領域を決めておく（3頂点の重心で判定）
+        const pos = geo.attributes.position, faceRegions = [];
+        const v = new THREE.Vector3();
+        for (let f = 0; f < pos.count; f += 3) {
+          v.set(0, 0, 0);
+          for (let k = 0; k < 3; k++) v.add(new THREE.Vector3().fromBufferAttribute(pos, f + k));
+          v.multiplyScalar(1 / 3);
+          faceRegions.push(regionAt(v));
+        }
+        mesh.userData.faceRegions = faceRegions;
+        inner.add(mesh); meshes.push(mesh);
+        return mesh;
+      };
+      const lathe = (pts, seg = 48) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg);
+      const none = () => null;
+
+      // 胴体
+      add(place(lathe([[0, 0.93], [0.145, 0.94], [0.14, 1.02], [0.15, 1.12], [0.175, 1.25], [0.2, 1.36], [0.205, 1.42], [0.17, 1.49], [0.08, 1.53], [0, 1.54]], 64), [0, 0, 0], [0, 0, 0], [1, 1, 0.62]), (p) => {
+        if (p.y > 1.49) return null;
+        if (p.z > 0.025) return p.y > 1.26 ? 'chest' : (Math.abs(p.x) < 0.075 ? 'abs' : 'obliques');
+        if (p.z < -0.025) return p.y > 1.13 ? 'upperback' : 'lowerback';
+        return p.y > 1.26 ? 'upperback' : 'obliques';
+      });
+      // 骨盤・お尻
+      add(place(lathe([[0, 0.8], [0.12, 0.8], [0.155, 0.84], [0.16, 0.9], [0.145, 0.95], [0, 0.96]]), [0, 0, 0], [0, 0, 0], [1, 1, 0.7]), (p) => p.z < -0.02 ? 'glutes' : null);
+      [-1, 1].forEach(sx => add(place(new THREE.SphereGeometry(0.082, 24, 16), [sx * 0.07, 0.87, -0.055], [0, 0, 0], [1, 1.05, 0.8]), (p) => p.z < -0.03 ? 'glutes' : null));
+      // 首・頭
+      add(place(new THREE.CylinderGeometry(0.05, 0.055, 0.1, 20), [0, 1.57, 0]), none);
+      add(place(new THREE.SphereGeometry(0.105, 32, 24), [0, 1.7, 0.005], [0, 0, 0], [0.9, 1.1, 1]), none);
+
+      [-1, 1].forEach(sx => {
+        // 肩
+        add(place(new THREE.SphereGeometry(0.078, 24, 18), [sx * 0.215, 1.43, 0], [0, 0, 0], [1, 0.95, 1]), () => 'shoulders');
+        // 上腕（前=二頭、後ろ=三頭）
+        add(place(new THREE.CapsuleGeometry(0.05, 0.2, 8, 28), [sx * 0.245, 1.25, 0], [0, 0, sx * 0.1]), (p) => p.z >= 0 ? 'biceps' : 'triceps');
+        // 前腕・手
+        add(place(new THREE.CapsuleGeometry(0.041, 0.2, 8, 24), [sx * 0.27, 0.99, 0.01], [0, 0, sx * 0.06]), () => 'forearms');
+        add(place(new THREE.SphereGeometry(0.045, 16, 12), [sx * 0.283, 0.82, 0.015], [0, 0, 0], [0.8, 1.25, 0.5]), none);
+        // 太もも（前=大腿四頭、後ろ=ハム）
+        add(place(new THREE.CapsuleGeometry(0.076, 0.3, 8, 28), [sx * 0.088, 0.6, 0], [0, 0, -sx * 0.03]), (p) => p.z >= 0 ? 'quads' : 'hamstrings');
+        // すね・ふくらはぎ
+        add(place(new THREE.CapsuleGeometry(0.052, 0.3, 8, 24), [sx * 0.082, 0.24, 0]), (p) => p.z < -0.005 ? 'calves' : null);
+        add(place(new THREE.SphereGeometry(0.052, 20, 14), [sx * 0.082, 0.3, -0.022], [0, 0, 0], [0.95, 1.7, 0.9]), (p) => p.z < -0.02 ? 'calves' : null);
+        // 足
+        add(place(new THREE.BoxGeometry(0.075, 0.045, 0.19), [sx * 0.085, 0.025, 0.04]), none);
+      });
+      return { inner, meshes };
+    }
+
+    function recolorBody3D() {
+      if (!body3d) return;
+      const { THREE, meshes } = body3d;
+      const { heat } = computeBodyHeat(body3dPeriod);
+      const neutral = new THREE.Color(0x1B2436);
+      const gold = new THREE.Color(0xFFC400);
+      meshes.forEach(mesh => {
+        const col = mesh.geometry.attributes.color;
+        mesh.userData.faceRegions.forEach((r, fi) => {
+          let c = r ? heatColor(THREE, heat[r] || 0) : neutral;
+          if (r && r === body3dSelected) c = c.clone().lerp(gold, 0.55);
+          for (let k = 0; k < 3; k++) col.setXYZ(fi * 3 + k, c.r, c.g, c.b);
+        });
+        col.needsUpdate = true;
+      });
+      body3d.requestRender();
+    }
+
+    function renderBody3DInfo() {
+      const el = document.getElementById("body3d-info");
+      if (!el) return;
+      const es = currentLang === 'es';
+      if (!body3dSelected) {
+        el.innerHTML = `<div class="body3d-hint">${es ? 'Arrastra para girar y toca una parte para ver cuándo la entrenaste.' : 'ドラッグで回転、部位をタップすると最後にトレーニングした日が見られます。'}</div>`;
+        return;
+      }
+      const { count, last } = computeBodyHeat(body3dPeriod);
+      const def = BODY_REGIONS[body3dSelected];
+      const ts = last[body3dSelected];
+      let lastText;
+      if (!ts) lastText = es ? 'Aún sin registros' : 'まだ記録がありません';
+      else {
+        const d = new Date(ts); const today = new Date(); today.setHours(0, 0, 0, 0);
+        const dd = new Date(ts); dd.setHours(0, 0, 0, 0);
+        const n = Math.round((today - dd) / 86400000);
+        const rel = n === 0 ? (es ? 'hoy' : '今日') : n === 1 ? (es ? 'ayer' : '昨日') : (es ? `hace ${n} días` : `${n}日前`);
+        lastText = es ? `Última vez: ${rel} (${d.getDate()}/${d.getMonth() + 1})` : `最後: ${rel}（${d.getMonth() + 1}月${d.getDate()}日）`;
+      }
+      const periodText = body3dPeriod ? (es ? `últimos ${body3dPeriod} días` : `直近${body3dPeriod}日`) : (es ? 'todo el tiempo' : '全期間');
+      el.innerHTML = `
+        <div class="body3d-sel-name">${es ? def.es : def.ja}</div>
+        <div class="body3d-sel-last">${lastText}</div>
+        <div class="body3d-sel-count">${es ? `${count[body3dSelected]} veces en ${periodText}` : `${periodText}で${count[body3dSelected]}回`}</div>`;
+    }
+
+    window.setBody3DPeriod = (days) => {
+      playSound('click');
+      body3dPeriod = days;
+      document.querySelectorAll('#body3d-period button').forEach(b => b.classList.toggle('active', Number(b.dataset.days) === days));
+      recolorBody3D();
+      renderBody3DInfo();
+    };
+    window.rotateBody3DTo = (side) => {
+      playSound('click');
+      if (!body3d) return;
+      body3d.targetY = side === 'back' ? Math.PI : 0;
+      body3d.autoRotate = false;
+      body3d.requestRender();
+    };
+
+    async function initBody3D() {
+      if (body3d || body3dLoading) return;
+      const wrap = document.getElementById("body3d-canvas-wrap");
+      if (!wrap) return;
+      body3dLoading = true;
+      let THREE;
+      try {
+        THREE = await import(THREE_URL);
+      } catch (e) {
+        body3dLoading = false;
+        wrap.innerHTML = `<div class="body3d-hint" style="padding:40px 10px; text-align:center;">${currentLang === 'es' ? 'No se pudo cargar el modelo 3D.' : '3Dモデルを読み込めませんでした。通信状況を確認してください。'}</div>`;
+        return;
+      }
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      wrap.innerHTML = "";
+      wrap.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
+      camera.position.set(0, 0.98, 3.9);
+      camera.lookAt(0, 0.88, 0);
+      scene.add(new THREE.HemisphereLight(0xBFD8FF, 0x0B0F19, 0.9));
+      const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(2, 3, 4); scene.add(key);
+      const rim = new THREE.DirectionalLight(0x2F8FFF, 1.4); rim.position.set(-3, 2, -3); scene.add(rim);
+
+      const pivot = new THREE.Group();
+      pivot.position.y = 0.92;
+      scene.add(pivot);
+      const { inner, meshes } = buildBodyModel(THREE);
+      inner.position.y = -0.92;
+      pivot.add(inner);
+      const floor = new THREE.Mesh(new THREE.CircleGeometry(0.45, 48), new THREE.MeshBasicMaterial({ color: 0x2F8FFF, transparent: true, opacity: 0.12 }));
+      floor.rotation.x = -Math.PI / 2; floor.position.y = 0.001;
+      inner.add(floor);
+
+      const state = {
+        THREE, renderer, scene, camera, pivot, inner, meshes,
+        rotY: 0.5, rotX: 0.05, velY: 0, targetY: null, autoRotate: true, dragging: false,
+        visible: true, frame: null
+      };
+      const resize = () => {
+        const w = wrap.clientWidth || 300, h = wrap.clientHeight || 360;
+        renderer.setSize(w, h, false);
+        renderer.domElement.style.width = '100%';
+        renderer.domElement.style.height = '100%';
+        camera.aspect = w / h; camera.updateProjectionMatrix();
+        state.requestRender();
+      };
+      const tick = () => {
+        state.frame = null;
+        let moving = false;
+        if (state.targetY !== null) {
+          // 近いほうの向きに回す
+          let diff = state.targetY - state.rotY;
+          diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+          if (Math.abs(diff) < 0.002) { state.rotY += diff; state.targetY = null; }
+          else { state.rotY += diff * 0.15; moving = true; }
+        } else if (!state.dragging) {
+          if (Math.abs(state.velY) > 0.0005) { state.rotY += state.velY; state.velY *= 0.94; moving = true; }
+          else if (state.autoRotate) { state.rotY += 0.006; moving = true; }
+        }
+        pivot.rotation.set(state.rotX, state.rotY, 0);
+        renderer.render(scene, camera);
+        if ((moving || state.dragging) && state.visible) state.frame = requestAnimationFrame(tick);
+      };
+      state.requestRender = () => { if (!state.frame && state.visible) state.frame = requestAnimationFrame(tick); };
+
+      // ドラッグで回転、動かさずに離したらタップとして部位を選ぶ
+      const el = renderer.domElement;
+      let startX = 0, startY = 0, lastX = 0, lastY = 0, moved = 0;
+      el.addEventListener('pointerdown', (e) => {
+        state.dragging = true; state.autoRotate = false; state.targetY = null; state.velY = 0;
+        startX = lastX = e.clientX; startY = lastY = e.clientY; moved = 0;
+        el.setPointerCapture(e.pointerId);
+        state.requestRender();
+      });
+      el.addEventListener('pointermove', (e) => {
+        if (!state.dragging) return;
+        const dx = e.clientX - lastX, dy = e.clientY - lastY;
+        lastX = e.clientX; lastY = e.clientY;
+        moved += Math.abs(dx) + Math.abs(dy);
+        state.rotY += dx * 0.012; state.velY = dx * 0.012;
+        state.rotX = Math.max(-0.6, Math.min(0.6, state.rotX + dy * 0.006));
+      });
+      const endDrag = (e) => {
+        if (!state.dragging) return;
+        state.dragging = false;
+        if (moved < 8) {
+          state.velY = 0;
+          const rect = el.getBoundingClientRect();
+          const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+          const ray = new THREE.Raycaster(); ray.setFromCamera(ndc, camera);
+          const hit = ray.intersectObjects(meshes, false)[0];
+          const region = hit ? hit.object.userData.faceRegions[hit.faceIndex] : null;
+          body3dSelected = region && region !== body3dSelected ? region : null;
+          try { playSound('tick'); } catch (err) {}
+          recolorBody3D();
+          renderBody3DInfo();
+        }
+        state.requestRender();
+      };
+      el.addEventListener('pointerup', endDrag);
+      el.addEventListener('pointercancel', endDrag);
+
+      // 画面外にあるときは描画を止める
+      new IntersectionObserver((entries) => {
+        state.visible = entries[0].isIntersecting;
+        if (state.visible) state.requestRender();
+      }).observe(wrap);
+      new ResizeObserver(resize).observe(wrap);
+
+      body3d = state;
+      body3dLoading = false;
+      resize();
+      recolorBody3D();
+    }
+
+    function renderBody3DCard() {
+      const card = document.getElementById("body3d-card");
+      if (!card || !myUserName) return;
+      const es = currentLang === 'es';
+      if (!card.dataset.built) {
+        card.dataset.built = "1";
+        card.innerHTML = `
+          <div class="body3d-head">
+            <div class="body3d-title" id="body3d-title"></div>
+            <div class="body3d-period" id="body3d-period">
+              ${[7, 30, 90, 0].map(d => `<button data-days="${d}" class="${d === body3dPeriod ? 'active' : ''}" onclick="setBody3DPeriod(${d})"></button>`).join("")}
+            </div>
+          </div>
+          <div class="body3d-canvas-wrap" id="body3d-canvas-wrap"><div class="body3d-hint" style="padding:40px 10px; text-align:center;">${es ? 'Cargando…' : '読み込み中…'}</div></div>
+          <div class="body3d-controls">
+            <button onclick="rotateBody3DTo('front')" id="body3d-front"></button>
+            <div class="body3d-legend"><span id="body3d-leg-low"></span><i></i><span id="body3d-leg-high"></span></div>
+            <button onclick="rotateBody3DTo('back')" id="body3d-back"></button>
+          </div>
+          <div class="body3d-info" id="body3d-info"></div>`;
+        // 見えたときに初めて3Dを読み込む
+        new IntersectionObserver((entries, obs) => {
+          if (entries[0].isIntersecting) { obs.disconnect(); initBody3D(); }
+        }, { rootMargin: '200px' }).observe(card);
+      }
+      document.getElementById("body3d-title").textContent = es ? 'Mapa de entrenamiento' : 'トレーニングした部位';
+      const labels = { 7: es ? '7 d' : '7日', 30: es ? '30 d' : '30日', 90: es ? '90 d' : '90日', 0: es ? 'Todo' : '全期間' };
+      document.querySelectorAll('#body3d-period button').forEach(b => { b.textContent = labels[b.dataset.days]; });
+      document.getElementById("body3d-front").textContent = es ? 'Frente' : '正面';
+      document.getElementById("body3d-back").textContent = es ? 'Espalda' : '背面';
+      document.getElementById("body3d-leg-low").textContent = es ? 'Poco' : '少ない';
+      document.getElementById("body3d-leg-high").textContent = es ? 'Mucho' : '多い';
+      renderBody3DInfo();
+      recolorBody3D();
+    }
 
     // 通算の記録
     function renderLifetimeStats() {
