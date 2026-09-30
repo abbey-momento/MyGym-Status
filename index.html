@@ -223,6 +223,7 @@
     .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip-row button { background: rgba(0,0,0,0.3); border: 1.5px solid var(--card-border); color: var(--text-sub); border-radius: 999px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: 0.15s; }
     .chip-row button.active { border-color: var(--ring-inner); color: #fff; background: rgba(45,212,191,0.15); }
+    .parts-hint { font-size: 0.66rem; color: var(--text-sub); font-weight: 700; margin-top: 8px; text-align: left; opacity: 0.85; }
     .timeline-parts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
     .timeline-parts span { font-size: 0.66rem; font-weight: 700; color: var(--ring-inner); background: rgba(45,212,191,0.1); border: 1px solid rgba(45,212,191,0.25); border-radius: 999px; padding: 2px 8px; }
 
@@ -738,6 +739,7 @@
       <div class="memo-extra">
         <div class="memo-extra-label" id="t-memo-parts-label">鍛えた部位（任意）</div>
         <div class="chip-row" id="memo-parts-chips"></div>
+        <div class="parts-hint"></div>
       </div>
       <div class="form-group">
         <textarea id="trainingMemoInput" rows="3" placeholder="Ej: ¡Hoy hice pierna con todo!"></textarea>
@@ -803,6 +805,11 @@
         </div>
       </div>
       <div class="type-split-box" id="edit-type-split"></div>
+      <div class="memo-extra">
+        <div class="memo-extra-label parts-label"></div>
+        <div class="chip-row" id="edit-parts-chips"></div>
+        <div class="parts-hint"></div>
+      </div>
       <div class="form-group">
         <input type="text" id="editLogMemo" placeholder="Nota opcional" />
       </div>
@@ -1404,6 +1411,11 @@
             </div>
           </div>
           <div class="type-split-box" id="manual-type-split"></div>
+          <div class="memo-extra" style="margin:0;">
+            <div class="memo-extra-label parts-label" style="margin-top:0;"></div>
+            <div class="chip-row" id="manual-parts-chips"></div>
+            <div class="parts-hint"></div>
+          </div>
           <input type="text" id="manualMemo" placeholder="Nota opcional" style="padding:10px; border-radius: 10px; font-size:0.9rem;">
           <button onclick="addManualLog()" id="t-btn-add" style="background:var(--accent-gradient); border:none; border-radius:12px; color:#0B0F19; padding:14px; font-weight:800; cursor:pointer; margin-top:4px;">Añadir</button>
         </div>
@@ -2960,13 +2972,39 @@
     const partLabel = (id) => { const p = BODY_PARTS.find(x => x.id === id); return p ? (currentLang === 'es' ? p.es : p.ja) : id; };
     let selectedParts = new Set();
 
+    // 編集・手入力の画面で選んでいる部位
+    let editingParts = new Set();
+    let manualParts = new Set();
+    const partSets = { memo: () => selectedParts, edit: () => editingParts, manual: () => manualParts };
+
+    // 設定で表示にしている部位＋その記録にすでに付いている部位を並べる
+    function renderPartsChipsInto(elId, set, key) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      const es = currentLang === 'es';
+      const list = BODY_PARTS.filter(p => visibleParts.includes(p.id) || set.has(p.id));
+      el.innerHTML = list.map(p =>
+        `<button type="button" class="${set.has(p.id) ? 'active' : ''}" onclick="togglePartIn('${key}','${p.id}')">${es ? p.es : p.ja}</button>`).join("");
+    }
+    window.togglePartIn = (key, id) => {
+      playSound('click');
+      const set = partSets[key]();
+      if (set.has(id)) set.delete(id); else set.add(id);
+      renderMemoExtras();
+    };
+
     function renderMemoExtras() {
       const es = currentLang === 'es';
+      document.querySelectorAll(".parts-label").forEach(el => { el.textContent = es ? "Partes trabajadas (opcional)" : "鍛えた部位（任意）"; });
+      document.querySelectorAll(".parts-hint").forEach(el => {
+        el.textContent = es ? "Puedes elegir qué partes aparecen aquí en Ajustes (engranaje) de Mi página." : "ここに出す部位は、マイページの設定（歯車）から選べます。";
+      });
+      renderPartsChipsInto("edit-parts-chips", editingParts, 'edit');
+      renderPartsChipsInto("manual-parts-chips", manualParts, 'manual');
       const pl = document.getElementById("t-memo-parts-label");
       if (pl) pl.textContent = es ? "Partes trabajadas (opcional)" : "鍛えた部位（任意）";
       const chips = document.getElementById("memo-parts-chips");
-      if (chips) chips.innerHTML = orderedVisibleParts().map(p =>
-        `<button type="button" class="${selectedParts.has(p.id) ? 'active' : ''}" onclick="toggleMemoPart('${p.id}')">${es ? p.es : p.ja}</button>`).join("");
+      if (chips) renderPartsChipsInto("memo-parts-chips", selectedParts, 'memo');
     }
     window.toggleMemoPart = (id) => {
       playSound('click');
@@ -7065,6 +7103,7 @@
     };
 
     window.toggleManualAddForm = () => {
+      try { renderMemoExtras(); } catch (e) {}
       playSound('click');
       const box = document.getElementById("manual-log-box");
       const btn = document.getElementById("btn-toggle-manual-add");
@@ -7132,8 +7171,11 @@
         month: dateVal.slice(0, 7),
         date: localISO,
         location: manualLocation,
-        typeSplit: splitDurationByTypes(diffMin, manualExerciseTypes, "manual-type-split")
+        typeSplit: splitDurationByTypes(diffMin, manualExerciseTypes, "manual-type-split"),
+        parts: [...manualParts]
       });
+      manualParts = new Set();
+      renderMemoExtras();
 
       document.getElementById("manualTimeFrom").value = "10:00";
       document.getElementById("manualTimeTo").value = "11:00";
@@ -7172,6 +7214,8 @@
         btn.classList.toggle("active", editingExerciseTypes.has(btn.dataset.type));
       });
       renderTypeSplitInputs("edit-type-split", editingExerciseTypes, log.typeSplit || null, getEditDurationMin());
+      editingParts = new Set(Array.isArray(log.parts) ? log.parts : []);
+      renderMemoExtras();
       
       document.getElementById("edit-log-modal").style.display = "flex";
     };
@@ -7253,6 +7297,7 @@
         date: localISO,
         location: editingLogLocation,
         typeSplit: splitDurationByTypes(diffMin, editingExerciseTypes, "edit-type-split"),
+        parts: [...editingParts],
         type: null
       }).then(() => {
         closeEditLogModal();
