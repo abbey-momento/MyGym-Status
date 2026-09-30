@@ -4153,42 +4153,47 @@
     function buildBodyModel(THREE) {
       const V = (x, y, z) => [x, y, z];
       const prims = [];
-      const ell = (c, r, region) => prims.push({ t: 0, c, r, region });
-      const cap = (a, b, ra, rb, region) => prims.push({ t: 1, a, b, ra, rb, region });
+      // g: 'C'=体の中心、'L'/'R'=左右の手足。左右の脚どうし・腕と脚はくっつけない
+      let G = 'C';
+      const ell = (c, r, region) => prims.push({ t: 0, c, r, region, g: G });
+      const cap = (a, b, ra, rb, region) => prims.push({ t: 1, a, b, ra, rb, region, g: G });
       const none = () => null;
       const frontBack = (front, back, zAxis = 0) => (p) => p[2] >= zAxis ? front : back;
 
+      // 男女どちらにも見える中間的な体型（肩幅・胸板・骨盤をどれも控えめに）
       // 頭・首
-      ell(V(0, 1.645, 0.0), V(0.074, 0.098, 0.088), none);
-      ell(V(0, 1.575, 0.028), V(0.052, 0.045, 0.055), none);
-      cap(V(0, 1.47, -0.008), V(0, 1.575, 0.0), 0.047, 0.043, none);
-      // 胴体（肩幅は広く、腰はくびれすぎず、骨盤は控えめにして男女どちらにも見える自然な体型に）
-      ell(V(0, 1.325, 0.0), V(0.148, 0.165, 0.102), (p) => p[2] > 0.035 && p[1] > 1.23 ? 'chest' : (p[2] < 0 ? 'upperback' : (p[1] > 1.25 ? 'upperback' : 'obliques')));
-      [-1, 1].forEach(s => ell(V(s * 0.066, 1.345, 0.052), V(0.07, 0.05, 0.043), () => 'chest'));
-      [-1, 1].forEach(s => ell(V(s * 0.095, 1.27, -0.035), V(0.07, 0.12, 0.05), (p) => p[2] < 0 ? 'upperback' : 'obliques'));
-      cap(V(-0.15, 1.44, -0.02), V(0.15, 1.44, -0.02), 0.046, 0.046, () => 'upperback');
-      ell(V(0, 1.14, 0.006), V(0.128, 0.17, 0.09), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.062 ? 'abs' : 'obliques') : (p[2] < -0.02 ? 'lowerback' : 'obliques'));
-      ell(V(0, 1.02, 0.004), V(0.125, 0.09, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.06 ? 'abs' : null) : (p[2] < -0.02 ? 'lowerback' : null));
-      ell(V(0, 0.945, -0.006), V(0.132, 0.085, 0.088), (p) => p[2] < -0.035 ? 'glutes' : null);
-      [-1, 1].forEach(s => ell(V(s * 0.06, 0.915, -0.048), V(0.066, 0.074, 0.052), (p) => p[2] < -0.03 ? 'glutes' : null));
+      ell(V(0, 1.645, 0.0), V(0.071, 0.096, 0.086), none);
+      ell(V(0, 1.577, 0.026), V(0.048, 0.042, 0.052), none);
+      cap(V(0, 1.47, -0.008), V(0, 1.575, 0.0), 0.042, 0.039, none);
+      // 胴体
+      ell(V(0, 1.325, 0.0), V(0.138, 0.16, 0.098), (p) => p[2] > 0.035 && p[1] > 1.23 ? 'chest' : (p[2] < 0 ? 'upperback' : (p[1] > 1.25 ? 'upperback' : 'obliques')));
+      [-1, 1].forEach(s => ell(V(s * 0.062, 1.335, 0.05), V(0.062, 0.05, 0.04), () => 'chest'));
+      [-1, 1].forEach(s => ell(V(s * 0.085, 1.27, -0.032), V(0.058, 0.11, 0.045), (p) => p[2] < 0 ? 'upperback' : 'obliques'));
+      cap(V(-0.135, 1.44, -0.02), V(0.135, 1.44, -0.02), 0.042, 0.042, () => 'upperback');
+      ell(V(0, 1.14, 0.006), V(0.118, 0.17, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.058 ? 'abs' : 'obliques') : (p[2] < -0.02 ? 'lowerback' : 'obliques'));
+      ell(V(0, 1.02, 0.004), V(0.124, 0.09, 0.088), (p) => p[2] > 0.03 ? (Math.abs(p[0]) < 0.058 ? 'abs' : null) : (p[2] < -0.02 ? 'lowerback' : null));
+      ell(V(0, 0.95, -0.006), V(0.138, 0.08, 0.09), (p) => p[2] < -0.035 ? 'glutes' : null);
+      [-1, 1].forEach(s => ell(V(s * 0.062, 0.915, -0.05), V(0.066, 0.072, 0.054), (p) => p[2] < -0.03 ? 'glutes' : null));
 
       [-1, 1].forEach(s => {
+        G = s < 0 ? 'L' : 'R';
         // 肩・腕（少し開いた自然な立ち姿）
-        ell(V(s * 0.195, 1.405, -0.005), V(0.062, 0.072, 0.06), () => 'shoulders');
-        cap(V(s * 0.205, 1.385, -0.005), V(s * 0.285, 1.13, -0.02), 0.046, 0.038, frontBack('biceps', 'triceps', -0.012));
-        ell(V(s * 0.245, 1.265, 0.02), V(0.034, 0.07, 0.033), () => 'biceps');
-        ell(V(s * 0.25, 1.275, -0.035), V(0.036, 0.078, 0.033), () => 'triceps');
-        cap(V(s * 0.285, 1.13, -0.02), V(s * 0.345, 0.9, 0.015), 0.038, 0.026, () => 'forearms');
-        ell(V(s * 0.3, 1.07, -0.008), V(0.035, 0.065, 0.034), () => 'forearms');
-        ell(V(s * 0.36, 0.82, 0.02), V(0.022, 0.06, 0.042), none);
-        // 脚
-        cap(V(s * 0.082, 0.92, 0.0), V(s * 0.098, 0.52, 0.01), 0.074, 0.05, frontBack('quads', 'hamstrings', 0.0));
-        ell(V(s * 0.092, 0.72, 0.03), V(0.055, 0.14, 0.046), () => 'quads');
-        ell(V(s * 0.09, 0.72, -0.028), V(0.052, 0.13, 0.044), () => 'hamstrings');
-        cap(V(s * 0.1, 0.52, 0.01), V(s * 0.105, 0.085, -0.008), 0.049, 0.029, (p) => p[2] < -0.012 ? 'calves' : null);
-        ell(V(s * 0.104, 0.36, -0.03), V(0.043, 0.1, 0.042), (p) => p[2] < -0.015 ? 'calves' : null);
-        ell(V(s * 0.108, 0.035, 0.045), V(0.038, 0.03, 0.095), none);
+        ell(V(s * 0.178, 1.405, -0.005), V(0.054, 0.064, 0.054), () => 'shoulders');
+        cap(V(s * 0.19, 1.385, -0.005), V(s * 0.265, 1.13, -0.02), 0.041, 0.034, frontBack('biceps', 'triceps', -0.012));
+        ell(V(s * 0.225, 1.265, 0.017), V(0.029, 0.065, 0.029), () => 'biceps');
+        ell(V(s * 0.23, 1.275, -0.03), V(0.031, 0.072, 0.029), () => 'triceps');
+        cap(V(s * 0.265, 1.13, -0.02), V(s * 0.325, 0.9, 0.015), 0.034, 0.024, () => 'forearms');
+        ell(V(s * 0.28, 1.07, -0.008), V(0.031, 0.06, 0.03), () => 'forearms');
+        ell(V(s * 0.34, 0.82, 0.02), V(0.02, 0.058, 0.04), none);
+        // 脚（左右の間にすき間ができるよう、付け根を少し外に）
+        cap(V(s * 0.09, 0.91, 0.0), V(s * 0.1, 0.52, 0.01), 0.07, 0.049, frontBack('quads', 'hamstrings', 0.0));
+        ell(V(s * 0.098, 0.72, 0.028), V(0.052, 0.135, 0.044), () => 'quads');
+        ell(V(s * 0.096, 0.72, -0.026), V(0.05, 0.125, 0.042), () => 'hamstrings');
+        cap(V(s * 0.1, 0.52, 0.01), V(s * 0.105, 0.085, -0.008), 0.047, 0.028, (p) => p[2] < -0.012 ? 'calves' : null);
+        ell(V(s * 0.104, 0.36, -0.028), V(0.041, 0.098, 0.04), (p) => p[2] < -0.015 ? 'calves' : null);
+        ell(V(s * 0.108, 0.035, 0.045), V(0.036, 0.028, 0.092), none);
       });
+      G = 'C';
 
       const len = (x, y, z) => Math.sqrt(x * x + y * y + z * z);
       const distPrim = (pr, x, y, z) => {
@@ -4204,14 +4209,15 @@
         return len(pax - bax * h, pay - bay * h, paz - baz * h) - (pr.ra + (pr.rb - pr.ra) * h);
       };
       const K = 0.028;
+      const smin = (a, b) => { const h = Math.max(K - Math.abs(a - b), 0) / K; return Math.min(a, b) - h * h * K * 0.25; };
+      const groups = { C: prims.filter(p => p.g === 'C'), L: prims.filter(p => p.g === 'L'), R: prims.filter(p => p.g === 'R') };
+      const groupDist = (list, x, y, z) => { let d = 1e9; for (let i = 0; i < list.length; i++) d = smin(d, distPrim(list[i], x, y, z)); return d; };
+      // 胴体と左右それぞれの手足はなめらかにつなぎ、左右どうしはつなげない（太ももの間がくっつかないように）
       const field = (x, y, z) => {
-        let d = 1e9;
-        for (let i = 0; i < prims.length; i++) {
-          const b = distPrim(prims[i], x, y, z);
-          const h = Math.max(K - Math.abs(d - b), 0) / K;
-          d = Math.min(d, b) - h * h * K * 0.25;
-        }
-        return d;
+        const dC = groupDist(groups.C, x, y, z);
+        const dL = x < 0.03 ? groupDist(groups.L, x, y, z) : 1e9;
+        const dR = x > -0.03 ? groupDist(groups.R, x, y, z) : 1e9;
+        return Math.min(smin(dC, dL), smin(dC, dR));
       };
       const regionAt = (x, y, z) => {
         let best = null, bd = 1e9;
