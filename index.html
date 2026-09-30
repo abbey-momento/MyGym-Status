@@ -217,6 +217,69 @@
     @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 12px rgba(255,196,0,0.4); } 50% { box-shadow: 0 0 26px rgba(255,196,0,0.75); } }
 
     /* 📊 週間レポートのバーチャート */
+    /* 保存時の部位・体感 */
+    .memo-extra { margin: 4px 0 14px; }
+    .memo-extra-label { font-size: 0.72rem; font-weight: 700; color: var(--text-sub); margin: 10px 0 6px; text-align: left; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip-row button { background: rgba(0,0,0,0.3); border: 1.5px solid var(--card-border); color: var(--text-sub); border-radius: 999px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: 0.15s; }
+    .chip-row button.active { border-color: var(--ring-inner); color: #fff; background: rgba(45,212,191,0.15); }
+    .timeline-parts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    .timeline-parts span { font-size: 0.66rem; font-weight: 700; color: var(--ring-inner); background: rgba(45,212,191,0.1); border: 1px solid rgba(45,212,191,0.25); border-radius: 999px; padding: 2px 8px; }
+
+    /* 部位ごとの最後のトレーニング */
+    .parts-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
+    .parts-card-title { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; margin-bottom: 10px; }
+    .parts-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .parts-cell { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 8px 4px; text-align: center; border: 1px solid transparent; }
+    .parts-cell .p { font-size: 0.78rem; font-weight: 800; color: #fff; }
+    .parts-cell .d { font-size: 0.62rem; font-weight: 700; color: var(--text-sub); margin-top: 3px; font-family: 'LINE Seed JP', sans-serif; white-space: nowrap; }
+    .parts-cell.stale { border-color: rgba(167,139,250,0.45); }
+    .parts-cell.stale .d { color: #C4B5FD; }
+    .parts-cell.never .p { color: var(--text-sub); }
+    .parts-note { font-size: 0.72rem; color: var(--text-sub); font-weight: 700; margin-top: 10px; line-height: 1.5; }
+
+    /* 週の家族まとめ（アクティビティ） */
+    .weekly-family-card { border-color: rgba(45,212,191,0.35) !important; background: linear-gradient(160deg, rgba(45,212,191,0.08), rgba(47,143,255,0.05)) !important; }
+    .weekly-family-title { font-size: 0.85rem; font-weight: 800; color: var(--ring-inner); }
+    .weekly-family-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+    .weekly-family-grid div { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 8px 10px; }
+    .weekly-family-grid b { display: block; font-family: 'LINE Seed JP', sans-serif; font-size: 1.05rem; color: #fff; white-space: nowrap; }
+    .weekly-family-grid span { font-size: 0.64rem; color: var(--text-sub); font-weight: 700; }
+    .weekly-family-note { font-size: 0.75rem; color: var(--text-sub); margin-top: 10px; line-height: 1.5; }
+
+    /* 月の振り返り */
+    .wrapped-entry-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: linear-gradient(135deg, rgba(47,143,255,0.22), rgba(45,212,191,0.16)); border: 1px solid rgba(45,212,191,0.4); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; color: #fff; cursor: pointer; font-family: inherit; text-align: left; }
+    .wrapped-entry-btn b { display: block; font-size: 0.95rem; }
+    .wrapped-entry-btn small { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; }
+    .wrapped-overlay { position: fixed; inset: 0; z-index: 3000; background: #070A12; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .wrapped-close { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 14px); right: 14px; z-index: 2; width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .wrapped-dots { display: flex; gap: 4px; padding: 20px 64px 0 16px; }
+    .wrapped-dots i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.18); transition: background 0.2s; }
+    .wrapped-dots i.on { background: #fff; }
+    .wrapped-track { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+    .wrapped-track::-webkit-scrollbar { display: none; }
+    .wrapped-slide { flex: 0 0 100%; width: 100%; min-width: 0; box-sizing: border-box; overflow: hidden; scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column; justify-content: center; padding: 28px 28px 48px; max-width: 100%; }
+    .wrapped-slide .w-kicker { font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.65); margin-bottom: 14px; }
+    .wrapped-slide .w-big { font-family: 'LINE Seed JP', sans-serif; font-size: 3.2rem; font-weight: 800; line-height: 1.05; color: #fff; letter-spacing: -0.02em; }
+    .wrapped-slide .w-mid { font-size: 1.5rem; font-weight: 800; line-height: 1.35; color: #fff; }
+    .wrapped-slide .w-sub { font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.75); margin-top: 14px; line-height: 1.6; }
+    .wrapped-slide .w-avatar { font-size: 4rem; line-height: 1; margin-bottom: 18px; }
+    .wrapped-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 26px; }
+    .wrapped-stats div { background: rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 8px; text-align: center; }
+    .wrapped-stats b { display: block; font-family: 'LINE Seed JP', sans-serif; font-size: 1.35rem; color: #fff; white-space: nowrap; letter-spacing: -0.02em; }
+    .wrapped-stats span { font-size: 0.7rem; color: rgba(255,255,255,0.7); font-weight: 700; }
+    .wrapped-bars { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+    .wrapped-bar-row { display: grid; grid-template-columns: 92px 1fr 36px; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: #fff; }
+    .wrapped-bar-row .bar { height: 10px; border-radius: 5px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .wrapped-bar-row .bar div { height: 100%; border-radius: 5px; background: #fff; }
+    .wrapped-bar-row .n { text-align: right; font-family: 'LINE Seed JP', sans-serif; color: rgba(255,255,255,0.8); }
+    .wrapped-slide.s1 { background: radial-gradient(circle at 30% 20%, rgba(47,143,255,0.55), transparent 60%), #0B1A33; }
+    .wrapped-slide.s2 { background: radial-gradient(circle at 80% 30%, rgba(45,212,191,0.45), transparent 60%), #06201E; }
+    .wrapped-slide.s3 { background: radial-gradient(circle at 20% 80%, rgba(167,139,250,0.5), transparent 60%), #1A1233; }
+    .wrapped-slide.s4 { background: radial-gradient(circle at 70% 70%, rgba(245,184,61,0.45), transparent 60%), #2A1D07; }
+    .wrapped-slide.s5 { background: radial-gradient(circle at 30% 30%, rgba(52,211,153,0.45), transparent 60%), #06231A; }
+    .wrapped-slide.s6 { background: radial-gradient(circle at 60% 20%, rgba(255,61,186,0.35), transparent 60%), #25081C; }
+
     /* ペースに合わせた声かけ */
     .pace-card { display: flex; gap: 12px; align-items: flex-start; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-left: 3px solid var(--pace-color, var(--accent)); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
     .pace-card .pace-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--pace-color, var(--accent)); background: rgba(255,255,255,0.04); }
@@ -610,6 +673,15 @@
   </div>
 
   <!-- ひとことメモ入力モーダル -->
+  <!-- 月の振り返り（スワイプで見るカード） -->
+  <div id="wrapped-modal" class="wrapped-overlay" style="display:none;">
+    <button class="wrapped-close" onclick="closeWrapped()" aria-label="閉じる">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="wrapped-dots" id="wrapped-dots"></div>
+    <div class="wrapped-track" id="wrapped-track"></div>
+  </div>
+
   <div id="memo-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
       <h2 class="mypage-icon-title" style="justify-content:center; margin-bottom: 14px; font-size: 1.2rem;">
@@ -643,6 +715,10 @@
         </div>
       </div>
       <div class="type-split-box" id="memo-type-split"></div>
+      <div class="memo-extra">
+        <div class="memo-extra-label" id="t-memo-parts-label">鍛えた部位（任意）</div>
+        <div class="chip-row" id="memo-parts-chips"></div>
+      </div>
       <div class="form-group">
         <textarea id="trainingMemoInput" rows="3" placeholder="Ej: ¡Hoy hice pierna con todo!"></textarea>
       </div>
@@ -1088,7 +1164,12 @@
       <div id="pace-message-card" class="pace-card" style="display:none;"></div>
 
       <!-- 通算の記録 -->
+      <div id="wrapped-entry" style="display:none;"></div>
+
       <div id="lifetime-card" class="lifetime-card" style="display:none;"></div>
+
+      <!-- 部位ごとの最後のトレーニング -->
+      <div id="parts-card" class="parts-card" style="display:none;"></div>
 
       <!-- 🎯📊💪 目標・レポート・内訳（週/月/年で連動する1つのまとまりとして統合） -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
@@ -2093,6 +2174,7 @@
       setT("t-btn-save-log", t.btnSaveLog);
       setT("t-btn-cancel-stop", t.btnCancelStop);
       setT("t-btn-discard-log", t.btnDiscardLog);
+      try { renderMemoExtras(); } catch (e) {}
       setT("t-edit-log-title", t.editLogTitle);
       setT("t-btn-save-edit-log", t.btnSaveEditLog);
       setT("t-btn-cancel-edit-log", t.btnCancelEditLog);
@@ -2770,6 +2852,7 @@
 
         document.getElementById("trainingMemoInput").value = "";
         document.getElementById("memo-modal").style.display = "flex";
+        try { renderMemoExtras(); } catch (e) {}
         pendingMemoDurationMin = durationMin;
         renderTypeSplitInputs("memo-type-split", selectedExerciseTypes, null, durationMin);
       } else {
@@ -2791,6 +2874,37 @@
       });
     };
 
+    // ---- 部位タグ・体感（保存時に任意で選ぶ）----
+    const BODY_PARTS = [
+      { id: 'chest', ja: '胸', es: 'Pecho' },
+      { id: 'back', ja: '背中', es: 'Espalda' },
+      { id: 'legs', ja: '脚', es: 'Pierna' },
+      { id: 'shoulders', ja: '肩', es: 'Hombro' },
+      { id: 'arms', ja: '腕', es: 'Brazos' },
+      { id: 'core', ja: '体幹', es: 'Core' },
+      { id: 'full', ja: '全身', es: 'Todo' }
+    ];
+    const partLabel = (id) => { const p = BODY_PARTS.find(x => x.id === id); return p ? (currentLang === 'es' ? p.es : p.ja) : id; };
+    let selectedParts = new Set();
+
+    function renderMemoExtras() {
+      const es = currentLang === 'es';
+      const pl = document.getElementById("t-memo-parts-label");
+      if (pl) pl.textContent = es ? "Partes trabajadas (opcional)" : "鍛えた部位（任意）";
+      const chips = document.getElementById("memo-parts-chips");
+      if (chips) chips.innerHTML = BODY_PARTS.map(p =>
+        `<button type="button" class="${selectedParts.has(p.id) ? 'active' : ''}" onclick="toggleMemoPart('${p.id}')">${es ? p.es : p.ja}</button>`).join("");
+    }
+    window.toggleMemoPart = (id) => {
+      playSound('click');
+      if (selectedParts.has(id)) selectedParts.delete(id); else selectedParts.add(id);
+      renderMemoExtras();
+    };
+    function resetMemoExtras() {
+      selectedParts = new Set();
+      renderMemoExtras();
+    }
+
     // 記録を残さずにタイマーだけ終了する（押し間違い・計測ミス用）
     window.discardTrainingLog = () => {
       if (!myUserName) return;
@@ -2806,6 +2920,7 @@
         btn.classList.toggle("active", btn.dataset.type === "strength");
       });
       renderTypeSplitInputs("memo-type-split", selectedExerciseTypes, null, 0);
+      resetMemoExtras();
     };
 
     window.submitTrainingLog = (skipMemo = false) => {
@@ -2829,10 +2944,12 @@
         month: localISO.slice(0, 7),
         date: localISO,
         location: sessionLocation,
-        typeSplit: splitDurationByTypes(durationMin, selectedExerciseTypes, "memo-type-split")
+        typeSplit: splitDurationByTypes(durationMin, selectedExerciseTypes, "memo-type-split"),
+        parts: [...selectedParts]
       });
 
       remove(ref(db, `current/${myUserName}`));
+      resetMemoExtras();
       document.getElementById("memo-modal").style.display = "none";
       pendingTimerStartTime = null;
       selectedExerciseTypes = new Set(["strength"]);
@@ -3390,6 +3507,8 @@
       try { renderPersonalBests(); } catch(e){}
       try { renderPaceMessage(); } catch(e){ console.error("MyGym pace:", e); }
       try { renderLifetimeStats(); } catch(e){ console.error("MyGym lifetime:", e); }
+      try { renderPartsCard(); } catch(e){ console.error("MyGym parts:", e); }
+      try { renderWrappedEntry(); } catch(e){ console.error("MyGym wrapped:", e); }
 
       try { renderPeriodReport(); } catch(e){}
     }
@@ -3653,6 +3772,211 @@
         </div>`;
       el.style.display = "flex";
     }
+
+    // 部位ごとに、最後にトレーニングしてから何日たったか
+    function renderPartsCard() {
+      const el = document.getElementById("parts-card");
+      if (!el || !myUserName) return;
+      const es = currentLang === 'es';
+      const lastByPart = {};
+      Object.values(allLogsData).forEach(l => {
+        if (l.user !== myUserName || !Array.isArray(l.parts) || !l.startTime) return;
+        l.parts.forEach(p => { if (!lastByPart[p] || l.startTime > lastByPart[p]) lastByPart[p] = l.startTime; });
+      });
+      if (Object.keys(lastByPart).length === 0) { el.style.display = "none"; return; }
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const daysAgo = (ts) => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return Math.round((today - d) / 86400000); };
+      let stalest = null;
+      const cells = BODY_PARTS.filter(p => p.id !== 'full').map(p => {
+        const ts = lastByPart[p.id];
+        if (!ts) return `<div class="parts-cell never"><div class="p">${es ? p.es : p.ja}</div><div class="d">—</div></div>`;
+        const n = daysAgo(ts);
+        const stale = n >= 7;
+        if (stale && (!stalest || n > stalest.n)) stalest = { id: p.id, n };
+        const txt = n === 0 ? (es ? 'hoy' : '今日') : n === 1 ? (es ? 'ayer' : '昨日') : (es ? `hace ${n} d` : `${n}日前`);
+        return `<div class="parts-cell${stale ? ' stale' : ''}"><div class="p">${es ? p.es : p.ja}</div><div class="d">${txt}</div></div>`;
+      }).join("");
+      const note = stalest
+        ? (es ? `${partLabel(stalest.id)}: ${stalest.n} días sin entrenar. Buen candidato para la próxima sesión.` : `${partLabel(stalest.id)}は${stalest.n}日あいています。次のメニューに入れてみてもいいかもしれません。`)
+        : '';
+      el.innerHTML = `
+        <div class="parts-card-title">${es ? 'Última vez por parte del cuerpo' : '部位ごとの最後のトレーニング'}</div>
+        <div class="parts-grid">${cells}</div>
+        ${note ? `<div class="parts-note">${note}</div>` : ''}`;
+      el.style.display = "block";
+    }
+
+    // ---- 月の振り返り ----
+    function prevMonthStr() {
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1);
+      return getLocalISOString(d).slice(0, 7);
+    }
+    function monthNameOf(monthStr) {
+      const [y, m] = monthStr.split('-').map(Number);
+      return currentLang === 'es' ? i18n.es.months[m - 1] : `${m}月`;
+    }
+
+    function computeWrapped(monthStr) {
+      const mine = Object.values(allLogsData).filter(l => l.user === myUserName && l.startTime && getLocalISOString(new Date(l.startTime)).slice(0, 7) === monthStr);
+      if (mine.length === 0) return null;
+      const [y, m] = monthStr.split('-').map(Number);
+      const prev = getLocalISOString(new Date(y, m - 2, 15)).slice(0, 7);
+      const prevLogs = Object.values(allLogsData).filter(l => l.user === myUserName && l.startTime && getLocalISOString(new Date(l.startTime)).slice(0, 7) === prev);
+
+      const totalMin = mine.reduce((n, l) => n + (l.duration || 0), 0);
+      const prevMin = prevLogs.reduce((n, l) => n + (l.duration || 0), 0);
+      const dayTotals = {};
+      const dowCount = new Array(7).fill(0);
+      const slotCount = { morning: 0, day: 0, evening: 0, night: 0 };
+      const partCounts = {};
+      let longest = mine[0];
+      mine.forEach(l => {
+        const d = new Date(l.startTime);
+        const k = getLocalISOString(d).slice(0, 10);
+        dayTotals[k] = (dayTotals[k] || 0) + (l.duration || 0);
+        const h = d.getHours();
+        slotCount[h < 11 ? 'morning' : h < 17 ? 'day' : h < 21 ? 'evening' : 'night']++;
+        (Array.isArray(l.parts) ? l.parts : []).forEach(p => { partCounts[p] = (partCounts[p] || 0) + 1; });
+        if ((l.duration || 0) > (longest.duration || 0)) longest = l;
+      });
+      Object.keys(dayTotals).forEach(k => { dowCount[new Date(`${k}T12:00:00`).getDay()]++; });
+      const topDow = dowCount.indexOf(Math.max(...dowCount));
+      const topSlot = Object.entries(slotCount).sort((a, b) => b[1] - a[1])[0][0];
+      const bestDay = Object.entries(dayTotals).sort((a, b) => b[1] - a[1])[0];
+
+      // 家族と一緒に（同じ月の全員の記録から）
+      const monthAll = Object.values(allLogsData).filter(l => l.startTime && getLocalISOString(new Date(l.startTime)).slice(0, 7) === monthStr);
+      const pairs = findTogetherPairs(monthAll).filter(p => p.a === myUserName || p.b === myUserName);
+      const buddyCount = {};
+      pairs.forEach(p => { const o = p.a === myUserName ? p.b : p.a; buddyCount[o] = (buddyCount[o] || 0) + 1; });
+      const buddy = Object.entries(buddyCount).sort((a, b) => b[1] - a[1])[0];
+      const likes = mine.reduce((n, l) => n + Object.keys(l.likes || {}).filter(u => u !== myUserName).length, 0);
+
+      return {
+        monthStr, totalMin, prevMin, sessions: mine.length, prevSessions: prevLogs.length,
+        days: Object.keys(dayTotals).length, prevDays: new Set(prevLogs.map(l => getLocalISOString(new Date(l.startTime)).slice(0, 10))).size,
+        topDow, topSlot, longest, bestDay,
+        partCounts, together: pairs.length, buddy, likes
+      };
+    }
+
+    function renderWrappedEntry() {
+      const el = document.getElementById("wrapped-entry");
+      if (!el || !myUserName) return;
+      const ms = prevMonthStr();
+      if (!computeWrapped(ms)) { el.style.display = "none"; return; }
+      const es = currentLang === 'es';
+      el.innerHTML = `
+        <button class="wrapped-entry-btn" onclick="openWrapped('${ms}')">
+          <div><b>${es ? `Tu ${monthNameOf(ms)} en resumen` : `${monthNameOf(ms)}の振り返り`}</b><small>${es ? 'Desliza para ver tu mes' : 'スワイプで1か月をふり返る'}</small></div>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>`;
+      el.style.display = "block";
+
+      // 月の最初の7日間に、はじめてマイページを開いたときだけ自動で見せる
+      try {
+        const flagKey = `gym_wrapped_seen_${myUserName}_${ms}`;
+        const openedFromTab = document.getElementById("view-mypage") && document.getElementById("view-mypage").classList.contains("active");
+        if (openedFromTab && new Date().getDate() <= 7 && !localStorage.getItem(flagKey)) {
+          localStorage.setItem(flagKey, "1");
+          setTimeout(() => openWrapped(ms), 400);
+        }
+      } catch (e) {}
+    }
+
+    window.openWrapped = (monthStr) => {
+      const w = computeWrapped(monthStr);
+      if (!w) return;
+      try { playSound('click'); } catch (e) {}
+      const es = currentLang === 'es';
+      const M = (ja, esText) => es ? esText : ja;
+      const mName = monthNameOf(monthStr);
+      const dowJa = ['日曜', '月曜', '火曜', '水曜', '木曜', '金曜', '土曜'];
+      const dowEs = ['domingos', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados'];
+      const slotJa = { morning: '朝', day: '昼', evening: '夕方', night: '夜' };
+      const slotEs = { morning: 'por la mañana', day: 'al mediodía', evening: 'por la tarde', night: 'por la noche' };
+      const fmtDate = (d) => es ? `${d.getDate()}/${d.getMonth() + 1}` : `${d.getMonth() + 1}月${d.getDate()}日`;
+      const diffLine = (cur, prev, fmt) => {
+        if (!prev) return '';
+        const d = cur - prev;
+        if (d === 0) return M('先月と同じ', 'Igual que el mes anterior');
+        return M(`先月より${fmt(Math.abs(d))}${d > 0 ? '多い' : '少ない'}`, `${fmt(Math.abs(d))} ${d > 0 ? 'más' : 'menos'} que el mes anterior`);
+      };
+      const avatar = myUserAvatar || '👤';
+
+      const slides = [];
+      slides.push(`<div class="wrapped-slide s1">
+        <div class="w-avatar">${avatar}</div>
+        <div class="w-kicker">${M(`${myUserName}の${mName}`, `El ${mName} de ${myUserName}`)}</div>
+        <div class="w-big">${formatHM(w.totalMin)}</div>
+        <div class="w-sub">${M(`${mName}はこれだけ体を動かしました。`, `Es lo que te moviste en ${mName}.`)}${w.prevMin ? `<br>${diffLine(w.totalMin, w.prevMin, formatHM)}` : ''}</div>
+      </div>`);
+
+      slides.push(`<div class="wrapped-slide s2">
+        <div class="w-kicker">${M('積み重ね', 'Lo que sumaste')}</div>
+        <div class="w-mid">${M(`${w.days}日、${w.sessions}回のトレーニング`, `${w.sessions} sesiones en ${w.days} días`)}</div>
+        <div class="wrapped-stats">
+          <div><b>${w.sessions}</b><span>${M('回数', 'Sesiones')}</span></div>
+          <div><b>${w.days}</b><span>${M('日数', 'Días')}</span></div>
+          <div><b>${formatHM(Math.round(w.totalMin / w.sessions))}</b><span>${M('1回の平均', 'Promedio')}</span></div>
+        </div>
+        ${w.prevDays ? `<div class="w-sub">${diffLine(w.days, w.prevDays, n => M(`${n}日`, `${n} días`))}</div>` : ''}
+      </div>`);
+
+      slides.push(`<div class="wrapped-slide s3">
+        <div class="w-kicker">${M('いつものリズム', 'Tu ritmo')}</div>
+        <div class="w-mid">${M(`よく行くのは<br>${dowJa[w.topDow]}の${slotJa[w.topSlot]}`, `Sueles entrenar<br>los ${dowEs[w.topDow]} ${slotEs[w.topSlot]}`)}</div>
+        <div class="w-sub">${M('この時間が、あなたのトレーニングタイムです。', 'Ese es tu momento para entrenar.')}</div>
+      </div>`);
+
+      slides.push(`<div class="wrapped-slide s4">
+        <div class="w-kicker">${M('ベスト', 'Tus mejores marcas')}</div>
+        <div class="w-mid">${M(`いちばん長かったのは<br>${fmtDate(new Date(w.longest.startTime))}の${formatHM(w.longest.duration)}`, `Tu sesión más larga:<br>${formatHM(w.longest.duration)} el ${fmtDate(new Date(w.longest.startTime))}`)}</div>
+        <div class="w-sub">${M(`1日の合計がいちばん多かったのは${fmtDate(new Date(`${w.bestDay[0]}T12:00:00`))}（${formatHM(w.bestDay[1])}）。`, `Tu día más activo fue el ${fmtDate(new Date(`${w.bestDay[0]}T12:00:00`))} (${formatHM(w.bestDay[1])}).`)}</div>
+      </div>`);
+
+      const partEntries = Object.entries(w.partCounts).sort((a, b) => b[1] - a[1]);
+      if (partEntries.length) {
+        const maxP = partEntries[0][1];
+        const barRow = (label, n, max) => `<div class="wrapped-bar-row"><span>${label}</span><div class="bar"><div style="width:${Math.max(6, Math.round(n / max * 100))}%"></div></div><span class="n">${n}</span></div>`;
+        slides.push(`<div class="wrapped-slide s5">
+          <div class="w-kicker">${M('鍛えた部位', 'Partes trabajadas')}</div>
+          <div class="w-mid">${M(`いちばん多かったのは${partLabel(partEntries[0][0])}`, `Lo que más entrenaste: ${partLabel(partEntries[0][0])}`)}</div>
+          <div class="wrapped-bars">${partEntries.slice(0, 6).map(([p, n]) => barRow(partLabel(p), n, maxP)).join("")}</div>
+        </div>`);
+      }
+
+      const buddyName = w.buddy ? ((getPrivacy(w.buddy[0]).showName) ? w.buddy[0] : i18n[currentLang].anonUser) : null;
+      slides.push(`<div class="wrapped-slide s6">
+        <div class="w-kicker">${M('家族と', 'Con la familia')}</div>
+        <div class="w-mid">${w.together > 0
+          ? M(`家族と一緒に<br>${w.together}回トレーニング`, `Entrenaste ${w.together} ${w.together === 1 ? 'vez' : 'veces'}<br>con la familia`)
+          : M(`もらったいいねは<br>${w.likes}回`, `Recibiste<br>${w.likes} me gusta`)}</div>
+        <div class="w-sub">${buddyName && w.together > 0 ? M(`いちばん一緒だったのは${buddyName}さん。`, `Con quien más coincidiste: ${buddyName}.`) : ''}${w.together > 0 && w.likes ? M(`いいねも${w.likes}回もらいました。`, ` Además recibiste ${w.likes} me gusta.`) : ''}</div>
+        <div class="w-sub" style="margin-top:36px; color:#fff;">${M('来月も、あなたのペースで。', 'El próximo mes, a tu ritmo.')}</div>
+      </div>`);
+
+      const track = document.getElementById("wrapped-track");
+      const dots = document.getElementById("wrapped-dots");
+      track.innerHTML = slides.join("");
+      dots.innerHTML = slides.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join("");
+      track.scrollLeft = 0;
+      track.onscroll = () => {
+        const idx = Math.round(track.scrollLeft / track.clientWidth);
+        dots.querySelectorAll("i").forEach((d, i) => d.classList.toggle("on", i <= idx));
+      };
+      // 画面の右側タップで次、左側タップで前へ
+      track.onclick = (e) => {
+        const goNext = e.clientX > window.innerWidth * 0.35;
+        track.scrollBy({ left: goNext ? track.clientWidth : -track.clientWidth, behavior: 'smooth' });
+      };
+      document.getElementById("wrapped-modal").style.display = "flex";
+    };
+
+    window.closeWrapped = () => {
+      try { playSound('click'); } catch (e) {}
+      document.getElementById("wrapped-modal").style.display = "none";
+    };
 
     // 通算の記録
     function renderLifetimeStats() {
@@ -5278,7 +5602,7 @@
 
     function buildCombinedTimelineArray() {
       const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key, isAnnouncement: false }));
-      const combinedArray = logsArray.concat(buildChampionAnnouncements());
+      const combinedArray = logsArray.concat(buildChampionAnnouncements()).concat(buildWeeklyFamilySummaries());
       // 日付が壊れている(不正/空)な記録が1件でもあると並び替え全体が狂うことがあるため、
       // 安全な数値に変換してから比較する(壊れたものは一番古い扱いにして、下に沈めるだけにする)
       const safeTime = (item) => {
@@ -5293,6 +5617,70 @@
       }
       combinedArray.sort((a, b) => safeTime(b) - safeTime(a));
       return combinedArray;
+    }
+
+    // ---- 家のジムで時間が重なったセッション（10分以上）を「一緒にトレーニング」とみなす ----
+    function findTogetherPairs(logs) {
+      const sessions = logs
+        .filter(l => l.user && l.startTime && l.duration && (l.location || 'home') === 'home')
+        .map(l => ({ user: l.user, s: l.startTime, e: l.startTime + l.duration * 60000 }))
+        .sort((a, b) => a.s - b.s);
+      const pairs = [];
+      for (let i = 0; i < sessions.length; i++) {
+        for (let j = i + 1; j < sessions.length && sessions[j].s < sessions[i].e; j++) {
+          if (sessions[i].user === sessions[j].user) continue;
+          const overlap = Math.min(sessions[i].e, sessions[j].e) - sessions[j].s;
+          if (overlap >= 10 * 60000) pairs.push({ a: sessions[i].user, b: sessions[j].user, at: sessions[j].s });
+        }
+      }
+      return pairs;
+    }
+
+    // ---- 週の家族まとめ（終わった週ごとに、日曜0時の投稿としてアクティビティに流す）----
+    function buildWeeklyFamilySummaries() {
+      const logs = Object.values(allLogsData).filter(l => l.user && l.startTime);
+      if (logs.length === 0) return [];
+      const weekStartOf = (ts) => { const d = new Date(ts); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - d.getDay()); return d; };
+      const thisWeekStart = weekStartOf(Date.now()).getTime();
+      const byWeek = {};
+      logs.forEach(l => {
+        const ws = weekStartOf(l.startTime).getTime();
+        if (ws >= thisWeekStart) return; // 終わっていない週は出さない
+        (byWeek[ws] = byWeek[ws] || []).push(l);
+      });
+      const es = currentLang === 'es';
+      return Object.keys(byWeek).map(Number).sort((a, b) => b - a).slice(0, 12).map(ws => {
+        const wl = byWeek[ws];
+        const start = new Date(ws);
+        const end = new Date(ws); end.setDate(end.getDate() + 6);
+        const post = new Date(ws); post.setDate(post.getDate() + 7);
+        const users = new Set(wl.map(l => l.user));
+        const usersByDay = {};
+        const partCounts = {};
+        wl.forEach(l => {
+          const k = getLocalISOString(new Date(l.startTime)).slice(0, 10);
+          (usersByDay[k] = usersByDay[k] || new Set()).add(l.user);
+          (Array.isArray(l.parts) ? l.parts : []).forEach(p => { partCounts[p] = (partCounts[p] || 0) + 1; });
+        });
+        const topPart = Object.entries(partCounts).sort((a, b) => b[1] - a[1])[0];
+        const fmtD = (d) => es ? `${d.getDate()}/${d.getMonth() + 1}` : `${d.getMonth() + 1}/${d.getDate()}`;
+        return {
+          isWeeklySummary: true,
+          key: `weekly-${getLocalISOString(start).slice(0, 10)}`,
+          date: getLocalISOString(post),
+          startTime: post.getTime(),
+          summary: {
+            rangeLabel: `${fmtD(start)}〜${fmtD(end)}`,
+            totalMin: wl.reduce((n, l) => n + (l.duration || 0), 0),
+            sessions: wl.length,
+            members: users.size,
+            activeDays: Object.keys(usersByDay).length,
+            allDays: users.size >= 2 ? Object.values(usersByDay).filter(set => set.size === users.size).length : 0,
+            togetherCount: findTogetherPairs(wl).length,
+            topPart: topPart ? topPart[0] : null
+          }
+        };
+      });
     }
 
     function buildChampionAnnouncements() {
@@ -5386,6 +5774,27 @@
           timeRangeStr = `${startDateStr} ${fmt(sD)} - ${fmt(eD)}`;
         }
 
+        if (log.isWeeklySummary) {
+          const w = log.summary;
+          const es = currentLang === 'es';
+          const cell = (v, l) => `<div><b>${v}</b><span>${l}</span></div>`;
+          const notes = [];
+          if (w.togetherCount > 0) notes.push(es ? `Entrenaron juntos ${w.togetherCount} ${w.togetherCount === 1 ? 'vez' : 'veces'}.` : `一緒にトレーニングしたのは${w.togetherCount}回でした。`);
+          if (w.allDays > 0) notes.push(es ? `${w.allDays} ${w.allDays === 1 ? 'día' : 'días'} con toda la familia.` : `家族全員がそろった日が${w.allDays}日ありました。`);
+          if (w.topPart) notes.push(es ? `Lo más entrenado: ${partLabel(w.topPart)}.` : `いちばん多かった部位は${partLabel(w.topPart)}でした。`);
+          return `
+            <div class="timeline-card-item weekly-family-card" id="log-${log.key}">
+              <div class="weekly-family-title">${es ? `Resumen familiar ${w.rangeLabel}` : `${w.rangeLabel}の家族まとめ`}</div>
+              <div class="weekly-family-grid">
+                ${cell(formatHM(w.totalMin), es ? 'Tiempo total' : '家族の合計時間')}
+                ${cell(es ? w.sessions : `${w.sessions}回`, es ? 'Sesiones' : '回数')}
+                ${cell(es ? w.members : `${w.members}人`, es ? 'Personas activas' : '参加した人')}
+                ${cell(es ? w.activeDays : `${w.activeDays}日`, es ? 'Días con actividad' : '誰かが動いた日')}
+              </div>
+              ${notes.length ? `<div class="weekly-family-note">${notes.join(es ? ' ' : '')}</div>` : ''}
+            </div>`;
+        }
+
         if (log.isAnnouncement) {
           const likes = log.likes || {};
           const isLikedByMe = !!likes[myUserName];
@@ -5477,6 +5886,7 @@
             </div>
             ${typeSplitBarHtml}
             ${log.memo ? `<div class="timeline-memo">${log.memo}</div>` : ''}
+            ${Array.isArray(log.parts) && log.parts.length ? `<div class="timeline-parts">${log.parts.map(p => `<span>${partLabel(p)}</span>`).join("")}</div>` : ''}
             
             <div class="timeline-actions">
               <button class="action-icon-btn ${isLikedByMe ? 'liked' : ''}" onclick="toggleLike('${log.key}')" title="${likeNames}">
