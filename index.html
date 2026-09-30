@@ -1719,8 +1719,9 @@
         bestsTitle: "Mejores marcas", pbBestSession: "Sesión más larga", pbBestWeek: "Mejor semana", pbTotalTime: "Tiempo total", pbSessionCount: "Sesiones",
         weeklySummaryBtn: "Ver resumen", weeklySummaryTitle: "Resumen",
         summaryHeadlineNone: "Este periodo aún no tiene registros", summaryHeadlineFirst: "¡Buen comienzo!",
-        summaryHeadlineUp: "¡Vas mejor que el periodo anterior!", summaryHeadlineSame: "Mismo ritmo que el periodo anterior",
-        summaryHeadlineDown: "Un poco menos que antes, ¡tú puedes!",
+        summaryHeadlineUp: "¡Vas mejor que {point}!", summaryHeadlineSame: "Mismo ritmo que {point}",
+        summaryHeadlineDown: "Un ritmo algo más tranquilo que {point}",
+        summarySamePoint: { week: "la semana pasada a esta altura", month: "el mes pasado a esta altura", year: "el año pasado a esta altura" },
         summaryTrendLabel: "por tramo", summaryBestDay: "Mejor día", summaryAvgSession: "Promedio por sesión",
         splitLabel: "Desliza para repartir el tiempo entre ambos", splitLabel3: "Se reparte en 3 partes iguales",
         daysLeftLabel: "días para el cierre", closesToday: "¡Se cierra hoy!",
@@ -1805,8 +1806,9 @@
         bestsTitle: "自己ベスト", pbBestSession: "最長セッション", pbBestWeek: "一番頑張った週", pbTotalTime: "累計時間", pbSessionCount: "回数",
         weeklySummaryBtn: "まとめを見る", weeklySummaryTitle: "まとめ",
         summaryHeadlineNone: "この期間はまだ記録がありません", summaryHeadlineFirst: "いいスタートです！",
-        summaryHeadlineUp: "前の期間より頑張っています！", summaryHeadlineSame: "前の期間と同じペースです",
-        summaryHeadlineDown: "前より少し控えめ、この調子で！",
+        summaryHeadlineUp: "{point}より頑張っています！", summaryHeadlineSame: "{point}と同じペースです",
+        summaryHeadlineDown: "{point}より少し控えめなペースです",
+        summarySamePoint: { week: "先週の同じ曜日まで", month: "先月の同じ日まで", year: "去年の同じ日まで" },
         summaryTrendLabel: "の推移", summaryBestDay: "一番頑張った日", summaryAvgSession: "1回あたりの平均",
         splitLabel: "スライダーを動かして時間配分を調整", splitLabel3: "3種類は均等に3分割されます",
         daysLeftLabel: "日で締め切り", closesToday: "本日締め切り！",
@@ -3126,6 +3128,12 @@
       }
 
       let totalMin = 0, lastTotalMin = 0, sessionCount = 0, bestSessionMin = 0;
+      // メッセージ用: 前の期間の「今日と同じ時点（同じ曜日・同じ日）の終わりまで」の合計
+      let lastSamePointMin = 0;
+      const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+      const elapsedDays = Math.round((todayStart - new Date(thisStart.getFullYear(), thisStart.getMonth(), thisStart.getDate())) / 86400000) + 1;
+      const lastCutoff = new Date(lastStart.getFullYear(), lastStart.getMonth(), lastStart.getDate() + elapsedDays);
+      const samePointEnd = lastCutoff < lastEnd ? lastCutoff : lastEnd;
       const typeTotals = { strength: 0, cardio: 0, stretch: 0 };
       const dayTotalsInPeriod = {};
 
@@ -3148,6 +3156,7 @@
           }
         } else if (d >= lastStart && d < lastEnd) {
           lastTotalMin += log.duration || 0;
+          if (d < samePointEnd) lastSamePointMin += log.duration || 0;
         }
       });
 
@@ -3157,17 +3166,19 @@
       const bestDayMin = Object.values(dayTotalsInPeriod).reduce((m, v) => Math.max(m, v), 0);
 
       // 比較して、モチベが上がるような一言を出す
+      // 比べる相手は「前の期間の同じ時点まで」（週なら先週の同じ曜日まで）。途中の週を先週全体と比べて控えめと言わないように
+      const samePoint = t.summarySamePoint[summaryPeriod] || t.summarySamePoint.week;
       let headline = "";
       if (totalMin === 0) {
         headline = t.summaryHeadlineNone;
       } else if (lastTotalMin === 0) {
         headline = t.summaryHeadlineFirst;
-      } else if (totalMin > lastTotalMin) {
-        headline = t.summaryHeadlineUp;
-      } else if (totalMin === lastTotalMin) {
-        headline = t.summaryHeadlineSame;
+      } else if (totalMin > lastSamePointMin) {
+        headline = t.summaryHeadlineUp.replace("{point}", samePoint);
+      } else if (totalMin === lastSamePointMin) {
+        headline = t.summaryHeadlineSame.replace("{point}", samePoint);
       } else {
-        headline = t.summaryHeadlineDown;
+        headline = t.summaryHeadlineDown.replace("{point}", samePoint);
       }
 
       const maxBar = Math.max(...bars, 1);
