@@ -305,6 +305,12 @@
     .body-group .body3d-card { background: none; border: none; padding: 0; margin: 0; border-radius: 0; }
     .body-group .parts-card { background: none; border: none; border-top: 1px solid rgba(255,255,255,0.07); border-radius: 0; margin: 14px 0 0; padding: 14px 0 2px; }
 
+    /* 通算と自己ベストを1つの枠に */
+    .stats-group { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 24px; }
+    .stats-group .lifetime-card { background: none; border: none; border-radius: 0; padding: 0; margin: 0 0 14px; }
+    .stats-group .pb-block { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 14px; }
+    .stats-group .lifetime-card[style*="display: none"] + .pb-block, .stats-group .lifetime-card[style*="display:none"] + .pb-block { border-top: none; padding-top: 0; }
+
     /* マイページ：見出しでまとめる */
     .mp-sec { font-size: 0.95rem; font-weight: 800; color: #fff; margin: 26px 2px 12px; display: flex; align-items: center; gap: 8px; }
     .mp-sec::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
@@ -1445,15 +1451,17 @@
       <div class="mp-sec" id="mp-sec-achieve">実績</div>
       <div id="wrapped-entry" style="display:none;"></div>
 
+      <div class="stats-group">
       <div id="lifetime-card" class="lifetime-card" style="display:none;"></div>
 
       <!-- 📈 自己ベスト -->
-      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
+      <div class="pb-block">
         <h3 class="mypage-icon-title" style="font-size: 0.95rem; color:#fff; font-weight:800; margin-bottom: 14px; gap:4px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
           <span id="t-bests-title">自己ベスト</span>
         </h3>
         <div id="personal-bests-grid" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;"></div>
+      </div>
       </div>
 
       <!-- 🎖️ 実績バッジ -->
