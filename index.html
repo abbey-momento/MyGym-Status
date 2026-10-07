@@ -423,6 +423,12 @@
 
     .timer-action-btn { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid var(--card-border); padding: 14px 40px; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(52,211,153,0.2); margin-top: 10px; transition: 0.2s; }
     .timer-action-btn.start { background: rgba(52,211,153,0.15); color: var(--green); border-color: rgba(52,211,153,0.4); }
+    .timer-btn-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .timer-action-btn.pause { background: rgba(255,255,255,0.05); color: var(--text-sub); border-color: rgba(255,255,255,0.18); box-shadow: none; padding: 14px 26px; }
+    .timer-action-btn.pause.resume { background: rgba(47,143,255,0.15); color: var(--accent); border-color: rgba(47,143,255,0.45); box-shadow: 0 0 15px rgba(47,143,255,0.2); }
+    #time-text.is-paused { animation: pausedBlink 1.6s ease-in-out infinite; }
+    @keyframes pausedBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .active-user-status.paused { color: var(--text-sub); }
     .timer-action-btn.stop { background: rgba(244, 63, 94, 0.15); color: var(--red); border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 15px rgba(244,63,94,0.2); }
 
     .cal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -1040,7 +1046,8 @@
       </div>
     </div>
 
-    <div style="text-align: center;">
+    <div class="timer-btn-row">
+      <button id="btn-timer-pause" class="timer-action-btn pause" onclick="togglePause()" style="display:none;"></button>
       <button id="btn-timer-action" class="timer-action-btn start" onclick="toggleTimer()">START</button>
     </div>
   </div>
@@ -1798,7 +1805,7 @@
         modalTitle: "Bienvenido", modalName: "Tu nombre", modalAvatar: "Avatar", btnRegister: "Comenzar",
         editTitle: "Editar Perfil", editName: "Tu nombre", editAvatar: "Avatar", btnSave: "Guardar", btnCancel: "Cancelar", editBtn: "Editar Perfil",
         homeStatusLabel: "Estado Actual", statusFree: "Libre (Nadie entrenando)", statusBusyOutside: "está entrenando fuera", statusMultiOutside: "personas entrenando fuera", statusHomeFreeSub: "El gimnasio de casa está libre", statusBusy: "está entrenando", statusMulti: "personas entrenando", activeStatusLabel: "Entrenando", activeStatusLabelOutside: "Entrenando fuera",
-        btnStart: "EMPEZAR", btnStop: "TERMINAR",
+        btnStart: "EMPEZAR", btnStop: "TERMINAR", btnPause: "PAUSA", btnResume: "REANUDAR", pausedLabel: "EN PAUSA", activeStatusPaused: "En pausa", homePausedSub: "{name} está en pausa", pauseReminder: "Llevas {min} minutos en pausa. ¿Terminar aquí y guardar el entrenamiento?", breakNote: "pausa {min} min",
         statDays: "Días", statTime: "Total", statStreak: "Streak", calTodayBtn: "Hoy",
         calFilterAll: "Todos", calFilterMe: "Yo", calSelectedUserPrefix: "Viendo: ",
         raceTitle: "Energy Race", raceMTotal: "Total", raceMStrength: "Fuerza", raceMCardio: "Cardio", raceMDays: "Días", raceMGoal: "Meta %", raceNoteDays: "Cuenta los días que entrenaste (máx. 1 por día)", raceNoteGoal: "% de tu meta mensual de sesiones (máx. 100%)", raceNoGoal: "Sin meta", raceUnitDays: "días", raceSessions: "sesiones", timelineTitle: "Actividad", emptyData: "Sin datos", loadMore: "Cargar más",
@@ -1885,7 +1892,7 @@
         modalTitle: "ようこそ", modalName: "あなたの名前", modalAvatar: "アバター", btnRegister: "はじめる",
         editTitle: "プロフィール編集", editName: "あなたの名前", editAvatar: "アバター", btnSave: "保存する", btnCancel: "キャンセル", editBtn: "プロフィール編集",
         homeStatusLabel: "現在のステータス", statusFree: "現在フリーです", statusBusyOutside: "さんが外でトレーニング中", statusMultiOutside: "人が外でトレーニング中", statusHomeFreeSub: "家のジムは空いています", statusBusy: "さんがトレーニング中", statusMulti: "人がトレーニング中", activeStatusLabel: "トレーニング中", activeStatusLabelOutside: "外でトレーニング中",
-        btnStart: "スタート", btnStop: "ストップ",
+        btnStart: "スタート", btnStop: "ストップ", btnPause: "一時停止", btnResume: "再開", pausedLabel: "一時停止中", activeStatusPaused: "一時停止中", homePausedSub: "{name}さんは一時停止中", pauseReminder: "一時停止から{min}分たちました。ここで終了して記録しますか？", breakNote: "休憩{min}分",
         statDays: "日数", statTime: "合計", statStreak: "連続", calTodayBtn: "今日",
         calFilterAll: "全員", calFilterMe: "自分", calSelectedUserPrefix: "選択中：",
         raceTitle: "エネルギーレース", raceMTotal: "総時間", raceMStrength: "筋トレ", raceMCardio: "有酸素", raceMDays: "日数", raceMGoal: "達成率", raceNoteDays: "トレーニングした日数（1日何回でも1日）", raceNoteGoal: "各自の今月の回数目標に対する達成率（100%で頭打ち）", raceNoGoal: "目標未設定", raceUnitDays: "日", raceSessions: "回", timelineTitle: "アクティビティ", emptyData: "データなし", loadMore: "もっと見る",
@@ -2531,7 +2538,8 @@
 
         // 現在のステータス移行
         if (activeUsersData[oldName]) {
-          set(ref(db, `current/${newName}`), { startTime: activeUsersData[oldName].startTime, avatar: editSelectedAvatar });
+          const od = activeUsersData[oldName];
+          set(ref(db, `current/${newName}`), { startTime: od.startTime, avatar: editSelectedAvatar, location: od.location || 'home', pausedMs: od.pausedMs || 0, pausedAt: od.pausedAt || null });
           remove(ref(db, `current/${oldName}`));
         }
         // プライバシー設定移行
@@ -2815,8 +2823,17 @@
       return m > 0 ? `${h}${t.unitHour} ${m}${t.unitMin}` : `${h}${t.unitHour}`;
     }
 
-    function updateTimerUI(startTime) {
-      const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+    // 一時停止していた時間を除いた、実際にトレーニングしている時間
+    function activeElapsedMs(data, now = Date.now()) {
+      if (!data || !data.startTime) return 0;
+      const end = data.pausedAt || now;
+      return Math.max(0, end - data.startTime - (data.pausedMs || 0));
+    }
+
+    function updateTimerUI(user) {
+      const data = activeUsersData[user];
+      if (!data || !data.startTime) { timerAnimationId = null; return; }
+      const elapsedSec = Math.floor(activeElapsedMs(data) / 1000);
       const mins = Math.floor(elapsedSec / 60);
       const secs = (elapsedSec % 60).toString().padStart(2, '0');
       const timeText = document.getElementById("time-text");
@@ -2842,7 +2859,11 @@
       const rInner = document.getElementById("ring-inner");
       if(rInner) rInner.style.strokeDashoffset = CIRCUMFERENCE_INNER - (innerProgress * CIRCUMFERENCE_INNER);
 
-      timerAnimationId = requestAnimationFrame(() => updateTimerUI(startTime));
+      // 一時停止中は数字を点滅させて、下に「一時停止中」と出す
+      if (timeText) timeText.classList.toggle("is-paused", !!data.pausedAt);
+      if (data.pausedAt && timeSub) timeSub.innerText = i18n[currentLang].pausedLabel;
+
+      timerAnimationId = requestAnimationFrame(() => updateTimerUI(user));
     }
 
     function checkMyTimerStatus() {
@@ -2853,16 +2874,26 @@
 
       const t = i18n[currentLang];
 
+      const btnPause = document.getElementById("btn-timer-pause");
       if (myData && myData.startTime) {
         amIRunning = true;
         btnAction.innerText = t.btnStop;
         btnAction.className = "timer-action-btn stop";
-        if (!previewUser && !timerAnimationId) updateTimerUI(myData.startTime);
+        if (btnPause) {
+          btnPause.style.display = "";
+          btnPause.innerText = myData.pausedAt ? t.btnResume : t.btnPause;
+          btnPause.className = `timer-action-btn pause${myData.pausedAt ? ' resume' : ''}`;
+        }
+        checkLongPause();
+        if (!previewUser && !timerAnimationId) updateTimerUI(myUserName);
         updateLocationToggleUI(myData.location || 'home');
       } else {
         amIRunning = false;
         btnAction.innerText = t.btnStart;
         btnAction.className = "timer-action-btn start";
+        if (btnPause) btnPause.style.display = "none";
+        const tt = document.getElementById("time-text");
+        if (tt) tt.classList.remove("is-paused");
         if (!previewUser) {
           cancelAnimationFrame(timerAnimationId);
           timerAnimationId = null;
@@ -2881,8 +2912,8 @@
       const myData = activeUsersData[myUserName];
       if (!myData || !myData.startTime) return;
 
-      const elapsedMin = Math.round((Date.now() - myData.startTime) / 60000);
-      if (elapsedMin < 180) return;
+      const elapsedMin = Math.round(activeElapsedMs(myData) / 60000);
+      if (elapsedMin < 180 || myData.pausedAt) return;
 
       forgottenTimerChecked = true;
       const t = i18n[currentLang];
@@ -2892,14 +2923,47 @@
       }
     }
 
+    window.togglePause = () => {
+      if (!myUserName || !amIRunning) return;
+      const data = activeUsersData[myUserName];
+      if (!data) return;
+      playSound('click');
+      triggerVibrate(30);
+      const now = Date.now();
+      if (data.pausedAt) {
+        update(ref(db, `current/${myUserName}`), { pausedMs: (data.pausedMs || 0) + (now - data.pausedAt), pausedAt: null });
+      } else {
+        update(ref(db, `current/${myUserName}`), { pausedAt: now });
+      }
+    };
+
+    // 一時停止したまま30分以上たっていたら、ここで終わりにするか聞く（同じ一時停止では1回だけ）
+    let pauseReminderAskedFor = null;
+    function checkLongPause() {
+      if (!myUserName) return;
+      const data = activeUsersData[myUserName];
+      if (!data || !data.pausedAt || pauseReminderAskedFor === data.pausedAt) return;
+      const pausedMin = Math.round((Date.now() - data.pausedAt) / 60000);
+      if (pausedMin < 30) return;
+      pauseReminderAskedFor = data.pausedAt;
+      setTimeout(() => {
+        if (confirm(i18n[currentLang].pauseReminder.replace("{min}", pausedMin))) window.toggleTimer();
+      }, 300);
+    }
+    setInterval(() => { try { checkLongPause(); } catch (e) {} }, 60000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) { try { checkLongPause(); } catch (e) {} } });
+
+    let pendingStopSnapshot = null;
+
     window.toggleTimer = () => {
       if (!myUserName) return checkAuth();
       if (amIRunning) {
         playSound('stop');
         triggerVibrate([50, 30, 50]);
         pendingTimerStartTime = activeUsersData[myUserName].startTime;
+        pendingStopSnapshot = { ...activeUsersData[myUserName], stoppedAt: Date.now() };
         
-        let durationMin = Math.round((Date.now() - pendingTimerStartTime) / 60000);
+        let durationMin = Math.round(activeElapsedMs(pendingStopSnapshot, pendingStopSnapshot.stoppedAt) / 60000);
         if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
 
         if (durationMin >= 180) {
@@ -3056,8 +3120,12 @@
       playSound('click');
       const memo = skipMemo ? "" : document.getElementById("trainingMemoInput").value.trim();
       const startTime = pendingTimerStartTime || Date.now();
-      let durationMin = Math.round((Date.now() - startTime) / 60000);
+      const snap = pendingStopSnapshot && pendingStopSnapshot.startTime === startTime ? pendingStopSnapshot : { startTime, stoppedAt: Date.now() };
+      // 一時停止したままストップした場合は、止めた時点を終了時刻にする
+      const endTime = snap.pausedAt || snap.stoppedAt;
+      let durationMin = pendingMemoDurationMin > 0 ? pendingMemoDurationMin : Math.round(activeElapsedMs(snap, snap.stoppedAt) / 60000);
       if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
+      const pausedMin = Math.round((snap.pausedMs || 0) / 60000);
 
       const localISO = getLocalISOString(new Date(startTime));
       const sessionLocation = (activeUsersData[myUserName] && activeUsersData[myUserName].location) || 'home';
@@ -3074,8 +3142,11 @@
         date: localISO,
         location: sessionLocation,
         typeSplit: splitDurationByTypes(durationMin, selectedExerciseTypes, "memo-type-split"),
-        parts: [...selectedParts]
+        parts: [...selectedParts],
+        endTime: endTime,
+        pausedMin: pausedMin > 0 ? pausedMin : null
       });
+      pendingStopSnapshot = null;
 
       remove(ref(db, `current/${myUserName}`));
       resetMemoExtras();
@@ -5545,7 +5616,9 @@
       const statusEl = document.getElementById("home-status-text");
       if(!statusEl) return;
 
-      const allActive = Object.keys(activeUsersData);
+      // 一時停止中の人はジムを使っていない扱いにする
+      const allActive = Object.keys(activeUsersData).filter(u => !activeUsersData[u].pausedAt);
+      const pausedUsers = Object.keys(activeUsersData).filter(u => activeUsersData[u].pausedAt);
       const users = allActive.filter(u => (activeUsersData[u].location || 'home') === 'home');
       const outsideUsers = allActive.filter(u => (activeUsersData[u].location || 'home') !== 'home');
       const displayNameOf = (u) => (u === myUserName || getPrivacy(u).showName) ? u : t.anonUser;
@@ -5569,6 +5642,13 @@
       } else if (users.length === 0) {
         statusEl.textContent = t.statusFree;
         statusEl.className = "home-status-text status-free";
+        if (pausedUsers.length > 0) {
+          const sub = document.createElement("span");
+          sub.className = "home-status-sub";
+          sub.style.color = "var(--text-sub)";
+          sub.textContent = t.homePausedSub.replace("{name}", displayNameOf(pausedUsers[0]));
+          statusEl.appendChild(sub);
+        }
       } else if (users.length === 1) {
         statusEl.textContent = join(displayNameOf(users[0]), t.statusBusy);
         statusEl.className = "home-status-text";
@@ -5601,7 +5681,7 @@
       if (!data) return;
       if (timerAnimationId) cancelAnimationFrame(timerAnimationId);
       timerAnimationId = null;
-      updateTimerUI(data.startTime);
+      updateTimerUI(username);
     }
 
     function exitStopwatchPreview() {
@@ -5651,7 +5731,9 @@
             <span class="active-user-avatar">${data.avatar || '👤'}</span>
             <div class="active-user-info"${nameClickAttr}>
               <div class="active-user-name">${dName}</div>
-              <div class="active-user-status"><span class="pulse-dot"></span>${isOutside ? t.activeStatusLabelOutside : t.activeStatusLabel}</div>
+              ${data.pausedAt
+                ? `<div class="active-user-status paused">${t.activeStatusPaused}</div>`
+                : `<div class="active-user-status"><span class="pulse-dot"></span>${isOutside ? t.activeStatusLabelOutside : t.activeStatusLabel}</div>`}
             </div>
             ${cheerBtn}
           </div>
@@ -6361,7 +6443,7 @@
     function findTogetherPairs(logs) {
       const sessions = logs
         .filter(l => l.user && l.startTime && l.duration && (l.location || 'home') === 'home')
-        .map(l => ({ user: l.user, s: l.startTime, e: l.startTime + l.duration * 60000 }))
+        .map(l => ({ user: l.user, s: l.startTime, e: l.endTime || (l.startTime + l.duration * 60000) }))
         .sort((a, b) => a.s - b.s);
       const pairs = [];
       for (let i = 0; i < sessions.length; i++) {
@@ -6506,12 +6588,12 @@
         let timeRangeStr = dateStr;
         if (log.startTime && log.duration) {
           const sD = new Date(log.startTime);
-          const eD = new Date(log.startTime + log.duration * 60000);
+          const eD = new Date(log.endTime || (log.startTime + log.duration * 60000));
           const fmt = (x) => `${x.getHours().toString().padStart(2,'0')}:${x.getMinutes().toString().padStart(2,'0')}`;
           const startDateStr = currentLang === 'es'
             ? `${sD.getDate()}/${sD.getMonth()+1}`
             : `${sD.getMonth()+1}月${sD.getDate()}日`;
-          timeRangeStr = `${startDateStr} ${fmt(sD)} - ${fmt(eD)}`;
+          timeRangeStr = `${startDateStr} ${fmt(sD)} - ${fmt(eD)}${log.pausedMin ? `（${t.breakNote.replace("{min}", log.pausedMin)}）` : ''}`;
         }
 
         if (log.isWeeklySummary) {
@@ -7193,11 +7275,11 @@
 
       listEl.innerHTML = userLogs.map(([key, log]) => {
         const d = new Date(log.startTime);
-        const endD = new Date(log.startTime + log.duration * 60000);
+        const endD = new Date(log.endTime || (log.startTime + log.duration * 60000));
         const dateStr = currentLang === 'es' 
             ? `${d.getDate()}/${d.getMonth()+1}`
             : `${d.getMonth()+1}/${d.getDate()}`;
-        const timeRange = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} - ${endD.getHours().toString().padStart(2,'0')}:${endD.getMinutes().toString().padStart(2,'0')}`;
+        const timeRange = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} - ${endD.getHours().toString().padStart(2,'0')}:${endD.getMinutes().toString().padStart(2,'0')}${log.pausedMin ? ` (${t.breakNote.replace("{min}", log.pausedMin)})` : ''}`;
 
         // 種類ごとの時間（筋トレ・有酸素など）と部位
         const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
@@ -7346,7 +7428,8 @@
       const hFrom = d.getHours().toString().padStart(2, '0');
       const mFrom = d.getMinutes().toString().padStart(2, '0');
       
-      const dTo = new Date(d.getTime() + (log.duration * 60000));
+      const dTo = new Date(log.endTime || (d.getTime() + (log.duration * 60000)));
+      editingPausedMin = log.pausedMin || 0;
       const hTo = dTo.getHours().toString().padStart(2, '0');
       const mTo = dTo.getMinutes().toString().padStart(2, '0');
       
@@ -7367,13 +7450,14 @@
       document.getElementById("edit-log-modal").style.display = "flex";
     };
 
+    let editingPausedMin = 0;
     function getEditDurationMin() {
       const timeFrom = document.getElementById("editLogTimeFrom").value;
       const timeTo = document.getElementById("editLogTimeTo").value;
       if (!timeFrom || !timeTo) return 0;
       const [fromH, fromM] = timeFrom.split(':').map(Number);
       const [toH, toM] = timeTo.split(':').map(Number);
-      const diff = (toH * 60 + toM) - (fromH * 60 + fromM);
+      const diff = (toH * 60 + toM) - (fromH * 60 + fromM) - editingPausedMin;
       return diff > 0 ? diff : 0;
     }
 
@@ -7429,15 +7513,18 @@
 
       const startMinutes = fromH * 60 + fromM;
       const endMinutes = toH * 60 + toM;
-      let diffMin = endMinutes - startMinutes;
-
-      if (diffMin <= 0) return alert(t.alertTimeOrder);
+      if (endMinutes - startMinutes <= 0) return alert(t.alertTimeOrder);
+      // 一時停止していた時間は、トレーニング時間から引いたままにする
+      const keepPaused = Math.min(editingPausedMin, endMinutes - startMinutes - 1);
+      let diffMin = endMinutes - startMinutes - Math.max(0, keepPaused);
 
       const logDate = new Date(`${dateVal}T${timeFrom}:00`);
       const localISO = getLocalISOString(logDate);
 
       update(ref(db, `logs/${editingLogKey}`), {
         startTime: logDate.getTime(),
+        endTime: new Date(`${dateVal}T${timeTo}:00`).getTime(),
+        pausedMin: keepPaused > 0 ? keepPaused : null,
         duration: diffMin,
         memo: memo || "",
         month: dateVal.slice(0, 7),
