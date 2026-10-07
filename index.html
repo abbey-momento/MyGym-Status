@@ -3387,7 +3387,7 @@
         { id: 'streak3', group: G.streak, earned: longestStreak >= 3, icon: 'flame', label: t.badgeStreak3 },
         { id: 'week4', group: G.streak, earned: maxWeekDays >= 4, icon: 'calendar', label: M('1週間に4日', '4 días en una semana') },
         { id: 'week5', group: G.streak, earned: maxWeekDays >= 5, icon: 'calendar', label: M('1週間に5日', '5 días en una semana') },
-        ...[12, 16, 20].map(n => ({
+        ...[12, 16].map(n => ({
           id: `month${n}`, group: G.streak, earned: maxMonthDays >= n, icon: 'calendar', label: M(`1か月に${n}日`, `${n} días en un mes`)
         })),
         ...[2, 4, 8, 12, 16, 26, 39, 52].map(n => ({
@@ -3405,13 +3405,13 @@
         ...[1, 2, 5, 10, 15, 20, 25, 35, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 400, 500, 750, 1000].map(n => ({
           id: `hours${n}`, group: G.time, earned: pb.totalMin / 60 >= n, icon: 'clock', label: H(n)
         })),
-        ...[45, 60, 90, 120, 150, 180].map(n => ({
+        ...[45, 60, 90, 120].map(n => ({
           id: `session${n}`, group: G.time, earned: pb.bestSession >= n, icon: 'timer', label: M(`1回で${n}分`, `${n} min en una sesión`)
         })),
-        ...[3, 5, 8, 10].map(n => ({
+        ...[3, 5].map(n => ({
           id: `weekh${n}`, group: G.time, earned: pb.bestWeek / 60 >= n, icon: 'timer', label: M(`1週間で${n}時間`, `${n} h en una semana`)
         })),
-        ...[10, 20, 30].map(n => ({
+        ...[10, 20].map(n => ({
           id: `monthh${n}`, group: G.time, earned: maxMonthMin / 60 >= n, icon: 'clock', label: M(`1か月で${n}時間`, `${n} h en un mes`)
         })),
       ];
