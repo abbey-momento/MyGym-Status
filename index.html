@@ -488,8 +488,10 @@
     .champ-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .champ-card-badge { flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,196,0,0.12); border: 1px solid rgba(255,196,0,0.35); display: flex; align-items: center; justify-content: center; }
     .champ-card-kicker { font-size: 0.64rem; font-weight: 800; color: #FFC400; letter-spacing: 0.04em; }
-    .champ-card-title { font-size: 1rem; font-weight: 800; color: #fff; margin-top: 1px; font-family: 'LINE Seed JP', sans-serif; }
-    .champ-card-date { margin-left: auto; align-self: flex-start; font-size: 0.66rem; color: var(--text-sub); font-weight: 700; white-space: nowrap; font-family: 'LINE Seed JP', sans-serif; }
+    .champ-card-text { flex: 1; min-width: 0; }
+    .champ-card-kicker-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .champ-card-title { font-size: 1rem; font-weight: 800; color: #fff; margin-top: 2px; font-family: 'LINE Seed JP', sans-serif; }
+    .champ-card-date { flex-shrink: 0; font-size: 0.66rem; color: var(--text-sub); font-weight: 700; white-space: nowrap; font-family: 'LINE Seed JP', sans-serif; }
     .champ-card-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
     .champ-row { display: grid; grid-template-columns: 52px 26px minmax(0, 1fr) auto; align-items: center; gap: 8px; background: rgba(0,0,0,0.28); border-radius: 12px; padding: 9px 12px; }
     .champ-row.is-me { box-shadow: inset 0 0 0 1px rgba(255,196,0,0.45); background: rgba(255,196,0,0.06); }
@@ -6687,11 +6689,13 @@
             <div class="timeline-card-item champ-card" id="log-${log.key}">
               <div class="champ-card-head">
                 <div class="champ-card-badge"><svg viewBox="0 0 24 24" width="22" height="22"><defs><linearGradient id="champGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE27A"/><stop offset="1" stop-color="#FFB020"/></linearGradient></defs><path fill="url(#champGold)" d="M7 3h10v2h3a1 1 0 0 1 1 1v1.5a4.5 4.5 0 0 1-4.1 4.48A5.5 5.5 0 0 1 13 15.4V18h3a1 1 0 0 1 1 1v2H7v-2a1 1 0 0 1 1-1h3v-2.6a5.5 5.5 0 0 1-3.9-3.42A4.5 4.5 0 0 1 3 7.5V6a1 1 0 0 1 1-1h3V3zm10 4v2.95A2.5 2.5 0 0 0 19 7.5V7h-2zM5 7v.5a2.5 2.5 0 0 0 2 2.45V7H5z"/></svg></div>
-                <div style="min-width:0;">
-                  <div class="champ-card-kicker">${isYear ? t.champAnnounceYear : log.key.startsWith('champh-') ? t.champAnnounceHalf : t.champAnnounceMonth}</div>
+                <div class="champ-card-text">
+                  <div class="champ-card-kicker-row">
+                    <span class="champ-card-kicker">${isYear ? t.champAnnounceYear : log.key.startsWith('champh-') ? t.champAnnounceHalf : t.champAnnounceMonth}</span>
+                    <span class="champ-card-date">${dateStr}</span>
+                  </div>
                   <div class="champ-card-title">${titleText}</div>
                 </div>
-                <div class="champ-card-date">${dateStr}</div>
               </div>
               <div class="champ-card-rows">${rowsHtml}</div>
 
