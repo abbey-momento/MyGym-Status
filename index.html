@@ -260,9 +260,10 @@
     .wrapped-dots { display: flex; gap: 4px; padding: 20px 64px 0 16px; }
     .wrapped-dots i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.18); transition: background 0.2s; }
     .wrapped-dots i.on { background: #fff; }
-    .wrapped-track { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
-    .wrapped-track::-webkit-scrollbar { display: none; }
-    .wrapped-slide { flex: 0 0 100%; width: 100%; min-width: 0; box-sizing: border-box; overflow: hidden; scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column; justify-content: center; padding: 28px 28px 48px; max-width: 100%; }
+    .wrapped-track { flex: 1; position: relative; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+    .wrapped-rail { display: flex; height: 100%; will-change: transform; transition: transform 0.38s cubic-bezier(0.22, 0.8, 0.24, 1); }
+    .wrapped-rail.dragging { transition: none; }
+    .wrapped-slide { flex: 0 0 100%; width: 100%; min-width: 0; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: center; padding: 28px 28px 48px; max-width: 100%; }
     .wrapped-slide .w-kicker { font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.65); margin-bottom: 14px; }
     .wrapped-slide .w-big { font-family: 'LINE Seed JP', sans-serif; font-size: 3.2rem; font-weight: 800; line-height: 1.05; color: #fff; letter-spacing: -0.02em; }
     .wrapped-slide .w-mid { font-size: 1.5rem; font-weight: 800; line-height: 1.35; color: #fff; }
@@ -3349,36 +3350,69 @@
       const goalMonthDone = monthGoal > 0 && Object.values(monthSessions).some(c => c >= monthGoal);
       const sinceDays = dayKeys.length ? Math.round((Date.now() - keyToDate(dayKeys[0]).getTime()) / 86400000) : 0;
 
+      // 追加の集計：週・月ごとの回数と時間、活動した月の数
+      const weekSessions = {}, monthMinutes = {};
+      myLogs.forEach(l => {
+        if (!l.date) return;
+        const k = l.date.slice(0, 10);
+        const w = weekKeyOf(k); weekSessions[w] = (weekSessions[w] || 0) + 1;
+        const m = k.slice(0, 7); monthMinutes[m] = (monthMinutes[m] || 0) + (l.duration || 0);
+      });
+      const weekGoal = goalCounts && goalCounts.week > 0 ? goalCounts.week : 0;
+      const goalWeekCount = weekGoal > 0 ? Object.values(weekSessions).filter(c => c >= weekGoal).length : 0;
+      const goalMonthCount = monthGoal > 0 ? Object.values(monthSessions).filter(c => c >= monthGoal).length : 0;
+      const maxMonthMin = Math.max(0, ...Object.values(monthMinutes));
+      const activeMonths = Object.keys(monthDays).length;
+
       const G = {
         streak: M('継続', 'Constancia'),
         count: M('回数', 'Sesiones'),
         time: M('時間', 'Tiempo')
       };
 
+      const H = (n) => M(`通算${n}時間`, `${n} ${n === 1 ? 'hora' : 'horas'}`);
       return [
+        // ---- 回数 ----
         { id: 'first', group: G.count, earned: pb.sessionCount >= 1, icon: 'star', label: t.badgeFirst },
-        ...[5, 10, 25, 50, 75, 100, 150, 200, 300, 500].map(n => ({
+        ...[3, 5, 10, 15, 20, 25, 35, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 400, 500, 750, 1000].map(n => ({
           id: `count${n}`, group: G.count, earned: pb.sessionCount >= n, icon: 'star', label: M(`${n}回達成`, `${n} sesiones`)
         })),
-        { id: 'goalmonth', group: G.count, earned: goalMonthDone, icon: 'target', label: M('月の目標を達成', 'Meta mensual cumplida') },
+        { id: 'goalweek', group: G.count, earned: goalWeekCount >= 1, icon: 'target', label: M('週の目標を達成', 'Meta semanal cumplida') },
+        { id: 'goalweek4', group: G.count, earned: goalWeekCount >= 4, icon: 'target', label: M('週の目標を4回達成', '4 metas semanales') },
+        { id: 'goalmonth', group: G.count, earned: goalMonthCount >= 1, icon: 'target', label: M('月の目標を達成', 'Meta mensual cumplida') },
+        { id: 'goalmonth3', group: G.count, earned: goalMonthCount >= 3, icon: 'target', label: M('月の目標を3回達成', '3 metas mensuales') },
+        { id: 'goalmonth6', group: G.count, earned: goalMonthCount >= 6, icon: 'target', label: M('月の目標を6回達成', '6 metas mensuales') },
 
+        // ---- 継続（休息日を取っても途切れないよう、連続は「週3日以上の週」で数える） ----
         { id: 'streak3', group: G.streak, earned: longestStreak >= 3, icon: 'flame', label: t.badgeStreak3 },
+        { id: 'week4', group: G.streak, earned: maxWeekDays >= 4, icon: 'calendar', label: M('1週間に4日', '4 días en una semana') },
         { id: 'week5', group: G.streak, earned: maxWeekDays >= 5, icon: 'calendar', label: M('1週間に5日', '5 días en una semana') },
-        { id: 'month20', group: G.streak, earned: maxMonthDays >= 20, icon: 'calendar', label: M('1か月に20日', '20 días en un mes') },
-        // 休息日を取っても途切れないよう、連続は「週3日以上の週」が何週続いたかで数える
-        { id: 'rhythm4', group: G.streak, earned: rhythmBest >= 4, icon: 'wave', label: M('週3日以上を4週連続', '4 semanas de 3+ días') },
-        { id: 'rhythm8', group: G.streak, earned: rhythmBest >= 8, icon: 'wave', label: M('週3日以上を8週連続', '8 semanas de 3+ días') },
-        { id: 'rhythm12', group: G.streak, earned: rhythmBest >= 12, icon: 'wave', label: M('週3日以上を12週連続', '12 semanas de 3+ días') },
-        { id: 'rhythm26', group: G.streak, earned: rhythmBest >= 26, icon: 'wave', label: M('週3日以上を26週連続', '26 semanas de 3+ días') },
-        { id: 'comeback', group: G.streak, earned: comeback, icon: 'refresh', label: M('2週間以上空けて再開', 'Volver tras 2 semanas') },
-        { id: 'since100', group: G.streak, earned: sinceDays >= 100, icon: 'gift', label: M('始めて100日', '100 días desde el inicio') },
-        { id: 'since365', group: G.streak, earned: sinceDays >= 365, icon: 'gift', label: M('始めて1年', '1 año desde el inicio') },
-
-        ...[1, 5, 10, 25, 50, 75, 100, 150, 200, 300, 500].map(n => ({
-          id: `hours${n}`, group: G.time, earned: pb.totalMin / 60 >= n, icon: 'clock', label: M(`通算${n}時間`, `${n} ${n === 1 ? 'hora' : 'horas'}`)
+        ...[12, 16, 20].map(n => ({
+          id: `month${n}`, group: G.streak, earned: maxMonthDays >= n, icon: 'calendar', label: M(`1か月に${n}日`, `${n} días en un mes`)
         })),
-        ...[60, 90, 120].map(n => ({
+        ...[2, 4, 8, 12, 16, 26, 39, 52].map(n => ({
+          id: `rhythm${n}`, group: G.streak, earned: rhythmBest >= n, icon: 'wave', label: M(`週3日以上を${n}週連続`, `${n} semanas de 3+ días`)
+        })),
+        { id: 'comeback', group: G.streak, earned: comeback, icon: 'refresh', label: M('2週間以上空けて再開', 'Volver tras 2 semanas') },
+        ...[3, 6, 12].map(n => ({
+          id: `months${n}`, group: G.streak, earned: activeMonths >= n, icon: 'calendar', label: M(`${n}か月トレーニング`, `${n} meses entrenando`)
+        })),
+        ...[[30, M('始めて30日', '30 días desde el inicio')], [100, M('始めて100日', '100 días desde el inicio')], [200, M('始めて200日', '200 días desde el inicio')], [365, M('始めて1年', '1 año desde el inicio')], [730, M('始めて2年', '2 años desde el inicio')]].map(([n, label]) => ({
+          id: `since${n}`, group: G.streak, earned: sinceDays >= n, icon: 'gift', label
+        })),
+
+        // ---- 時間 ----
+        ...[1, 2, 5, 10, 15, 20, 25, 35, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 400, 500, 750, 1000].map(n => ({
+          id: `hours${n}`, group: G.time, earned: pb.totalMin / 60 >= n, icon: 'clock', label: H(n)
+        })),
+        ...[45, 60, 90, 120, 150, 180].map(n => ({
           id: `session${n}`, group: G.time, earned: pb.bestSession >= n, icon: 'timer', label: M(`1回で${n}分`, `${n} min en una sesión`)
+        })),
+        ...[3, 5, 8, 10].map(n => ({
+          id: `weekh${n}`, group: G.time, earned: pb.bestWeek / 60 >= n, icon: 'timer', label: M(`1週間で${n}時間`, `${n} h en una semana`)
+        })),
+        ...[10, 20, 30].map(n => ({
+          id: `monthh${n}`, group: G.time, earned: maxMonthMin / 60 >= n, icon: 'clock', label: M(`1か月で${n}時間`, `${n} h en un mes`)
         })),
       ];
     }
@@ -4260,18 +4294,45 @@
 
       const track = document.getElementById("wrapped-track");
       const dots = document.getElementById("wrapped-dots");
-      track.innerHTML = slides.join("");
+      track.innerHTML = `<div class="wrapped-rail" id="wrapped-rail">${slides.join("")}</div>`;
       dots.innerHTML = slides.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join("");
-      track.scrollLeft = 0;
-      track.onscroll = () => {
-        const idx = Math.round(track.scrollLeft / track.clientWidth);
-        dots.querySelectorAll("i").forEach((d, i) => d.classList.toggle("on", i <= idx));
+      const rail = document.getElementById("wrapped-rail");
+      let idx = 0;
+      const goTo = (i) => {
+        idx = Math.max(0, Math.min(slides.length - 1, i));
+        rail.classList.remove("dragging");
+        rail.style.transform = `translateX(${-idx * 100}%)`;
+        dots.querySelectorAll("i").forEach((d, k) => d.classList.toggle("on", k <= idx));
       };
-      // 画面の右側タップで次、左側タップで前へ
-      track.onclick = (e) => {
-        const goNext = e.clientX > window.innerWidth * 0.35;
-        track.scrollBy({ left: goNext ? track.clientWidth : -track.clientWidth, behavior: 'smooth' });
+      goTo(0);
+      // 指で横にドラッグしてめくる。動かさずに離したら、右側タップで次・左側タップで前へ
+      let startX = 0, startY = 0, dx = 0, dragging = false, horizontal = null;
+      track.onpointerdown = (e) => {
+        dragging = true; horizontal = null; dx = 0;
+        startX = e.clientX; startY = e.clientY;
       };
+      track.onpointermove = (e) => {
+        if (!dragging) return;
+        dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (horizontal === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) horizontal = Math.abs(dx) > Math.abs(dy);
+        if (!horizontal) return;
+        // 端では少しだけ動いて止まる
+        const atEdge = (idx === 0 && dx > 0) || (idx === slides.length - 1 && dx < 0);
+        const offset = atEdge ? dx * 0.3 : dx;
+        rail.classList.add("dragging");
+        rail.style.transform = `translateX(calc(${-idx * 100}% + ${offset}px))`;
+      };
+      const endDrag = (e) => {
+        if (!dragging) return;
+        dragging = false;
+        const w = track.clientWidth || window.innerWidth;
+        if (horizontal && Math.abs(dx) > w * 0.18) goTo(idx + (dx < 0 ? 1 : -1));
+        else if (!horizontal && Math.abs(dx) < 6) goTo(idx + (e.clientX > window.innerWidth * 0.35 ? 1 : -1));
+        else goTo(idx);
+      };
+      track.onpointerup = endDrag;
+      track.onpointercancel = () => { dragging = false; goTo(idx); };
       document.getElementById("wrapped-modal").style.display = "flex";
     };
 
