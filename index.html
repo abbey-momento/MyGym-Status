@@ -250,6 +250,8 @@
 
     /* 月の振り返り */
     .wrapped-entry-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: linear-gradient(135deg, rgba(47,143,255,0.22), rgba(45,212,191,0.16)); border: 1px solid rgba(45,212,191,0.4); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; color: #fff; cursor: pointer; font-family: inherit; text-align: left; }
+    .wrapped-entry-btn.seen { background: rgba(0,0,0,0.3); border-color: var(--card-border); color: var(--text-sub); }
+    .wrapped-entry-btn.seen b { font-size: 0.85rem; color: var(--text-sub); }
     .wrapped-entry-btn b { display: block; font-size: 0.95rem; }
     .wrapped-entry-btn small { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; }
     .wrapped-overlay { position: fixed; inset: 0; z-index: 3000; background: #070A12; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -302,7 +304,7 @@
     .body3d-sel-count { font-size: 0.72rem; font-weight: 700; color: var(--text-sub); margin-top: 2px; font-family: 'LINE Seed JP', sans-serif; }
 
     /* ペースに合わせた声かけ */
-    .pace-card { display: flex; gap: 12px; align-items: flex-start; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-left: 3px solid var(--pace-color, var(--accent)); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
+    .pace-card { display: flex; gap: 12px; align-items: flex-start; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
     .pace-card .pace-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--pace-color, var(--accent)); background: rgba(255,255,255,0.04); }
     .pace-card .pace-title { font-size: 0.9rem; font-weight: 800; color: #fff; line-height: 1.4; }
     .pace-card .pace-body { font-size: 0.78rem; color: var(--text-sub); font-weight: 700; line-height: 1.5; margin-top: 3px; }
@@ -470,6 +472,20 @@
     .timeline-memo { font-size: 0.85rem; color: var(--text-sub); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 10px; word-break: break-all; }
 
     /* 🏆 月間チャンピオン発表カード（アクティビティフィード内） */
+    .champ-card { background: radial-gradient(120% 90% at 0% 0%, rgba(255,196,0,0.13), transparent 55%), var(--card-bg, #141B2B) !important; border: 1px solid rgba(255,196,0,0.32) !important; }
+    .champ-card::before { display: none !important; }
+    .champ-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .champ-card-badge { flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #FFD54A, #FF9F1C); color: #2A1A00; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(255,170,0,0.3); }
+    .champ-card-kicker { font-size: 0.64rem; font-weight: 800; color: #FFC400; letter-spacing: 0.04em; }
+    .champ-card-title { font-size: 1rem; font-weight: 800; color: #fff; margin-top: 1px; }
+    .champ-card-date { margin-left: auto; align-self: flex-start; font-size: 0.66rem; color: var(--text-sub); font-weight: 700; white-space: nowrap; }
+    .champ-card-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+    .champ-row { display: grid; grid-template-columns: 52px 26px minmax(0, 1fr) auto; align-items: center; gap: 8px; background: rgba(0,0,0,0.28); border-radius: 12px; padding: 9px 12px; }
+    .champ-row.is-me { box-shadow: inset 0 0 0 1px rgba(255,196,0,0.45); background: rgba(255,196,0,0.06); }
+    .champ-row .cat { font-size: 0.68rem; font-weight: 800; color: #FFC400; }
+    .champ-row .av { font-size: 1.15rem; text-align: center; line-height: 1; }
+    .champ-row .nm { font-size: 0.88rem; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .champ-row .val { font-family: 'LINE Seed JP', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--ring-inner); white-space: nowrap; }
     .champion-announce-card { background: linear-gradient(135deg, rgba(255,196,0,0.1), rgba(255,140,0,0.05)); border: 1px solid rgba(255,196,0,0.35); box-shadow: 0 0 12px rgba(255,196,0,0.1); }
     .champion-announce-avatar { background: rgba(255,196,0,0.15); border-color: rgba(255,196,0,0.4); }
     .champion-announce-message { color: #fff; font-weight: 400; background: rgba(255,196,0,0.08); border: 1px solid rgba(255,196,0,0.15); font-family: 'LINE Seed JP', sans-serif; }
@@ -1116,7 +1132,6 @@
         <button data-metric="strength" onclick="setRaceMetric('strength')" id="t-race-m-strength">筋トレ</button>
         <button data-metric="cardio" onclick="setRaceMetric('cardio')" id="t-race-m-cardio">有酸素</button>
         <button data-metric="days" onclick="setRaceMetric('days')" id="t-race-m-days">日数</button>
-        <button data-metric="goal" onclick="setRaceMetric('goal')" id="t-race-m-goal">達成率</button>
       </div>
       <div class="race-metric-note" id="race-metric-note"></div>
       <div id="race-podium-container"></div>
@@ -1963,7 +1978,7 @@
     let usersPrivacyData = {}; 
     let usersGoalData = {};
     let raceMetric = (() => {
-      try { const v = localStorage.getItem("gym_race_metric"); if (["total","strength","cardio","days","goal"].includes(v)) return v; } catch (e) {}
+      try { const v = localStorage.getItem("gym_race_metric"); if (["total","strength","cardio","days"].includes(v)) return v; } catch (e) {}
       return "total";
     })();
     let allMonthlyResults = {};
@@ -2201,7 +2216,6 @@
       setT("t-race-m-strength", t.raceMStrength);
       setT("t-race-m-cardio", t.raceMCardio);
       setT("t-race-m-days", t.raceMDays);
-      setT("t-race-m-goal", t.raceMGoal);
       setT("t-timeline-title", t.timelineTitle);
       setT("t-load-more", t.loadMore);
       setT("t-my-logs-load-more", t.loadMore);
@@ -3980,8 +3994,10 @@
       const ms = prevMonthStr();
       if (!computeWrapped(ms)) { el.style.display = "none"; return; }
       const es = currentLang === 'es';
+      let seen = false;
+      try { seen = !!localStorage.getItem(`gym_wrapped_seen_${myUserName}_${ms}`); } catch (e) {}
       el.innerHTML = `
-        <button class="wrapped-entry-btn" onclick="openWrapped('${ms}')">
+        <button class="wrapped-entry-btn${seen ? ' seen' : ''}" onclick="openWrapped('${ms}')">
           <div><b>${es ? `Tu ${monthNameOf(ms)} en resumen` : `${monthNameOf(ms)}の振り返り`}</b><small>${es ? 'Desliza para ver tu mes' : 'スワイプで1か月をふり返る'}</small></div>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>`;
@@ -4001,6 +4017,10 @@
     window.openWrapped = (monthStr) => {
       const w = computeWrapped(monthStr);
       if (!w) return;
+      // 一度開いたら、マイページの入口ボタンは控えめな見た目にする
+      try { localStorage.setItem(`gym_wrapped_seen_${myUserName}_${monthStr}`, "1"); } catch (e) {}
+      const entryBtn = document.querySelector("#wrapped-entry .wrapped-entry-btn");
+      if (entryBtn) entryBtn.classList.add("seen");
       try { playSound('click'); } catch (e) {}
       const es = currentLang === 'es';
       const M = (ja, esText) => es ? esText : ja;
@@ -4449,10 +4469,8 @@
       const el = document.getElementById("body3d-info");
       if (!el) return;
       const es = currentLang === 'es';
-      if (!body3dSelected) {
-        el.innerHTML = `<div class="body3d-hint">${es ? 'Arrastra para girar, pellizca con dos dedos para acercar y toca una parte para ver cuándo la entrenaste.' : 'ドラッグで回転、2本指でズームと上下移動。部位をタップすると最後にトレーニングした日が見られます。'}</div>`;
-        return;
-      }
+      el.style.display = body3dSelected ? "" : "none";
+      if (!body3dSelected) { el.innerHTML = ""; return; }
       const { count, last } = computeBodyHeat(body3dPeriod);
       const def = BODY_REGIONS[body3dSelected];
       const ts = last[body3dSelected];
@@ -6322,7 +6340,7 @@
 
     function buildCombinedTimelineArray() {
       const logsArray = Object.entries(allLogsData).map(([key, log]) => ({ ...log, key, isAnnouncement: false }));
-      const combinedArray = logsArray.concat(buildChampionAnnouncements()).concat(buildWeeklyFamilySummaries());
+      const combinedArray = logsArray.concat(buildChampionAnnouncements());
       // 日付が壊れている(不正/空)な記録が1件でもあると並び替え全体が狂うことがあるため、
       // 安全な数値に変換してから比較する(壊れたものは一番古い扱いにして、下に沈めるだけにする)
       const safeTime = (item) => {
@@ -6420,6 +6438,8 @@
           const message = currentLang === 'es' ? msgEs(displayName, label, top, resultData) : msgJa(displayName, label, top, resultData);
           return {
             isAnnouncement: true,
+            result: resultData,
+            periodLabel: label,
             key: `${keyPrefix}${periodKey}`,
             date: getLocalISOString(postDate),
             avatar: top.avatar || '🏆',
@@ -6527,18 +6547,37 @@
           const likeNames = likeNamesArr.join(", ");
           const commentsCount = log.comments ? Object.keys(log.comments).length : 0;
 
+          const isYear = log.key.startsWith('champy-');
+          const r = log.result || {};
+          let champs = getCategoryChampions(r);
+          if (isYear && r.ranking && r.ranking[0]) {
+            const top = r.ranking[0];
+            champs = [{ cat: 'total', user: top.user, value: top.totalMin, avatar: top.avatar, showName: top.showName }];
+          }
+          const titleText = isYear
+            ? (currentLang === 'es' ? `Campeón/a del año ${log.periodLabel}` : `${log.periodLabel}の年間チャンピオン`)
+            : (currentLang === 'es' ? `Campeones de ${log.periodLabel}` : `${log.periodLabel}のチャンピオン`);
+          const rowsHtml = champs.map(c => {
+            const me = c.user === myUserName;
+            return `<div class="champ-row${me ? ' is-me' : ''}">
+              <span class="cat">${categoryLabel(c.cat)}</span>
+              <span class="av">${c.avatar || '👤'}</span>
+              <span class="nm">${champDisplayName(c)}${me ? ' <span class="you-tag">YOU</span>' : ''}</span>
+              <span class="val">${c.cat === 'days' ? formatCategoryValue(c.cat, c.value) : formatHM(c.value)}</span>
+            </div>`;
+          }).join("");
+
           return `
-            <div class="timeline-card-item champion-announce-card" id="log-${log.key}">
-              <div class="timeline-header">
-                <div class="timeline-user-box">
-                  <div class="timeline-avatar champion-announce-avatar">${log.avatar}</div>
-                  <div>
-                    <div class="timeline-name" style="color:#FFC400; display:flex; align-items:center; gap:5px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FFC400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>${log.key.startsWith('champh-') ? t.champAnnounceHalf : log.key.startsWith('champy-') ? t.champAnnounceYear : t.champAnnounceMonth}</div>
-                    <div class="timeline-time">${dateStr}</div>
-                  </div>
+            <div class="timeline-card-item champ-card" id="log-${log.key}">
+              <div class="champ-card-head">
+                <div class="champ-card-badge"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></div>
+                <div style="min-width:0;">
+                  <div class="champ-card-kicker">${isYear ? t.champAnnounceYear : log.key.startsWith('champh-') ? t.champAnnounceHalf : t.champAnnounceMonth}</div>
+                  <div class="champ-card-title">${titleText}</div>
                 </div>
+                <div class="champ-card-date">${dateStr}</div>
               </div>
-              <div class="timeline-memo champion-announce-message">${log.message}</div>
+              <div class="champ-card-rows">${rowsHtml}</div>
 
               <div class="timeline-actions">
                 <button class="action-icon-btn ${isLikedByMe ? 'liked' : ''}" onclick="toggleLike('${log.key}')" title="${likeNames}">
@@ -6924,7 +6963,7 @@
     }
 
     // ---- 月ごとの部門別集計（エネルギーレースと月間チャンピオン確定で共通）----
-    const RACE_CATEGORIES = ['total', 'strength', 'cardio', 'days', 'goal'];
+    const RACE_CATEGORIES = ['total', 'strength', 'cardio', 'days'];
 
     function computeMonthStats(monthStr) {
       const userTotals = {};
