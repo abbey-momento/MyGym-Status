@@ -284,6 +284,11 @@
     .wrapped-slide.s5 { background: radial-gradient(circle at 30% 30%, rgba(52,211,153,0.45), transparent 60%), #06231A; }
     .wrapped-slide.s6 { background: radial-gradient(circle at 60% 20%, rgba(255,61,186,0.35), transparent 60%), #25081C; }
 
+    /* マイページの数字は LINE Seed JP で表示する */
+    .num-font { font-family: 'LINE Seed JP', sans-serif; }
+    #view-mypage input[type="number"], #view-mypage input[type="date"], #view-mypage input[type="time"],
+    #edit-log-modal input[type="date"], #edit-log-modal input[type="time"] { font-family: 'LINE Seed JP', sans-serif; }
+
     /* 3D 人体ヒートマップ */
     .body3d-card { background: radial-gradient(circle at 50% 38%, rgba(47,143,255,0.16), transparent 62%), rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 18px; padding: 14px 14px 12px; margin-bottom: 14px; }
     .body3d-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -4183,11 +4188,12 @@
         </div>`);
       }
 
-      slides.push(`<div class="wrapped-slide s6">
-        <div class="w-kicker">${M('応援', 'Apoyo')}</div>
-        <div class="w-mid">${M(`もらったいいねは<br>${w.likes}回`, `Recibiste<br>${w.likes} me gusta`)}</div>
-        <div class="w-sub" style="margin-top:36px; color:#fff;">${M('来月も、あなたのペースで。', 'El próximo mes, a tu ritmo.')}</div>
-      </div>`);
+      // 最後のカードに締めの一言を添える
+      {
+        const last = slides.length - 1;
+        const i = slides[last].lastIndexOf('</div>');
+        slides[last] = slides[last].slice(0, i) + `<div class="w-sub" style="margin-top:36px; color:#fff;">${M('来月も、あなたのペースで。', 'El próximo mes, a tu ritmo.')}</div>` + slides[last].slice(i);
+      }
 
       const track = document.getElementById("wrapped-track");
       const dots = document.getElementById("wrapped-dots");
@@ -7281,6 +7287,41 @@
         rest.map(([user, data], idx) => buildCard(user, data, idx + 4)).join("") +
         noGoalEntries.map(([user, data]) => buildCard(user, data, null)).join("");
     }
+
+    // ---- マイページ周りの文中の数字だけを LINE Seed JP にする（Zen角ゴシックの数字を使わない）----
+    function wrapDigitsIn(root) {
+      if (!root) return;
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(n) {
+          if (!/\d/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
+          const p = n.parentElement;
+          if (!p || p.closest('.num-font, script, style, svg, textarea, canvas')) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(n => {
+        const first = (getComputedStyle(n.parentElement).fontFamily || '').split(',')[0];
+        if (!/Zen Kaku/i.test(first)) return; // もともと別のフォントの数字はそのまま
+        const frag = document.createDocumentFragment();
+        n.nodeValue.split(/(\d[\d.,:/%]*)/).forEach(part => {
+          if (!part) return;
+          if (/^\d/.test(part)) { const sp = document.createElement('span'); sp.className = 'num-font'; sp.textContent = part; frag.appendChild(sp); }
+          else frag.appendChild(document.createTextNode(part));
+        });
+        n.parentNode.replaceChild(frag, n);
+      });
+    }
+    (() => {
+      const targets = ['view-mypage', 'badges-modal', 'wrapped-modal', 'settings-modal', 'edit-log-modal', 'memo-modal'];
+      let scheduled = false;
+      const runAll = () => { scheduled = false; targets.forEach(id => { try { wrapDigitsIn(document.getElementById(id)); } catch (e) {} }); };
+      const schedule = () => { if (!scheduled) { scheduled = true; requestAnimationFrame(runAll); } };
+      const obs = new MutationObserver(schedule);
+      targets.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el, { childList: true, subtree: true, characterData: true }); });
+      schedule();
+    })();
 
     // 履歴カードの「…」メニュー
     window.closeLogMenus = () => document.querySelectorAll(".lg-menu.open").forEach(m => m.classList.remove("open"));
