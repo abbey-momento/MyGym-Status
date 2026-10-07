@@ -307,6 +307,7 @@
     .mp-hero .pace-card { background: none; border: none; border-top: 1px solid rgba(255,255,255,0.06); border-radius: 0; padding: 12px 0 0; margin-bottom: 0; }
     .mp-hero-goal { border-top: 1px solid rgba(255,255,255,0.06); margin-top: 12px; padding-top: 14px; }
     .mp-hero-goal h3 { margin-bottom: 10px !important; }
+    .report-subtitle { font-size: 0.85rem; font-weight: 800; color: #fff; }
     .mp-link { background: none; border: none; color: var(--accent); font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: inherit; padding: 2px 0; }
 
     /* 3D 人体ヒートマップ */
@@ -945,6 +946,14 @@
         <input type="checkbox" class="toggle-switch" id="pref-sound" onchange="setSoundEnabled(this.checked)">
       </div>
 
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+        <span style="font-size:0.9rem; font-weight:700;" id="t-setting-lang">言語 / Idioma</span>
+        <div class="lang-switcher">
+          <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
+          <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
+        </div>
+      </div>
+
       <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
         <div style="font-size:0.9rem; font-weight:700;" id="t-parts-setting-title">記録画面に出す部位</div>
         <div style="font-size:0.72rem; color:var(--text-sub); margin:4px 0 10px; line-height:1.5;" id="t-parts-setting-desc">よく使う部位だけ選んでおくと、トレーニング後の画面がすっきりします。</div>
@@ -1255,10 +1264,6 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span id="t-my-title">マイページ</span>
         </h2>
-        <div class="lang-switcher">
-          <button class="lang-btn active" id="btn-es" onclick="switchLang('es')">ES</button>
-          <button class="lang-btn" id="btn-ja" onclick="switchLang('ja')">JA</button>
-        </div>
       </div>
 
       <!-- いまの自分：プロフィール・声かけ・目標 -->
@@ -1281,7 +1286,7 @@
         <!-- 🎯 目標 -->
         <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
           <h3 class="mypage-icon-title" style="font-size: 0.95rem; color:#fff; font-weight:800; margin-bottom: 0; gap:4px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20.777a8.942 8.942 0 0 1 -2.48 -.969"/><path d="M14 3.223a9.003 9.003 0 0 1 0 17.554"/><path d="M4.579 17.093a8.961 8.961 0 0 1 -1.227 -2.592"/><path d="M3.124 10.5c.16 -.95 .468 -1.85 .9 -2.675l.169 -.305"/><path d="M6.907 4.579a8.954 8.954 0 0 1 3.093 -1.356"/><path d="M9 12l2 2l4 -4"/></svg>
           <span id="t-goal-title">今月の目標回数 (回)</span>
         </h3>
           <div class="fontsize-toggle-group" id="goal-period-toggle">
@@ -1316,7 +1321,8 @@
       <div class="mp-sec" id="mp-sec-report">レポート</div>
       <!-- 🎯📊💪 目標・レポート・内訳（週/月/年で連動する1つのまとまりとして統合） -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
-        <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+          <span class="report-subtitle" id="t-report-subtitle">運動時間</span>
           <div class="fontsize-toggle-group" id="report-period-toggle">
             <button onclick="setReportPeriod('week')" data-period="week" class="active" id="t-period-week" style="font-size:0.68rem; padding:5px 9px;">週</button>
             <button onclick="setReportPeriod('month')" data-period="month" id="t-period-month" style="font-size:0.68rem; padding:5px 9px;">月</button>
@@ -3752,7 +3758,8 @@
       document.querySelectorAll('#goal-period-toggle button').forEach(btn => btn.classList.toggle('active', btn.dataset.period === goalPeriod));
       const rangeOf = (period) => period === 'week' ? getWeekRange(0) : period === 'year' ? getYearRange(0) : getMonthRange(0);
       const [thisStart, thisEnd] = rangeOf(goalPeriod);       // 目標用
-      const [repStart, repEnd] = rangeOf(reportPeriod);       // レポートの内訳用
+      // レポートの内訳用：グラフで表示中の期間（前の週などに移動していればその期間）
+      const [repStart, repEnd] = reportPeriod === 'week' ? getWeekRange(reportPeriodOffset) : reportPeriod === 'year' ? getYearRange(reportPeriodOffset) : getMonthRange(reportPeriodOffset);
 
       let totalSessions = 0;
       Object.values(allLogsData).forEach(log => {
@@ -3902,7 +3909,13 @@
       const remainingToNext = Math.max(0, Math.round(KCAL_PER_KG_FAT - remainderKcal));
       const pctToNext = Math.min(100, Math.round((remainderKcal / KCAL_PER_KG_FAT) * 100));
 
-      milestoneEl.innerHTML = t[`kgMilestoneText_${reportPeriod}`].replace("{kg}", `<span style="color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${kgAchievedDecimal}</span>`);
+      let kgText = t[`kgMilestoneText_${reportPeriod}`];
+      if (reportPeriodOffset < 0) {
+        kgText = currentLang === 'es'
+          ? kgText.replace('¡Llevas', 'Hiciste').replace('esta semana!', 'esa semana').replace('este mes!', 'ese mes').replace('este año!', 'ese año')
+          : kgText.replace('今週で', 'この週で').replace('今月で', 'この月で').replace('今年で', 'この年で').replace('！', '');
+      }
+      milestoneEl.innerHTML = kgText.replace("{kg}", `<span style="color:var(--ring-inner); font-family:'LINE Seed JP', sans-serif;">${kgAchievedDecimal}</span>`);
       if (pctEl) pctEl.innerHTML = `<span style="font-family:'LINE Seed JP', sans-serif;">${pctToNext}</span>%`;
       if (nextEl) nextEl.innerText = t.kgNextText.replace("{nextKg}", kgAchieved + 1).replace("{kcal}", remainingToNext.toLocaleString());
       if (fillEl) fillEl.style.width = `${pctToNext}%`;
@@ -4990,6 +5003,7 @@
       animateReportSlide(direction, () => {
         reportPeriodOffset += direction;
         renderPeriodReport();
+        try { updateStreakAndGoals(); } catch (e) {}
       });
     };
 
@@ -7388,6 +7402,8 @@
       const ti = i18n[currentLang];
       const pl = { week: ti.periodWeek, month: ti.periodMonth, year: ti.periodYear };
       document.querySelectorAll('#goal-period-toggle button').forEach(b => { b.textContent = pl[b.dataset.period]; });
+      const rs = document.getElementById("t-report-subtitle");
+      if (rs) rs.textContent = es ? 'Tiempo de ejercicio' : '運動時間';
       const gt = document.getElementById("goal-setting-toggle");
       if (gt) gt.textContent = es ? 'Cambiar meta' : '目標を変える';
     }
