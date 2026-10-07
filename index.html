@@ -423,9 +423,8 @@
 
     .timer-action-btn { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid var(--card-border); padding: 14px 40px; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(52,211,153,0.2); margin-top: 10px; transition: 0.2s; }
     .timer-action-btn.start { background: rgba(52,211,153,0.15); color: var(--green); border-color: rgba(52,211,153,0.4); }
-    .timer-btn-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-    .timer-action-btn.pause { background: rgba(255,255,255,0.05); color: var(--text-sub); border-color: rgba(255,255,255,0.18); box-shadow: none; padding: 14px 26px; }
-    .timer-action-btn.pause.resume { background: rgba(47,143,255,0.15); color: var(--accent); border-color: rgba(47,143,255,0.45); box-shadow: 0 0 15px rgba(47,143,255,0.2); }
+    .text-link-pause { display: block; margin: 12px auto 0; background: none; border: none; padding: 6px 10px; color: var(--text-sub); font-size: 0.8rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-family: inherit; }
+    .text-link-pause.resume { color: var(--accent); }
     #time-text.is-paused { animation: pausedBlink 1.6s ease-in-out infinite; }
     @keyframes pausedBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
     .active-user-status.paused { color: var(--text-sub); }
@@ -1072,9 +1071,9 @@
       </div>
     </div>
 
-    <div class="timer-btn-row">
-      <button id="btn-timer-pause" class="timer-action-btn pause" onclick="togglePause()" style="display:none;"></button>
+    <div style="text-align: center;">
       <button id="btn-timer-action" class="timer-action-btn start" onclick="toggleTimer()">START</button>
+      <button id="btn-timer-pause" class="text-link-pause" onclick="togglePause()" style="display:none;"></button>
     </div>
   </div>
 
@@ -2908,7 +2907,7 @@
         if (btnPause) {
           btnPause.style.display = "";
           btnPause.innerText = myData.pausedAt ? t.btnResume : t.btnPause;
-          btnPause.className = `timer-action-btn pause${myData.pausedAt ? ' resume' : ''}`;
+          btnPause.className = `text-link-pause${myData.pausedAt ? ' resume' : ''}`;
         }
         checkLongPause();
         if (!previewUser && !timerAnimationId) updateTimerUI(myUserName);
