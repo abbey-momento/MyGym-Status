@@ -612,15 +612,19 @@
     }
     .log-card-num-unit { display: flex; align-items: baseline; gap: 6px; flex-shrink: 0; position: relative; z-index: 1; }
     .log-card-num {
-      font-family: 'Press Start 2P', monospace; font-size: 2.1rem; line-height: 1; color: var(--ring-inner);
+      font-family: 'Press Start 2P', monospace; font-size: 1.35rem; line-height: 1; color: var(--ring-inner);
       text-shadow: 0 0 8px var(--ring-inner), 2px 0 var(--accent);
     }
-    .log-card-unit { font-size: 1rem; color: var(--accent); font-family: 'VT323', monospace; text-transform: uppercase; }
+    .log-card-unit { font-size: 0.9rem; color: var(--accent); font-family: 'VT323', monospace; text-transform: uppercase; }
     .log-card-mid { flex: 1; min-width: 0; position: relative; z-index: 1; }
     .log-card-top-row { display: flex; align-items: center; gap: 6px; }
     .log-card-date { font-weight: 700; color: var(--text-sub); font-size: 1.15rem; font-family: 'VT323', monospace; }
     .log-card-time { font-size: 1.1rem; color: #7CC4FF; font-weight: 400; font-family: 'VT323', monospace; margin-top: 2px; }
     .log-card-memo { font-size: 0.78rem; color: #9FD8FF; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'VT323', monospace; opacity: 0.75; }
+    .log-card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .log-card-tags span { font-family: 'VT323', monospace; font-size: 0.85rem; line-height: 1; padding: 3px 6px; border-radius: 4px; white-space: nowrap; }
+    .log-card-tags .t-type { color: var(--ring-inner); background: rgba(45,212,191,0.1); border: 1px solid rgba(45,212,191,0.35); }
+    .log-card-tags .t-part { color: #9FD8FF; background: rgba(47,143,255,0.1); border: 1px solid rgba(47,143,255,0.3); }
     .log-card-actions { display: flex; gap: 8px; flex-shrink: 0; position: relative; z-index: 1; }
     .log-card-actions .btn-action-svg { width: 34px; height: 34px; background: #050b14; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: var(--text-sub); }
     .log-card-actions .btn-action-svg.delete { border-color: rgba(255,255,255,0.12); color: var(--text-sub); }
@@ -4080,13 +4084,9 @@
         </div>`);
       }
 
-      const buddyName = w.buddy ? ((getPrivacy(w.buddy[0]).showName) ? w.buddy[0] : i18n[currentLang].anonUser) : null;
       slides.push(`<div class="wrapped-slide s6">
-        <div class="w-kicker">${M('家族と', 'Con la familia')}</div>
-        <div class="w-mid">${w.together > 0
-          ? M(`家族と一緒に<br>${w.together}回トレーニング`, `Entrenaste ${w.together} ${w.together === 1 ? 'vez' : 'veces'}<br>con la familia`)
-          : M(`もらったいいねは<br>${w.likes}回`, `Recibiste<br>${w.likes} me gusta`)}</div>
-        <div class="w-sub">${buddyName && w.together > 0 ? M(`いちばん一緒だったのは${buddyName}さん。`, `Con quien más coincidiste: ${buddyName}.`) : ''}${w.together > 0 && w.likes ? M(`いいねも${w.likes}回もらいました。`, ` Además recibiste ${w.likes} me gusta.`) : ''}</div>
+        <div class="w-kicker">${M('応援', 'Apoyo')}</div>
+        <div class="w-mid">${M(`もらったいいねは<br>${w.likes}回`, `Recibiste<br>${w.likes} me gusta`)}</div>
         <div class="w-sub" style="margin-top:36px; color:#fff;">${M('来月も、あなたのペースで。', 'El próximo mes, a tu ritmo.')}</div>
       </div>`);
 
@@ -7199,6 +7199,15 @@
             : `${d.getMonth()+1}/${d.getDate()}`;
         const timeRange = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} - ${endD.getHours().toString().padStart(2,'0')}:${endD.getMinutes().toString().padStart(2,'0')}`;
 
+        // 種類ごとの時間（筋トレ・有酸素など）と部位
+        const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
+        let typeEntries = [];
+        if (log.typeSplit) typeEntries = Object.entries(log.typeSplit).filter(([, m]) => m > 0);
+        else typeEntries = [[log.type || 'strength', log.duration || 0]];
+        const typeTags = typeEntries.map(([ty, m]) =>
+          `<span class="t-type">${typeLabels[ty] || ty}${typeEntries.length > 1 ? ` ${m}m` : ''}</span>`).join("");
+        const partTags = (Array.isArray(log.parts) ? log.parts : []).map(p => `<span class="t-part">${partLabel(p)}</span>`).join("");
+
         return `
           <div class="log-card-item">
             <div class="log-card-num-unit">
@@ -7211,6 +7220,7 @@
               </div>
               <div class="log-card-time">${timeRange}</div>
               ${log.memo ? `<div class="log-card-memo">${log.memo}</div>` : ''}
+              <div class="log-card-tags">${typeTags}${partTags}</div>
             </div>
             <div class="log-card-actions">
               <button class="btn-action-svg" onclick="openEditLogModal('${key}')" title="Editar">
