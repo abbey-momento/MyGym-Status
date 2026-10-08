@@ -349,6 +349,11 @@
     /* ペースに合わせた声かけ */
     .pace-card { display: flex; gap: 12px; align-items: flex-start; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
     .pace-card .pace-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--pace-color, var(--accent)); background: rgba(255,255,255,0.04); }
+    .pace-title-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .pace-dots { display: flex; gap: 4px; flex-shrink: 0; }
+    .pace-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.1); display: block; }
+    .pace-dots i.on { background: var(--green); box-shadow: 0 0 4px rgba(52,211,153,0.5); }
+    .pace-dots i.today { outline: 1px solid rgba(255,255,255,0.35); outline-offset: 1.5px; }
     .pace-card .pace-title { font-size: 0.9rem; font-weight: 800; color: #fff; line-height: 1.4; }
     .pace-card .pace-body { font-size: 0.78rem; color: var(--text-sub); font-weight: 700; line-height: 1.5; margin-top: 3px; }
     .pace-card .pace-facts { font-size: 0.66rem; color: var(--text-sub); opacity: 0.8; margin-top: 6px; font-family: 'LINE Seed JP', sans-serif; }
@@ -1722,6 +1727,16 @@
           gain.gain.setValueAtTime(0.08, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
           osc.start(now); osc.stop(now + 0.05);
+        } else if (type === 'page' || type === 'pageback') {
+          // 振り返りのカードをめくる音（次へは上がる、前へは下がる、やわらかい短い音）
+          osc.type = 'triangle';
+          const [f0, f1] = type === 'page' ? [520, 980] : [900, 480];
+          osc.frequency.setValueAtTime(f0, now);
+          osc.frequency.exponentialRampToValueAtTime(f1, now + 0.09);
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.exponentialRampToValueAtTime(0.07, now + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.start(now); osc.stop(now + 0.12);
         } else if (type === 'tick') {
           // スライダーを動かした時の軽いカチカチ音（連打しても耳障りにならない短さ）
           osc.type = 'square';
@@ -4166,11 +4181,18 @@
       const lastText = daysSinceLast === 0 ? M('今日', 'hoy') : daysSinceLast === 1 ? M('昨日', 'ayer') : M(`${daysSinceLast}日前`, `hace ${daysSinceLast} días`);
       const facts = M(`最後のトレーニング: ${lastText}　直近7日: ${last7}日`, `Último: ${lastText} · Últimos 7 días: ${last7}`);
 
+      // 直近7日（左が6日前、右端が今日）にトレーニングした日を緑の点で
+      const weekDots = Array.from({ length: 7 }, (_, i) => {
+        const off = i - 6;
+        const on = days.has(dayKeyOffset(off));
+        return `<i class="${on ? 'on' : ''}${off === 0 ? ' today' : ''}"></i>`;
+      }).join("");
+
       el.style.setProperty('--pace-color', colors[kind]);
       el.innerHTML = `
         <div class="pace-icon">${PACE_ICONS[kind]}</div>
         <div style="flex:1; min-width:0;">
-          <div class="pace-title">${title}</div>
+          <div class="pace-title-row"><div class="pace-title">${title}</div><div class="pace-dots" aria-hidden="true">${weekDots}</div></div>
           <div class="pace-body">${body}</div>
           <div class="pace-facts">${facts}</div>
         </div>`;
@@ -4371,13 +4393,15 @@
       dots.innerHTML = slides.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join("");
       const rail = document.getElementById("wrapped-rail");
       let idx = 0;
-      const goTo = (i) => {
-        idx = Math.max(0, Math.min(slides.length - 1, i));
+      const goTo = (i, silent) => {
+        const next = Math.max(0, Math.min(slides.length - 1, i));
+        if (!silent && next !== idx) { try { playSound(next > idx ? 'page' : 'pageback'); } catch (e) {} }
+        idx = next;
         rail.classList.remove("dragging");
         rail.style.transform = `translateX(${-idx * 100}%)`;
         dots.querySelectorAll("i").forEach((d, k) => d.classList.toggle("on", k <= idx));
       };
-      goTo(0);
+      goTo(0, true);
       // 指で横にドラッグしてめくる。動かさずに離したら、右側タップで次・左側タップで前へ
       let startX = 0, startY = 0, dx = 0, dragging = false, horizontal = null;
       track.onpointerdown = (e) => {
@@ -7741,9 +7765,11 @@
 
         // 種類ごとの時間（筋トレ・有酸素など）を細いバーと凡例で、部位はタグで
         const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
-        let typeEntries = log.typeSplit
+        const TYPE_ORDER = ['strength', 'cardio', 'stretch']; // 筋トレ → 有酸素 → その他 の順で並べる
+        let typeEntries = (log.typeSplit
           ? Object.entries(log.typeSplit).filter(([, m]) => m > 0)
-          : [[log.type || 'strength', log.duration || 0]];
+          : [[log.type || 'strength', log.duration || 0]])
+          .sort((a, b) => TYPE_ORDER.indexOf(a[0]) - TYPE_ORDER.indexOf(b[0]));
         if (typeEntries.length === 0) typeEntries = [['strength', log.duration || 0]];
         const typeTotal = typeEntries.reduce((n, [, m]) => n + m, 0) || 1;
         const colorOf = (ty) => (EXERCISE_TYPE_META[ty] || EXERCISE_TYPE_META.strength).color;
