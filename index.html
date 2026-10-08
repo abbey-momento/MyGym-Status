@@ -311,6 +311,8 @@
     .mp-stack > [style*="display:none"], .mp-stack > [style*="display: none"] { display: none !important; }
     .mp-stack .wrapped-entry-btn { margin-bottom: 0; }
 
+    .heat-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 16px 0; }
+
     /* マイページ：見出しでまとめる */
     .mp-sec { font-size: 0.95rem; font-weight: 800; color: #fff; margin: 26px 2px 12px; display: flex; align-items: center; gap: 8px; }
     .mp-sec::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
@@ -1464,19 +1466,10 @@
             <div class="heatmap-cal-grid" id="heatmap-cal-grid"></div>
           </div>
         </div>
-        <div class="heatmap-legend">
-          <span id="t-hm-less">Less</span>
-          <span class="heatmap-day-cell" style="width:11px; height:11px; border-radius:3px;"></span>
-          <span class="heatmap-day-cell level-1" style="width:11px; height:11px; border-radius:3px;"></span>
-          <span class="heatmap-day-cell level-2" style="width:11px; height:11px; border-radius:3px;"></span>
-          <span class="heatmap-day-cell level-3" style="width:11px; height:11px; border-radius:3px;"></span>
-          <span class="heatmap-day-cell level-4" style="width:11px; height:11px; border-radius:3px;"></span>
-          <span id="t-hm-more">More</span>
-        </div>
-      </div>
 
       <!-- 🕐 よくトレする時間帯（曜日×時間帯ヒートマップ） -->
-      <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
+        <div class="heat-divider"></div>
+
         <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 14px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span id="t-timeheatmap-title">よくトレーニングする時間帯</span>
@@ -1486,6 +1479,15 @@
           <div class="heatmap-scroll">
             <div id="time-heatmap-grid" class="time-hm-grid"></div>
           </div>
+        </div>
+        <div class="heatmap-legend" style="margin-top:14px;">
+          <span id="t-hm-less">Less</span>
+          <span class="heatmap-day-cell" style="width:12px; height:12px; border-radius:3px;"></span>
+          <span class="heatmap-day-cell level-1" style="width:12px; height:12px; border-radius:3px;"></span>
+          <span class="heatmap-day-cell level-2" style="width:12px; height:12px; border-radius:3px;"></span>
+          <span class="heatmap-day-cell level-3" style="width:12px; height:12px; border-radius:3px;"></span>
+          <span class="heatmap-day-cell level-4" style="width:12px; height:12px; border-radius:3px;"></span>
+          <span id="t-hm-more">More</span>
         </div>
       </div>
 
