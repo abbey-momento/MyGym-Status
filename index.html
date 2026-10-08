@@ -308,6 +308,10 @@
     /* マイページ：見出しでまとめる */
     .mp-sec { font-size: 0.95rem; font-weight: 800; color: #fff; margin: 26px 2px 12px; display: flex; align-items: center; gap: 8px; }
     .mp-sec::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+    /* マイページの枠は透けない黒にして、奥のグリッド線が枠内の罫線とぶつからないようにする */
+    #view-mypage [style*="rgba(0,0,0,0.3)"], #view-mypage [style*="rgba(0, 0, 0, 0.3)"],
+    #view-mypage .mp-hero, #view-mypage .stats-group, #view-mypage .pace-card:not(.mp-hero .pace-card) { background-color: #080A12 !important; }
+    #view-mypage .body-group { background: radial-gradient(circle at 50% 30%, rgba(47,143,255,0.16), transparent 55%), #080A12; }
     .mp-hero { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 18px; padding: 16px; margin-bottom: 8px; }
     .mp-hero .profile-header { margin-bottom: 12px; background: none; border: none; padding: 0; border-radius: 0; }
     .mp-hero .pace-card { background: none; border: none; border-top: 1px solid rgba(255,255,255,0.06); border-radius: 0; padding: 12px 0 0; margin-bottom: 0; }
