@@ -396,21 +396,21 @@
     .heatmap-scroll::-webkit-scrollbar-thumb { background: rgba(47,143,255,0.4); border-radius: 3px; }
     .heatmap-scroll::-webkit-scrollbar-thumb:hover { background: rgba(47,143,255,0.6); }
     .heatmap-cal-outer { display: flex; gap: 6px; }
-    .heatmap-cal-daylabels { display: grid; grid-template-rows: 14px repeat(7, 12px); gap: 3px; flex-shrink: 0; }
+    .heatmap-cal-daylabels { display: grid; grid-template-rows: 14px repeat(7, 12px); gap: 2px; flex-shrink: 0; }
     .heatmap-cal-daylabel { font-size: 0.6rem; color: var(--text-sub); display: flex; align-items: center; height: 12px; }
-    .heatmap-cal-grid { display: grid; grid-template-rows: 14px repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 3px; }
+    .heatmap-cal-grid { display: grid; grid-template-rows: 14px repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 2px; }
     .heatmap-cal-month-label { font-size: 0.62rem; color: var(--text-sub); white-space: nowrap; grid-row: 1; align-self: end; }
 
     .time-hm-outer { display: flex; gap: 6px; }
-    .time-hm-daylabels { display: grid; grid-template-rows: 12px repeat(7, 13px); gap: 1.5px; flex-shrink: 0; }
-    .time-hm-daylabel { font-size: 0.58rem; color: var(--text-sub); display: flex; align-items: center; height: 13px; }
-    .time-hm-grid { display: grid; grid-template-rows: 12px repeat(7, 13px); grid-auto-flow: column; grid-auto-columns: 13px; gap: 1.5px; }
-    .time-hm-cell { width: 13px; height: 13px; border-radius: 3px; background: rgba(255,255,255,0.05); }
+    .time-hm-daylabels { display: grid; grid-template-rows: 14px repeat(7, 12px); gap: 2px; flex-shrink: 0; }
+    .time-hm-daylabel { font-size: 0.6rem; color: var(--text-sub); display: flex; align-items: center; height: 12px; }
+    .time-hm-grid { display: grid; grid-template-rows: 14px repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 2px; }
+    .time-hm-cell { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.06); }
     .time-hm-cell.level-1 { background: rgba(52,211,153,0.3); }
     .time-hm-cell.level-2 { background: rgba(52,211,153,0.55); }
     .time-hm-cell.level-3 { background: rgba(52,211,153,0.78); }
     .time-hm-cell.level-4 { background: var(--green); box-shadow: 0 0 4px rgba(52,211,153,0.5); }
-    .time-hm-hourlabel { grid-row: 1; font-size: 0.58rem; color: var(--text-sub); white-space: nowrap; align-self: end; }
+    .time-hm-hourlabel { grid-row: 1; font-size: 0.6rem; color: var(--text-sub); white-space: nowrap; align-self: end; }
     .heatmap-day-cell { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.06); }
     .heatmap-day-cell.level-1 { background: rgba(52,211,153,0.3); }
     .heatmap-day-cell.level-2 { background: rgba(52,211,153,0.55); }
@@ -681,6 +681,25 @@
     .log-card-date { font-weight: 700; color: var(--text-sub); font-size: 1.15rem; font-family: 'VT323', monospace; }
     .log-card-time { font-size: 1.1rem; color: #7CC4FF; font-weight: 400; font-family: 'VT323', monospace; margin-top: 2px; }
     .log-card-memo { font-size: 0.78rem; color: #9FD8FF; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'VT323', monospace; opacity: 0.75; }
+    /* 履歴の絞り込み・並べ替え */
+    .log-filter-btn { display: flex; align-items: center; gap: 4px; background: rgba(47,143,255,0.12); border: 1px solid var(--card-border); border-radius: 8px; color: var(--accent); padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .log-filter-btn.on { background: rgba(45,212,191,0.15); border-color: rgba(45,212,191,0.45); color: var(--ring-inner); }
+    #log-filter-count { font-family: 'LINE Seed JP', sans-serif; }
+    .log-filter-panel { background: #080A12; border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+    .lf-row { margin-bottom: 12px; }
+    .lf-row:last-child { margin-bottom: 0; }
+    .lf-label { font-size: 0.7rem; color: var(--text-sub); font-weight: 700; margin-bottom: 6px; }
+    .lf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .lf-chips button { background: rgba(0,0,0,0.3); border: 1.5px solid var(--card-border); color: var(--text-sub); border-radius: 999px; padding: 5px 11px; font-size: 0.74rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .lf-chips button.active { border-color: var(--ring-inner); color: #fff; background: rgba(45,212,191,0.15); }
+    .lf-range { display: flex; align-items: center; gap: 8px; }
+    .lf-range select { flex: 1; min-width: 0; background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); color: #fff; border-radius: 10px; padding: 7px 8px; font-size: 0.8rem; font-family: 'LINE Seed JP', sans-serif; }
+    .lf-range span { color: var(--text-sub); font-size: 0.8rem; }
+    .lf-foot { display: flex; justify-content: flex-end; }
+    .lf-foot button { background: none; border: none; color: var(--text-sub); font-size: 0.75rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-family: inherit; }
+    .log-filter-result { font-size: 0.72rem; color: var(--text-sub); font-weight: 700; margin: -2px 2px 8px; }
+    .log-filter-result:empty { display: none; }
+
     /* 履歴カード（コンパクト＋内訳バー） */
     .log-card-item.lg-card { display: block; padding: 12px 12px 11px; overflow: visible; }
     .lg-card::before { border-radius: 4px; }
@@ -715,7 +734,7 @@
     .log-card-actions { display: flex; gap: 8px; flex-shrink: 0; position: relative; z-index: 1; }
     .log-card-actions .btn-action-svg { width: 34px; height: 34px; background: #050b14; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: var(--text-sub); }
     .log-card-actions .btn-action-svg.delete { border-color: rgba(255,255,255,0.12); color: var(--text-sub); }
-    .log-card-item .loc-tag { background: rgba(47,143,255,0.15); color: var(--accent); border: 1px solid rgba(47,143,255,0.4); font-family: 'VT323', monospace; font-size: 0.75rem; padding: 2px 7px; border-radius: 5px; }
+    .log-card-item .loc-tag { background: rgba(47,143,255,0.15); color: var(--accent); border: 1px solid rgba(47,143,255,0.4); font-family: 'VT323', monospace; font-size: 0.68rem; line-height: 1; padding: 1px 4px; border-radius: 4px; margin-left: 0; }
     .list-item:last-child { border-bottom: none; }
     .list-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; font-family: 'LINE Seed JP', sans-serif; }
     .list-title { font-weight: 700; color: #FFF; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
@@ -1507,8 +1526,12 @@
 
       </div>
       <div class="mp-sec" id="mp-sec-history">履歴</div>
-      <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px; justify-content:flex-end;">
+      <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px; justify-content:flex-end; gap:8px;">
         <span id="t-history-title" style="display:none;">最近の履歴</span>
+        <button onclick="toggleLogFilter()" id="btn-log-filter" class="log-filter-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          <span id="t-log-filter-btn">絞り込み</span><span id="log-filter-count"></span>
+        </button>
         <button onclick="toggleManualAddForm()" id="btn-toggle-manual-add" style="display:flex; align-items:center; gap:4px; background:rgba(47,143,255,0.12); border:1px solid var(--card-border); border-radius:8px; color:var(--accent); padding:5px 10px; font-size:0.75rem; font-weight:700; cursor:pointer;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span id="t-manual-title-short">追加</span>
@@ -1559,6 +1582,8 @@
         </div>
       </div>
 
+      <div class="log-filter-panel" id="log-filter-panel" style="display:none;"></div>
+      <div class="log-filter-result" id="log-filter-result"></div>
       <div id="my-logs-list" style="display:flex; flex-direction:column;">
         <div class="empty-msg">Sin datos</div>
       </div>
@@ -7580,18 +7605,123 @@
     };
     document.addEventListener("click", () => { try { closeLogMenus(); } catch (e) {} });
 
+    // ---- 履歴の絞り込みと並べ替え ----
+    const logFilter = { from: '', to: '', types: new Set(), locs: new Set(), parts: new Set(), sort: 'new' };
+    let logFilterOpen = false;
+    const logFilterActiveCount = () => (logFilter.from ? 1 : 0) + (logFilter.to ? 1 : 0) + logFilter.types.size + logFilter.locs.size + logFilter.parts.size;
+
+    window.toggleLogFilter = () => {
+      playSound('click');
+      logFilterOpen = !logFilterOpen;
+      renderLogFilterPanel();
+    };
+    window.setLogFilter = (kind, value) => {
+      playSound('click');
+      if (kind === 'sort') logFilter.sort = value;
+      else if (kind === 'from' || kind === 'to') logFilter[kind] = value;
+      else { const set = logFilter[kind]; if (set.has(value)) set.delete(value); else set.add(value); }
+      myLogsDisplayLimit = 5;
+      renderLogFilterPanel();
+      renderMyLogs();
+    };
+    window.resetLogFilter = () => {
+      playSound('click');
+      logFilter.from = ''; logFilter.to = ''; logFilter.types.clear(); logFilter.locs.clear(); logFilter.parts.clear(); logFilter.sort = 'new';
+      myLogsDisplayLimit = 5;
+      renderLogFilterPanel();
+      renderMyLogs();
+    };
+
+    function logTypesOf(log) {
+      if (log.typeSplit) return Object.entries(log.typeSplit).filter(([, m]) => m > 0).map(([ty]) => ty);
+      return [log.type || 'strength'];
+    }
+
+    function renderLogFilterPanel() {
+      const panel = document.getElementById("log-filter-panel");
+      const btn = document.getElementById("btn-log-filter");
+      const cnt = document.getElementById("log-filter-count");
+      if (!panel) return;
+      const es = currentLang === 'es';
+      const t = i18n[currentLang];
+      const n = logFilterActiveCount();
+      if (btn) btn.classList.toggle("on", n > 0 || logFilter.sort !== 'new');
+      if (cnt) cnt.textContent = n > 0 ? ` ${n}` : '';
+      const btnLabel = document.getElementById("t-log-filter-btn");
+      if (btnLabel) btnLabel.textContent = es ? 'Filtrar' : '絞り込み';
+      panel.style.display = logFilterOpen ? "" : "none";
+      if (!logFilterOpen) return;
+
+      const mine = Object.values(allLogsData).filter(l => l.user === myUserName && l.date);
+      const months = [...new Set(mine.map(l => l.date.slice(0, 7)))].sort();
+      const monthLabel = (m) => { const [y, mo] = m.split('-'); return es ? `${mo}/${y}` : `${y}年${Number(mo)}月`; };
+      const opt = (sel) => `<option value="">${es ? '—' : '指定なし'}</option>` + months.map(m => `<option value="${m}" ${sel === m ? 'selected' : ''}>${monthLabel(m)}</option>`).join("");
+      const usedParts = BODY_PARTS.filter(p => mine.some(l => Array.isArray(l.parts) && l.parts.includes(p.id)));
+      const chip = (kind, value, label) => `<button type="button" class="${logFilter[kind].has(value) ? 'active' : ''}" onclick="setLogFilter('${kind}','${value}')">${label}</button>`;
+      const sortChip = (value, label) => `<button type="button" class="${logFilter.sort === value ? 'active' : ''}" onclick="setLogFilter('sort','${value}')">${label}</button>`;
+
+      panel.innerHTML = `
+        <div class="lf-row">
+          <div class="lf-label">${es ? 'Periodo' : '期間'}</div>
+          <div class="lf-range">
+            <select onchange="setLogFilter('from', this.value)">${opt(logFilter.from)}</select>
+            <span>〜</span>
+            <select onchange="setLogFilter('to', this.value)">${opt(logFilter.to)}</select>
+          </div>
+        </div>
+        <div class="lf-row">
+          <div class="lf-label">${es ? 'Tipo' : '種類'}</div>
+          <div class="lf-chips">${chip('types', 'strength', t.typeStrength)}${chip('types', 'cardio', t.typeCardio)}${chip('types', 'stretch', t.typeStretch)}</div>
+        </div>
+        <div class="lf-row">
+          <div class="lf-label">${es ? 'Lugar' : '場所'}</div>
+          <div class="lf-chips">${chip('locs', 'home', es ? 'Casa' : '家')}${chip('locs', 'other', es ? 'Fuera' : '外')}</div>
+        </div>
+        ${usedParts.length ? `<div class="lf-row">
+          <div class="lf-label">${es ? 'Partes' : '部位'}</div>
+          <div class="lf-chips">${usedParts.map(p => chip('parts', p.id, es ? p.es : p.ja)).join("")}</div>
+        </div>` : ''}
+        <div class="lf-row">
+          <div class="lf-label">${es ? 'Orden' : '並べ替え'}</div>
+          <div class="lf-chips">${sortChip('new', es ? 'Recientes' : '新しい順')}${sortChip('old', es ? 'Antiguos' : '古い順')}${sortChip('long', es ? 'Más largos' : '長い順')}</div>
+        </div>
+        <div class="lf-foot"><button onclick="resetLogFilter()">${es ? 'Restablecer' : 'リセット'}</button></div>`;
+    }
+
     window.renderMyLogs = () => {
       const t = i18n[currentLang];
       const listEl = document.getElementById("my-logs-list");
       const loadMoreEl = document.getElementById("my-logs-load-more-container");
       if (!listEl || !myUserName) return;
 
-      const allUserLogs = Object.entries(allLogsData)
-        .filter(([key, log]) => log.user === myUserName)
-        .sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
+      try { renderLogFilterPanel(); } catch (e) {}
+      const allMine = Object.entries(allLogsData).filter(([key, log]) => log.user === myUserName);
+      // 絞り込み（期間・種類・場所・部位）と並べ替え
+      const allUserLogs = allMine.filter(([, log]) => {
+        const m = (log.date || '').slice(0, 7);
+        if (logFilter.from && m < logFilter.from) return false;
+        if (logFilter.to && m > logFilter.to) return false;
+        if (logFilter.types.size && !logTypesOf(log).some(ty => logFilter.types.has(ty))) return false;
+        if (logFilter.locs.size && !logFilter.locs.has(log.location === 'other' ? 'other' : 'home')) return false;
+        if (logFilter.parts.size && !(Array.isArray(log.parts) && log.parts.some(p => logFilter.parts.has(p)))) return false;
+        return true;
+      }).sort((a, b) => {
+        if (logFilter.sort === 'old') return new Date(a[1].date) - new Date(b[1].date);
+        if (logFilter.sort === 'long') return (b[1].duration || 0) - (a[1].duration || 0);
+        return new Date(b[1].date) - new Date(a[1].date);
+      });
+
+      const resultEl = document.getElementById("log-filter-result");
+      const filtering = logFilterActiveCount() > 0;
+      if (resultEl) {
+        const totalMin = allUserLogs.reduce((n, [, l]) => n + (l.duration || 0), 0);
+        resultEl.textContent = filtering
+          ? (currentLang === 'es' ? `${allUserLogs.length} resultados · ${formatHM(totalMin)}` : `${allUserLogs.length}件 · 合計 ${formatHM(totalMin)}`)
+          : '';
+      }
 
       if (allUserLogs.length === 0) {
-        listEl.innerHTML = `<div class="empty-msg">${t.emptyData}</div>`;
+        listEl.innerHTML = `<div class="empty-msg">${filtering ? (currentLang === 'es' ? 'No hay registros con estos filtros' : '条件に合う記録はありません') : t.emptyData}</div>`;
         if (loadMoreEl) loadMoreEl.style.display = "none";
         return;
       }
