@@ -3905,6 +3905,7 @@
       if (!barEl || !legendEl || !calEl) return;
 
       const totals = { strength: 0, cardio: 0, stretch: 0 };
+      const counts = { strength: 0, cardio: 0, stretch: 0 }; // その種類を含んだ回数
       Object.values(allLogsData).forEach(log => {
         if (log.user !== myUserName || !log.startTime) return;
         const d = new Date(log.startTime);
@@ -3912,11 +3913,12 @@
 
         if (log.typeSplit) {
           Object.entries(log.typeSplit).forEach(([type, min]) => {
-            if (totals[type] !== undefined) totals[type] += min || 0;
+            if (totals[type] !== undefined) { totals[type] += min || 0; if (min > 0) counts[type]++; }
           });
         } else {
           const type = totals[log.type] !== undefined ? log.type : 'strength';
           totals[type] += log.duration || 0;
+          counts[type]++;
         }
       });
 
@@ -3924,6 +3926,7 @@
 
       if (grandTotal === 0) {
         barEl.innerHTML = '';
+        legendEl.style.display = "flex";
         legendEl.innerHTML = `<span style="font-size:0.75rem; color:var(--text-sub);">${t.emptyData}</span>`;
         calEl.innerText = "0 kcal";
         const kgPctEl0 = document.getElementById("kg-progress-pct");
@@ -3940,15 +3943,25 @@
       }).join("");
 
       const typeLabels = { strength: t.typeStrength, cardio: t.typeCardio, stretch: t.typeStretch };
+      // 種類ごとに 割合・時間・回数 を1行ずつ並べる
+      legendEl.style.display = "grid";
+      legendEl.style.gridTemplateColumns = "minmax(0, 1fr) auto auto auto";
+      legendEl.style.columnGap = "16px";
+      legendEl.style.rowGap = "8px";
+      legendEl.style.alignItems = "center";
+      const unitCount = currentLang === 'es' ? ' ses.' : '回';
       legendEl.innerHTML = Object.keys(EXERCISE_TYPE_META).map(type => {
         if (totals[type] <= 0) return '';
         const pct = Math.round((totals[type] / grandTotal) * 100);
+        const num = "font-family:'LINE Seed JP', sans-serif; font-size:0.8rem; text-align:right; white-space:nowrap;";
         return `
-          <div style="display:flex; align-items:center; gap:6px; font-size:0.75rem;">
+          <div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; min-width:0;">
             <span style="width:8px; height:8px; border-radius:50%; background:${EXERCISE_TYPE_META[type].color}; flex-shrink:0;"></span>
-            <span style="color:#fff; font-weight:700;">${typeLabels[type]}</span>
-            <span style="color:var(--text-sub); font-family:'LINE Seed JP', sans-serif;">${pct}%</span>
+            <span style="color:#fff; font-weight:700; white-space:nowrap;">${typeLabels[type]}</span>
           </div>
+          <span style="${num} color:var(--text-sub);">${pct}%</span>
+          <span style="${num} color:#fff; font-weight:700;">${formatHM(totals[type])}</span>
+          <span style="${num} color:var(--text-sub);">${counts[type]}${unitCount}</span>
         `;
       }).join("");
 
