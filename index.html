@@ -290,12 +290,6 @@
     #view-mypage input[type="number"], #view-mypage input[type="date"], #view-mypage input[type="time"],
     #edit-log-modal input[type="date"], #edit-log-modal input[type="time"] { font-family: 'LINE Seed JP', sans-serif; }
 
-    /* マイページ：外側の大きなカードをなくし、各カードを直接ページに置く */
-    .mp-outer { width: 100%; position: relative; }
-    #view-mypage .mp-outer > div[style*="rgba(0,0,0,0.3)"],
-    #view-mypage .mp-hero, #view-mypage .lifetime-card, #view-mypage .parts-card,
-    #view-mypage .body3d-card, #view-mypage .pace-card:not(.mp-hero .pace-card) { background-color: var(--card-bg) !important; }
-    #view-mypage .mp-outer > button[style*="rgba(0,0,0,0.3)"] { background: var(--card-bg) !important; }
     /* マイページは一番外側の枠をなくし、中のカードだけで区切る */
     #view-mypage > .card { background: none; border: none; box-shadow: none; padding: 0; backdrop-filter: none; -webkit-backdrop-filter: none; overflow: visible; }
     #view-mypage > .card::before, #view-mypage > .card::after { display: none; }
