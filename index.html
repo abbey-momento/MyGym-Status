@@ -305,6 +305,12 @@
     .stats-group .pb-block { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 14px; }
     .stats-group .lifetime-card[style*="display: none"] + .pb-block, .stats-group .lifetime-card[style*="display:none"] + .pb-block { border-top: none; padding-top: 0; }
 
+    /* 実績の中の枠どうしの間隔をそろえる */
+    .mp-stack { display: flex; flex-direction: column; gap: 14px; }
+    .mp-stack > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+    .mp-stack > [style*="display:none"], .mp-stack > [style*="display: none"] { display: none !important; }
+    .mp-stack .wrapped-entry-btn { margin-bottom: 0; }
+
     /* マイページ：見出しでまとめる */
     .mp-sec { font-size: 0.95rem; font-weight: 800; color: #fff; margin: 26px 2px 12px; display: flex; align-items: center; gap: 8px; }
     .mp-sec::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
@@ -1333,7 +1339,10 @@
       <!-- 🎯📊💪 目標・レポート・内訳（週/月/年で連動する1つのまとまりとして統合） -->
       <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--card-border);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-          <span class="report-subtitle" id="t-report-subtitle">運動時間</span>
+          <h3 class="mypage-icon-title" style="font-size: 0.95rem; color:#fff; font-weight:800; margin-bottom: 0; gap:4px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M10 2h4"/><path d="M12 2v3"/></svg>
+            <span id="t-report-subtitle">運動時間</span>
+          </h3>
           <div class="fontsize-toggle-group" id="report-period-toggle">
             <button onclick="setReportPeriod('week')" data-period="week" class="active" id="t-period-week" style="font-size:0.68rem; padding:5px 9px;">週</button>
             <button onclick="setReportPeriod('month')" data-period="month" id="t-period-month" style="font-size:0.68rem; padding:5px 9px;">月</button>
@@ -1448,6 +1457,7 @@
 
 
       <div class="mp-sec" id="mp-sec-achieve">実績</div>
+      <div class="mp-stack">
       <div id="wrapped-entry" style="display:none;"></div>
 
       <div class="stats-group">
@@ -1485,12 +1495,10 @@
       </button>
 
 
+      </div>
       <div class="mp-sec" id="mp-sec-history">履歴</div>
-      <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px; justify-content:space-between;">
-        <span style="display:flex; align-items:center; gap:6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span id="t-history-title">最近の履歴</span>
-        </span>
+      <h3 class="mypage-icon-title" style="font-size: 0.85rem; color:var(--text-sub); margin-bottom: 8px; justify-content:flex-end;">
+        <span id="t-history-title" style="display:none;">最近の履歴</span>
         <button onclick="toggleManualAddForm()" id="btn-toggle-manual-add" style="display:flex; align-items:center; gap:4px; background:rgba(47,143,255,0.12); border:1px solid var(--card-border); border-radius:8px; color:var(--accent); padding:5px 10px; font-size:0.75rem; font-weight:700; cursor:pointer;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span id="t-manual-title-short">追加</span>
@@ -5127,7 +5135,7 @@
         const el = area();
         if (el) {
           // 端(今の期間より未来)に来たら、少しだけ抵抗を付けて分かりやすくする
-          const resisted = (dx > 0 && reportPeriodOffset >= 0) ? dx * 0.25 : dx;
+          const resisted = (dx < 0 && reportPeriodOffset >= 0) ? dx * 0.25 : dx;
           el.style.transform = `translateX(${resisted}px)`;
           el.style.opacity = String(Math.max(0.4, 1 - Math.abs(resisted) / 220));
         }
@@ -5139,7 +5147,8 @@
         dragging = false;
         touchStartX = null;
         const el = area();
-        if (!isHorizontal || Math.abs(dx) < 45) {
+        // しきい値未満、またはこれ以上未来に進めないときは元の位置に戻す
+        if (!isHorizontal || Math.abs(dx) < 45 || (dx < 0 && reportPeriodOffset >= 0)) {
           // しきい値未満は元の位置にスッと戻す
           if (el) {
             el.style.transition = "transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease-out";
